@@ -2,11 +2,11 @@
 # Scope: Existing prototype integration, not greenfield rewrite
 
 You are integrating multiple Figma-derived UI mocks into the current Elite Run DB prototype.
-For this task, the "existing prototype" specifically means `docs/mocks/submit-page-ui-prototype.html`.
-There is not yet an equivalent integrated app implementation under `src/`.
-Do NOT ignore that HTML prototype and start a separate greenfield implementation from scratch.
+The real implementation target is the app under `src/`.
+Use `docs/mocks/submit-page-ui-prototype.html` as a legacy prototype reference for flow, state shape, and interaction intent.
+Do NOT ignore the existing prototype references and start from an unrelated greenfield direction.
 Do NOT fork the architecture into a parallel implementation.
-Refactor and extend the existing HTML prototype as the implementation baseline for now.
+Implement the real app in `src/`, while migrating the useful ideas from the legacy prototype and mocks.
 
 ## Primary Goal
 Implement and integrate the following screens/features into the existing prototype:
@@ -43,8 +43,8 @@ The following should NOT remain dummy unless technically impossible in the curre
 ---
 
 ## Architecture constraints
-- Preserve the architecture already present in `docs/mocks/submit-page-ui-prototype.html` where possible.
-- Reuse the routing, state shape, mock DB JS, and asset-loading patterns already present in that prototype.
+- Preserve the useful architecture and data patterns already demonstrated by the legacy prototype where possible.
+- Reuse routing ideas, state shape, mock DB JS, and asset-loading patterns where they still make sense during migration into `src/`.
 - Figma-generated `FrameXX` names are disposable. Replace them with semantically meaningful component names.
 - Prefer composable components over giant page files.
 - Prefer controlled inputs or predictable local state slices.
@@ -442,14 +442,14 @@ Content can be placeholder text but the interaction itself should exist.
 
 ## Integration requirements
 When implementing:
-1. first inspect `docs/mocks/submit-page-ui-prototype.html`
-2. identify the current detail page and submit flow entry points inside that HTML prototype
-3. replace / extend existing screens rather than duplicating them
+1. first inspect `src/` and the current app entry points
+2. then inspect `docs/mocks/submit-page-ui-prototype.html` and the mock files as migration references
+3. implement and extend the real screens inside `src/` rather than duplicating dead-end prototypes
 4. preserve mock DB usage where present
 5. keep replacement-friendly seams for future real DB/API integration
 
 Do not leave dead parallel mock pages unless explicitly necessary for transition.
-Do not treat the current `src/` placeholders as the real prototype baseline.
+Do not treat the legacy HTML prototype in `docs/` as the final implementation location.
 Do not keep raw Figma `FrameXX` sprawl in the final implementation.
 
 ---
@@ -475,7 +475,7 @@ Do not keep raw Figma `FrameXX` sprawl in the final implementation.
 ---
 
 ## Deliverable
-Integrate the above into the current HTML prototype baseline and leave the codebase in a state where:
+Integrate the above into the real app under `src/` and leave the codebase in a state where:
 - detail page redesign is usable
 - compare view is usable on desktop
 - submission flow is navigable end-to-end
