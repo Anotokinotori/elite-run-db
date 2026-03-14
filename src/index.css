@@ -1,10 +1,10 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
   color: #000000;
   background-color: #ffffff;
-  font-family: "Inter", "Noto Sans JP", "Segoe UI", sans-serif;
+  font-family: "Noto Sans JP", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -47,3 +47,4 @@ textarea::placeholder {
 code {
   font-family: "Consolas", "SFMono-Regular", monospace;
 }
+

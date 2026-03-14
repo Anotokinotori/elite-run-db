@@ -17,6 +17,7 @@ import {
   weaponDb,
 } from "../data/mockRuns";
 import { getSimilarRuns } from "../lib/getSimilarRuns";
+import { CharacterIcon } from "./CharacterIcon";
 
 const collapsedCopyStyle: CSSProperties = {
   display: "-webkit-box",
@@ -110,6 +111,7 @@ function getPartyLoadout(run: RunRecord) {
 
     return {
       slot: index + 1,
+      characterId: member.characterId,
       characterName: character?.name ?? member.characterId,
       cons: member.cons,
       weaponName: weapon?.name ?? weaponLoadout.weaponId,
@@ -197,7 +199,7 @@ function VideoFrame({
   const embedUrl = getYouTubeEmbedUrl(videoUrl, { autoplay, mute, enableJsApi: true });
 
   return (
-    <div className="aspect-[669/380] w-full overflow-hidden rounded-[16px] bg-[#d9d9d9] shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+    <div className="aspect-[669/380] w-full overflow-hidden rounded-[12px] border border-[#ebebeb] bg-[#d9d9d9] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
       {embedUrl ? (
         <iframe
           ref={iframeRef}
@@ -233,7 +235,7 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
           </div>
         </div>
 
-        <div className="w-full rounded-[16px] bg-[#f2f2f2] p-[12px] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+        <div className="w-full rounded-[12px] border border-[#ebebeb] bg-[#f5f6f8] p-[12px]">
           <div className="flex items-center gap-x-[16px] overflow-x-auto whitespace-nowrap text-[13px] text-black md:gap-x-[18px] md:text-[14px]">
             <span>ver : {run.versionLabel}</span>
             <span>{run.postedLabel}</span>
@@ -253,13 +255,13 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
         </div>
       </div>
 
-      <section className="w-full rounded-[16px] border border-[#f1f3f5] bg-white p-[12px]">
+      <section className="w-full rounded-[12px] border border-[#ebebeb] bg-white p-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
         <div className="flex flex-col gap-[20px]">
           <SectionTitle>使用編成</SectionTitle>
           <div className="flex flex-col gap-[18px] md:gap-[20px]">
             {partyLoadout.map((entry) => (
               <div key={`${run.id}-${entry.characterName}-${entry.slot}`} className="flex items-center gap-[12px]">
-                <CircleAvatar label={entry.characterName} size={60} />
+                <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={60} />
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-[12px]">
                   <div className="min-w-0">
                     <div className="truncate text-[17px] font-medium leading-none text-black md:text-[18px]">{entry.characterName}</div>
@@ -332,7 +334,7 @@ function CompareDrawer({
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 hidden lg:block" aria-modal="false" role="complementary">
-      <div className="flex h-full w-[50vw] flex-col border-l border-[#ececec] bg-white shadow-[-18px_0_48px_rgba(0,0,0,0.12)]">
+      <div className="flex h-full w-[50vw] flex-col border-l border-[#ebebeb] bg-white shadow-[-12px_0_24px_rgba(0,0,0,0.08)]">
         <div className="flex min-h-[52px] items-center justify-between border-b border-[#ebebeb] px-4 py-2 md:px-5">
           <div className="min-w-0">
             <div className="text-[16px] font-semibold text-black md:text-[18px]">比較ビュー</div>
@@ -395,7 +397,7 @@ function SimilarActionMenu({
         </svg>
       </button>
       {isOpen ? (
-        <div className="absolute right-0 top-full z-20 mt-2 w-[168px] rounded-[12px] border border-[#e5e5e5] bg-white p-2 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+        <div className="absolute right-0 top-full z-20 mt-2 w-[168px] rounded-[12px] border border-[#ebebeb] bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
           <button
             type="button"
             className="block w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2]"
@@ -598,7 +600,7 @@ export function RecordDetailPage() {
                 </div>
               </div>
 
-              <div className="w-full rounded-[16px] bg-[#f2f2f2] p-[12px] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]">
+              <div className="w-full rounded-[12px] border border-[#ebebeb] bg-[#f5f6f8] p-[12px]">
                 <div className={`flex gap-[16px] ${compareOpen ? "flex-col items-start whitespace-normal" : "items-center justify-between whitespace-nowrap"}`}>
                   <div className={`flex min-w-0 gap-x-[16px] text-[13px] text-black md:gap-x-[18px] md:text-[14px] ${compareOpen ? "flex-wrap items-center gap-y-[6px]" : "items-center"}`}>
                     <span>ver : {currentRun.versionLabel}</span>
@@ -673,13 +675,13 @@ export function RecordDetailPage() {
           </section>
 
           <aside className={`flex w-full shrink-0 flex-col gap-[18px] ${compareOpen ? "lg:w-full xl:w-full" : "lg:w-[360px] xl:w-[372px]"}`}>
-            <section className="w-full rounded-[16px] border border-[#f1f3f5] bg-white p-[12px]">
+            <section className="w-full rounded-[12px] border border-[#ebebeb] bg-white p-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
               <div className="flex flex-col gap-[20px]">
                 <SectionTitle>使用編成</SectionTitle>
                 <div className="flex flex-col gap-[18px] md:gap-[20px]">
                   {partyLoadout.map((entry) => (
                     <div key={`${entry.characterName}-${entry.slot}`} className="flex items-center gap-[12px]">
-                      <CircleAvatar label={entry.characterName} size={60} />
+                      <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={60} />
                       <div className="flex min-w-0 flex-1 items-center justify-between gap-[12px]">
                         <div className="min-w-0">
                           <div className="truncate text-[17px] font-medium leading-none text-black md:text-[18px]">{entry.characterName}</div>
@@ -696,7 +698,7 @@ export function RecordDetailPage() {
               </div>
             </section>
 
-            <section className="w-full rounded-[16px] border border-[#f1f3f5] bg-white p-[12px]">
+            <section className="w-full rounded-[12px] border border-[#ebebeb] bg-white p-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
               <div className="flex flex-col gap-[20px]">
                 <SectionTitle>類似編成の記録</SectionTitle>
                 <div className="flex flex-col gap-[18px] md:gap-[20px]">
@@ -706,13 +708,13 @@ export function RecordDetailPage() {
                     const isCompareQueued = compareQueuedRunId === match.run.id;
 
                     return (
-                      <div key={match.run.id} className={isCompareQueued ? "rounded-[12px] bg-[#f7f7f7] px-[8px] py-[8px]" : "rounded-[10px] px-[4px] py-[4px] transition-colors hover:bg-[#fafafa]"}>
+                      <div key={match.run.id} className={isCompareQueued ? "rounded-[12px] bg-[#f7f7f7] px-[8px] py-[8px]" : "rounded-[12px] px-[4px] py-[4px] transition-colors hover:bg-[#fafafa]"}>
                         <div className="flex flex-col items-end gap-[10px]">
                           <div className="h-[40px] w-full px-[8px]">
                             <div className="flex h-[40px] items-center justify-between gap-[4px]">
                               {match.run.party.map((member) => {
                                 const characterName = characterDb[member.characterId]?.name ?? member.characterId;
-                                return <CircleAvatar key={`${match.run.id}-${member.characterId}`} label={characterName} size={32} dark />;
+                                return <CharacterIcon key={`${match.run.id}-${member.characterId}`} characterId={member.characterId} alt={characterName} fallbackLabel={characterName} size={32} />;
                               })}
                             </div>
                           </div>
@@ -762,6 +764,8 @@ export function RecordDetailPage() {
     </>
   );
 }
+
+
 
 
 
