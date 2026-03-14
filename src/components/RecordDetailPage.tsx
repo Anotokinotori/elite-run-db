@@ -218,16 +218,16 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
   const partyLoadout = getPartyLoadout(run);
 
   return (
-    <div className="flex min-h-full flex-col gap-[16px] bg-white px-4 py-4">
+    <div className="flex min-h-full flex-col gap-[16px] bg-white px-3 py-3 md:px-4 md:py-4 lg:px-5 lg:py-5">
       <VideoFrame title={run.title} videoUrl={run.videoUrl} iframeRef={iframeRef} mute />
 
       <div className="flex flex-col gap-[12px]">
         <div className="flex flex-col gap-[12px]">
-          <div className="text-[20px] font-bold leading-none text-black md:text-[24px]">{run.title}</div>
+          <div className="text-[16px] font-bold leading-none text-black md:text-[18px]">{run.title}</div>
           <div className="flex items-center justify-between gap-[12px]">
             <div className="flex min-w-0 items-center gap-[12px]">
               <CircleAvatar label={run.userName} size={40} />
-              <div className="truncate text-[18px] leading-none text-black md:text-[20px]">{run.userName}</div>
+              <div className="truncate text-[16px] font-bold leading-none text-black md:text-[18px]">{run.userName}</div>
             </div>
             <div className="shrink-0 rounded-[42px] bg-[#f2f2f2] px-[10px] py-[5px] text-[12px] text-black md:text-[13px]">
               {run.platform}
@@ -335,7 +335,7 @@ function CompareDrawer({
   return (
     <div className="fixed inset-y-0 right-0 z-50 hidden lg:block" aria-modal="false" role="complementary">
       <div className="flex h-full w-[50vw] flex-col border-l border-[#ebebeb] bg-white shadow-[-12px_0_24px_rgba(0,0,0,0.08)]">
-        <div className="flex min-h-[52px] items-center justify-between border-b border-[#ebebeb] px-4 py-2 md:px-5">
+        <div className="flex min-h-[52px] items-center justify-between border-b border-[#ebebeb] px-3 py-2 md:px-4 lg:px-5">
           <div className="min-w-0">
             <div className="text-[16px] font-semibold text-black md:text-[18px]">比較ビュー</div>
           </div>
@@ -543,7 +543,7 @@ export function RecordDetailPage() {
         <nav className="sticky top-0 z-40 border-b border-[#ebebeb] bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)]">
           <div className={`header-font mx-auto flex max-w-[1600px] items-center justify-between px-4 py-2 ${forceMobileLayout ? "min-h-[52px]" : "md:px-6 md:py-3"}`}>
             <div className={`flex items-center ${forceMobileLayout ? "gap-3" : "gap-4 md:gap-6"}`}>
-              <h1 className={`font-semibold tracking-tight text-black ${forceMobileLayout ? "text-[24px]" : "text-[26px] md:text-[38px]"}`}>精鋭狩りDB仮</h1>
+              <h1 className={`font-semibold tracking-tight text-black ${forceMobileLayout ? "text-[24px]" : "text-[26px] md:text-[38px]"}`}>精鋭狩りDB</h1>
               <div className="relative">
                 <select
                   className={`appearance-none rounded-full border border-black/30 bg-white py-1.5 pl-3 pr-10 font-medium text-black ${forceMobileLayout ? "text-[15px]" : "text-[16px] md:pl-4 md:pr-12 md:text-[20px]"}`}
@@ -577,17 +577,17 @@ export function RecordDetailPage() {
           </div>
         </nav>
 
-        <div className={`mx-auto flex w-full max-w-[1600px] flex-col gap-[12px] px-4 py-4 ${forceMobileLayout ? "" : "md:px-6 md:py-5 lg:py-6"} ${compareOpen ? "lg:items-stretch" : "lg:flex-row lg:items-start lg:gap-[14px]"}`}>
+        <div className={`mx-auto flex w-full max-w-[1600px] flex-col gap-[12px] px-3 py-3 ${forceMobileLayout ? "" : "md:px-4 md:py-4 lg:px-5 lg:py-5"} ${compareOpen ? "lg:items-stretch" : "lg:flex-row lg:items-start lg:gap-[14px]"}`}>
           <section className={`flex min-w-0 flex-1 flex-col gap-[18px] ${compareOpen ? "lg:flex-none" : "lg:flex-[1_1_auto]"}`}>
             <VideoFrame title={currentRun.title} videoUrl={currentRun.videoUrl} iframeRef={mainVideoIframeRef} autoplay mute />
 
             <div className="flex flex-col gap-[12px]">
               <div className="flex flex-col gap-[12px]">
-                <div className={`font-bold leading-none text-black ${forceMobileLayout ? "text-[20px]" : "text-[20px] md:text-[24px]"}`}>{currentRun.title}</div>
+                <div className="text-[16px] font-bold leading-none text-black md:text-[18px]">{currentRun.title}</div>
                 <div className={`flex gap-[12px] ${compareOpen ? "flex-col items-start" : "items-center justify-between"}`}>
                   <div className="flex min-w-0 items-center gap-[12px]">
                     <CircleAvatar label={currentRun.userName} size={40} />
-                    <div className={`truncate leading-none text-black ${forceMobileLayout ? "text-[18px]" : "text-[18px] md:text-[20px]"}`}>{currentRun.userName}</div>
+                    <div className="truncate text-[16px] font-bold leading-none text-black md:text-[18px]">{currentRun.userName}</div>
                   </div>
                   <div className={`flex gap-[12px] md:gap-[12px] ${compareOpen ? "w-full shrink min-w-0 flex-wrap" : "shrink-0 flex-nowrap"}`}>
                     <PillButton active={liked} onClick={() => setLiked((previous) => !previous)} className="min-h-[36px] min-w-[92px]">
@@ -764,6 +764,12 @@ export function RecordDetailPage() {
     </>
   );
 }
+
+
+
+
+
+
 
 
 
