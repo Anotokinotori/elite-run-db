@@ -242,7 +242,23 @@ These will be replaced later.
 
 ## Git / change management
 
-Assume the human has already checked out the correct branch.
+Branch policy for this repository:
+- `main` is the protected release branch conceptually. Do not use it as the working branch for normal implementation tasks.
+- `develop` is the integration branch for day-to-day work.
+- For each implementation task, start from the latest `develop` and create a dedicated working branch such as `feat/<short-slug>` or `fix/<short-slug>`.
+- Do not implement directly on `main`.
+- Do not open pull requests directly into `main` for normal feature work.
+- Normal task flow is: `develop` -> task branch -> pull request back into `develop`.
+- Only use `main` as the merge target for explicit release or promotion tasks requested by the human.
+
+If the required branches do not exist yet:
+- create `develop` from the current integration baseline
+- push it to origin
+- then branch off from `develop`
+
+Do not assume the human has already checked out the correct branch.
+Check the current branch first when a coding task begins.
+If needed, switch to `develop`, update it, and create a dedicated task branch before editing.
 Do not change repository-wide git settings.
 Do not create unrelated commits.
 Keep changes scoped to the requested task.
