@@ -1,0 +1,2754 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Teyvat EliteDB Prototype</title>
+
+    <!-- Tailwind CDN（試作用） -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React (UMD) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Babel（ブラウザ内でJSX変換：試作用） -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+      body { font-family: 'Noto Sans JP', sans-serif; }
+      .header-font { font-family: 'Space Grotesk', 'Noto Sans JP', sans-serif; }
+      /* HoYoLAB-like Card Style */
+      .hoyo-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid #ebebeb;
+        transition: all 0.3s ease;
+      }
+      .hoyo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #f0f2f5; }
+      ::-webkit-scrollbar-thumb { background: #dcdfe6; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #c0c4cc; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+  </head>
+  <body class="bg-[#f0f2f5]">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+
+      // --- Icon stubs (絵文字で代用) ---
+      const makeIcon = (emoji) => ({ size = 16, className = "" }) => (
+        <span
+          className={className}
+          style={{
+            width: size,
+            height: size,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: size,
+            lineHeight: `${size}px`,
+          }}
+        >
+          {emoji}
+        </span>
+      );
+      const Trophy = makeIcon("T");
+      const Timer = makeIcon("T");
+      const Zap = makeIcon("Z");
+      const Search = makeIcon("?");
+      const Filter = makeIcon("F");
+      const Plus = makeIcon("+");
+      const Crown = makeIcon("C");
+      const Flame = makeIcon("*");
+      const Gem = makeIcon("$");
+      const Swords = makeIcon("/");
+      const Calendar = makeIcon("C");
+      const Info = makeIcon("i");
+      const User = makeIcon("U");
+      const CheckCircle = makeIcon("v");
+      const X = makeIcon("x");
+      const LikeIcon = ({ size = 16, className = "" }) => (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          className={className}
+          aria-hidden="true"
+        >
+          <path
+            d="M7 11v9H4v-9h3zm3.6-6.5L7 11v9h9.1c.8 0 1.5-.5 1.7-1.2l1.7-6.1c.3-1.1-.5-2.2-1.7-2.2H13V6c0-1.1-.9-2-2-2h-.4z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+      const CommentIcon = ({ size = 16, className = "" }) => (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          className={className}
+          aria-hidden="true"
+        >
+          <path
+            d="M7 18l-3 3V6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+      const PlatformIcons = {
+        PC: ({ className = "" }) => (
+          <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+            <path d="M8 21h8" />
+            <path d="M12 17v4" />
+          </svg>
+        ),
+        Mobile: ({ className = "" }) => (
+          <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+            <path d="M12 18h.01" />
+          </svg>
+        ),
+        PS5: ({ className = "" }) => <PS5Controller className={className} />,
+      };
+
+      const PS5Controller = ({ className = "" }) => (
+        <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 13c0-2 2-3 4-3h12c2 0 4 1 4 3v3c0 1.5-1.5 3-3 3-1.5 0-2.5-1-3-2l-1.5-2h-5l-1.5 2c-.5 1-1.5 2-3 2-1.5 0-3-1.5-3-3v-3z" />
+          <rect x="8" y="11" width="8" height="3" rx="0.5" />
+        </svg>
+      );
+
+      const FilterIcons = {
+        Funnel: ({ className = "" }) => (
+          <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+          </svg>
+        ),
+        FilterList: ({ className = "" }) => (
+          <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 6h16" />
+            <path d="M7 12h10" />
+            <path d="M10 18h4" />
+          </svg>
+        ),
+        Sliders: ({ className = "" }) => (
+          <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 6h16" />
+            <path d="M8 3v6" />
+            <path d="M4 12h16" />
+            <path d="M16 9v6" />
+            <path d="M4 18h16" />
+            <path d="M10 15v6" />
+          </svg>
+        ),
+      };
+
+      const WeaponWatermark = ({ type, className = "", style = {} }) => {
+        const common = {
+          viewBox: "0 0 100 100",
+          xmlns: "http://www.w3.org/2000/svg",
+          className,
+          style,
+          "aria-hidden": true,
+        };
+
+        if (type === "sword") {
+          return (
+            <svg {...common}>
+              <g fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M50 10 L57 17 L57 58 L50 70 L43 58 L43 17 Z" opacity="0.55" />
+                <path d="M43 24 L57 24" opacity="0.9" />
+                <path d="M34 60 L66 60" />
+                <path d="M38 60 Q50 50 62 60" opacity="0.55" />
+                <path d="M50 70 L50 88" />
+                <path d="M44 88 L56 88" />
+                <path d="M47 92 L53 92" opacity="0.7" />
+              </g>
+              <path d="M50 13 L54.5 17.5 L54.5 56.5 L50 64 L45.5 56.5 L45.5 17.5 Z" fill="currentColor" opacity="0.14" />
+            </svg>
+          );
+        }
+
+        if (type === "bow") {
+          return (
+            <svg {...common}>
+              <g fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M70 18 Q42 50 70 82" />
+                <path d="M64 24 Q44 50 64 76" opacity="0.65" />
+                <path d="M30 20 L30 80" opacity="0.7" />
+                <path d="M30 20 L70 18" />
+                <path d="M30 80 L70 82" />
+                <path d="M30 50 L78 50" />
+                <path d="M78 50 L70 46" />
+                <path d="M78 50 L70 54" />
+              </g>
+              <path d="M66 25 Q49 50 66 75" fill="currentColor" opacity="0.12" />
+            </svg>
+          );
+        }
+
+        if (type === "polearm") {
+          return (
+            <svg {...common}>
+              <g fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M28 86 L72 14" />
+                <path d="M64 18 L82 18 L72 14 L78 28 Z" />
+                <path d="M62 22 L74 22" opacity="0.7" />
+                <path d="M24 82 L32 90" />
+                <path d="M20 88 L28 96" opacity="0.6" />
+                <path d="M40 56 L50 62" opacity="0.55" />
+                <path d="M44 52 L54 58" opacity="0.35" />
+              </g>
+              <path d="M67 19 L79 19 L72 16 L76 27 Z" fill="currentColor" opacity="0.14" />
+            </svg>
+          );
+        }
+
+        if (type === "claymore") {
+          return (
+            <svg {...common}>
+              <g fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M45 12 L55 12 L60 62 L50 78 L40 62 Z" opacity="0.55" />
+                <path d="M48 18 L52 18" opacity="0.9" />
+                <path d="M42 60 L58 60" opacity="0.8" />
+                <path d="M34 64 L66 64" />
+                <path d="M50 78 L50 90" />
+                <path d="M42 90 L58 90" />
+                <path d="M46 94 L54 94" opacity="0.7" />
+                <path d="M49 18 L49 58" opacity="0.35" />
+                <path d="M51 18 L51 58" opacity="0.35" />
+              </g>
+              <path d="M46.5 14 L53.5 14 L57.5 60 L50 73 L42.5 60 Z" fill="currentColor" opacity="0.14" />
+            </svg>
+          );
+        }
+
+        return null;
+      };
+
+      const HERO_IMAGE_URL = "https://pbs.twimg.com/media/G6QnKhYWMAAtYMl.jpg";
+
+      const ATTACKER_FILTER_SCOPE = "party"; // "party" | "main"
+
+      const CHAR_DB = {
+        amber: { id: "amber", name: "Amber", jpName: "Amber", type: "four_star", rarity: 4, element: "pyro" },
+        mav: { id: "mav", name: "Mavuika", jpName: "Mavuika", type: "limited", rarity: 5, element: "pyro" },
+        bennett: { id: "bennett", name: "Bennett", jpName: "Bennett", type: "four_star", rarity: 4, element: "pyro" },
+        furina: { id: "furina", name: "Furina", jpName: "Furina", type: "limited", rarity: 5, element: "hydro" },
+        zhongli: { id: "zhongli", name: "Zhongli", jpName: "Zhongli", type: "limited", rarity: 5, element: "geo" },
+        collei: { id: "collei", name: "Collei", jpName: "Collei", type: "four_star", rarity: 4, element: "dendro" },
+        xiangling: { id: "xiangling", name: "Xiangling", jpName: "Xiangling", type: "four_star", rarity: 4, element: "pyro" },
+        xingqiu: { id: "xingqiu", name: "Xingqiu", jpName: "Xingqiu", type: "four_star", rarity: 4, element: "hydro" },
+        keqing: { id: "keqing", name: "Keqing", jpName: "Keqing", type: "standard", rarity: 5, element: "electro" },
+        chasca: { id: "chasca", name: "Chasca", jpName: "Chasca", type: "limited", rarity: 5, element: "anemo" },
+        citlali: { id: "citlali", name: "Citlali", jpName: "Citlali", type: "limited", rarity: 5, element: "cryo" },
+        sayu: { id: "sayu", name: "Sayu", jpName: "Sayu", type: "four_star", rarity: 4, element: "anemo" },
+        wanderer: { id: "wanderer", name: "Wanderer", jpName: "Wanderer", type: "limited", rarity: 5, element: "anemo" },
+        mizuki: { id: "mizuki", name: "Mizuki", jpName: "Mizuki", type: "limited", rarity: 5, element: "hydro" },
+        xianyun: { id: "xianyun", name: "Xianyun", jpName: "Xianyun", type: "limited", rarity: 5, element: "anemo" },
+        xilonen: { id: "xilonen", name: "Xilonen", jpName: "Xilonen", type: "limited", rarity: 5, element: "geo" },
+        yelan: { id: "yelan", name: "Yelan", jpName: "Yelan", type: "limited", rarity: 5, element: "hydro" },
+        dehya: { id: "dehya", name: "Dehya", jpName: "Dehya", type: "standard", rarity: 5, element: "pyro" },
+        chiori: { id: "chiori", name: "Chiori", jpName: "Chiori", type: "limited", rarity: 5, element: "geo" },
+        varesa: { id: "varesa", name: "Varesa", jpName: "Varesa", type: "limited", rarity: 5, element: "electro" },
+        ranyan: { id: "ranyan", name: "Ranyan", jpName: "Ranyan", type: "limited", rarity: 5, element: "anemo" },
+        ororon: { id: "ororon", name: "Ororon", jpName: "Ororon", type: "limited", rarity: 5, element: "electro" },
+        ifa: { id: "ifa", name: "Ifa", jpName: "Ifa", type: "limited", rarity: 5, element: "dendro" },
+        neuvillette: { id: "neuvillette", name: "Neuvillette", jpName: "Neuvillette", type: "limited", rarity: 5, element: "hydro" },
+      };
+
+      let AMBR_NAME_MAP = {
+        amber: "Ambor",
+        mav: "Mavuika",
+        bennett: "Bennett",
+        furina: "Furina",
+        zhongli: "Zhongli",
+        collei: "Collei",
+        xiangling: "Xiangling",
+        xingqiu: "Xingqiu",
+        keqing: "Keqing",
+        chasca: "Chasca",
+        citlali: "Citlali",
+        sayu: "Sayu",
+        wanderer: "Wanderer",
+        mizuki: "Mizuki",
+        xianyun: "Xianyun",
+        xilonen: "Xilonen",
+        yelan: "Yelan",
+        dehya: "Dehya",
+        chiori: "Chiori",
+        varesa: "Varesa",
+        ranyan: "Ranyan",
+        ororon: "Ororon",
+        ifa: "Ifa",
+        neuvillette: "Neuvillette",
+      };
+
+      const getAmbrName = (characterId) => AMBR_NAME_MAP[characterId] || "Traveler";
+
+      const registerAmbrName = (characterId, ambrName) => {
+        AMBR_NAME_MAP = { ...AMBR_NAME_MAP, [characterId]: ambrName };
+      };
+      registerAmbrName("amber", "Ambor");
+
+      const UI_MIRRORS = [
+        "https://api.ambr.top/assets/UI/",
+        "https://enka.network/ui/",
+        "http://file.microgg.cn/ui/",
+      ];
+
+      const IMAGE_PATTERNS = {
+        portrait: (name) => `UI_Gacha_AvatarImg_${name}.png`,
+        icon: (name) => `UI_AvatarIcon_${name}.png`,
+        circle: (name) => `UI_AvatarIcon_${name}_Circle.png`,
+        side: (name) => `UI_AvatarIcon_Side_${name}.png`,
+      };
+
+      const VARIANT_FALLBACKS = {
+        circle: ["circle", "icon"],
+        side: ["side", "icon"],
+        portrait: ["portrait", "icon"],
+        icon: ["icon"],
+      };
+
+      const getCharacterImageCandidates = (characterId, variant = "portrait") => {
+        const ambrName = getAmbrName(characterId);
+        const chain = VARIANT_FALLBACKS[variant] || ["portrait", "icon"];
+        const urls = [];
+        chain.forEach((v) => {
+          const pattern = IMAGE_PATTERNS[v] || IMAGE_PATTERNS.portrait;
+          UI_MIRRORS.forEach((base) => {
+            urls.push(`${base}${pattern(ambrName)}`);
+          });
+        });
+        return urls;
+      };
+
+      const CharacterImage = ({ characterId, className = "", alt = "", variant = "portrait" }) => {
+        const [idx, setIdx] = useState(0);
+        const [hidden, setHidden] = useState(false);
+        const ambrName = getAmbrName(characterId);
+        const urls = getCharacterImageCandidates(characterId, variant);
+        const fallbackSource = (CHAR_DB[characterId]?.jpName || CHAR_DB[characterId]?.name || alt || characterId || "?");
+        const fallbackText = Array.from(fallbackSource).slice(0, 2).join("");
+
+        useEffect(() => {
+          setIdx(0);
+          setHidden(false);
+        }, [characterId, variant]);
+
+        if (hidden || urls.length === 0) {
+          if (variant === "portrait") return null;
+          return (
+            <div className={`bg-black/10 text-[#909399] rounded-full flex items-center justify-center ${className}`} aria-hidden="true">
+              {fallbackText}
+            </div>
+          );
+        }
+
+        return (
+          <img
+            src={urls[idx]}
+            alt={alt}
+            className={className}
+            referrerPolicy="no-referrer"
+            onError={() => {
+              console.warn("avatar load failed", {
+                characterId,
+                ambrName,
+                variant,
+                triedUrl: urls[idx],
+                idx,
+              });
+              const nextIdx = idx + 1;
+              if (nextIdx < urls.length) {
+                setIdx(nextIdx);
+              } else {
+                setHidden(true);
+              }
+            }}
+          />
+        );
+      };
+
+      const CHAR_NAME_TO_ID = Object.values(CHAR_DB).reduce((acc, char) => {
+        acc[char.name.toLowerCase()] = char.id;
+        acc[char.jpName.toLowerCase()] = char.id;
+        return acc;
+      }, {});
+
+      const ELEMENT_STYLES = {
+        pyro: { bg: "bg-[#3a1b1b]", border: "border-[#ff6b6b]", text: "text-[#ffd6d6]" },
+        hydro: { bg: "bg-[#182b3a]", border: "border-[#5aa9ff]", text: "text-[#cfe7ff]" },
+        cryo: { bg: "bg-[#1a2f38]", border: "border-[#6fd3ff]", text: "text-[#d8f3ff]" },
+        electro: { bg: "bg-[#2c1c3a]", border: "border-[#c084fc]", text: "text-[#f0d9ff]" },
+        anemo: { bg: "bg-[#16352f]", border: "border-[#64d9b2]", text: "text-[#c9f7ea]" },
+        geo: { bg: "bg-[#3a2f1a]", border: "border-[#f2c96d]", text: "text-[#ffe9b5]" },
+        dendro: { bg: "bg-[#1f3520]", border: "border-[#9dd67a]", text: "text-[#e1f5d7]" },
+      };
+
+      const getElementStyle = (element) => ELEMENT_STYLES[element] || ELEMENT_STYLES.geo;
+
+      const WEAPON_DB = {
+        s5: { id: "s5", name: "5-Star Sword", type: "five_star", rarity: 5 },
+        s4: { id: "s4", name: "4-Star Sword", type: "four_star", rarity: 4 },
+        bow5: { id: "bow5", name: "5-Star Bow", type: "five_star", rarity: 5 },
+        bow4: { id: "bow4", name: "4-Star Bow", type: "four_star", rarity: 4 },
+      };
+
+      const RUNS_RAW = [
+
+        {
+          id: "r1",
+          userId: "u1",
+          userName: "R",
+          mainAttackerId: "mav",
+          supportIds: ["bennett", "furina", "xiangling"],
+          party: [
+            { characterId: "mav", cons: 2 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "furina", cons: 1 },
+            { characterId: "xiangling", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "s5", refine: 2 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s5", refine: 1 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "26:45",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PC",
+          date: "2025-12-24",
+          season: "5.3",
+          isFestival: false,
+          comment: "Fast meta route.",
+          tags: ["Meta", "WR"],
+          rankMove: "down",
+        },
+        {
+          id: "r2",
+          userId: "u2",
+          userName: "Bird",
+          mainAttackerId: "amber",
+          supportIds: ["collei", "bennett", "xingqiu"],
+          party: [
+            { characterId: "amber", cons: 0 },
+            { characterId: "collei", cons: 6 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "xingqiu", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "bow4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "32:10",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "Mobile",
+          date: "2025-12-25",
+          season: "5.3",
+          isFestival: false,
+          comment: "Low cost clear.",
+          tags: ["Budget", "New"],
+          rankMove: "same",
+        },
+        {
+          id: "r3",
+          userId: "u3",
+          userName: "Random",
+          mainAttackerId: "keqing",
+          supportIds: ["zhongli", "bennett", "xiangling"],
+          party: [
+            { characterId: "keqing", cons: 0 },
+            { characterId: "zhongli", cons: 0 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "xiangling", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "s5", refine: 1 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "1:02:30",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PS5",
+          date: "2025-12-23",
+          season: "5.3",
+          isFestival: false,
+          comment: "Off-meta tech.",
+          tags: ["OffMeta"],
+          rankMove: "new",
+        },
+        {
+          id: "r4",
+          userId: "u1",
+          userName: "R",
+          mainAttackerId: "amber",
+          supportIds: ["bennett", "xiangling", "xingqiu"],
+          party: [
+            { characterId: "amber", cons: 0 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "xiangling", cons: 6 },
+            { characterId: "xingqiu", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "bow4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "42:00",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PC",
+          date: "2025-12-26",
+          season: "5.3",
+          isFestival: true,
+          comment: "Festival rules run.",
+          tags: ["Fes"],
+          rankMove: "up",
+        },
+        {
+          id: "r5",
+          userId: "u4",
+          userName: "Luna",
+          mainAttackerId: "zhongli",
+          supportIds: ["bennett", "xiangling", "xingqiu"],
+          party: [
+            { characterId: "zhongli", cons: 0 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "xiangling", cons: 6 },
+            { characterId: "xingqiu", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "s5", refine: 1 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "29:10",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PC",
+          date: "2025-12-22",
+          season: "5.3",
+          isFestival: false,
+          comment: "Stable clear.",
+          tags: ["Meta"],
+          rankMove: "down",
+        },
+        {
+          id: "r6",
+          userId: "u5",
+          userName: "Echo",
+          mainAttackerId: "amber",
+          supportIds: ["collei", "bennett", "xiangling"],
+          party: [
+            { characterId: "amber", cons: 0 },
+            { characterId: "collei", cons: 6 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "xiangling", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "bow4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "36:20",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "Mobile",
+          date: "2025-12-21",
+          season: "5.3",
+          isFestival: false,
+          comment: "Entry run.",
+          tags: ["New"],
+          rankMove: "same",
+        },
+        {
+          id: "r7",
+          userId: "u6",
+          userName: "Kai",
+          mainAttackerId: "keqing",
+          supportIds: ["bennett", "xiangling", "xingqiu"],
+          party: [
+            { characterId: "keqing", cons: 0 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "xiangling", cons: 6 },
+            { characterId: "xingqiu", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "40:05",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PS5",
+          date: "2025-12-20",
+          season: "5.3",
+          isFestival: false,
+          comment: "Off-meta route.",
+          tags: ["OffMeta"],
+          rankMove: "new",
+        },
+        {
+          id: "r8",
+          userId: "u7",
+          userName: "Nova",
+          mainAttackerId: "mav",
+          supportIds: ["bennett", "furina", "xiangling"],
+          party: [
+            { characterId: "mav", cons: 1 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "furina", cons: 0 },
+            { characterId: "xiangling", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "s5", refine: 1 },
+            { weaponId: "s5", refine: 1 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "27:40",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PC",
+          date: "2025-12-19",
+          season: "5.3",
+          isFestival: false,
+          comment: "Aggressive.",
+          tags: ["Meta"],
+          rankMove: "up",
+        },
+        {
+          id: "r9",
+          userId: "u8",
+          userName: "Rin",
+          mainAttackerId: "zhongli",
+          supportIds: ["amber", "bennett", "xingqiu"],
+          party: [
+            { characterId: "zhongli", cons: 0 },
+            { characterId: "amber", cons: 0 },
+            { characterId: "bennett", cons: 6 },
+            { characterId: "xingqiu", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "bow4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "44:10",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PS5",
+          date: "2025-12-18",
+          season: "5.3",
+          isFestival: true,
+          comment: "Festival casual.",
+          tags: ["Fes"],
+          rankMove: "same",
+        },
+        {
+          id: "r10",
+          userId: "u9",
+          userName: "Aster",
+          mainAttackerId: "mav",
+          supportIds: ["furina", "zhongli", "bennett"],
+          party: [
+            { characterId: "mav", cons: 6 },
+            { characterId: "furina", cons: 6 },
+            { characterId: "zhongli", cons: 6 },
+            { characterId: "bennett", cons: 6 },
+          ],
+          weapons: [
+            { weaponId: "s5", refine: 5 },
+            { weaponId: "s5", refine: 5 },
+            { weaponId: "s5", refine: 5 },
+            { weaponId: "s5", refine: 5 },
+          ],
+          time: "25:40",
+          videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
+          platform: "PC",
+          date: "2025-12-27",
+          season: "5.3",
+          isFestival: false,
+          comment: "Max investment.",
+          tags: ["Meta", "WR"],
+          rankMove: "same",
+        },
+        {
+          id: "npui-2892-nekoshita",
+          userId: "nekoshita",
+          userName: "Nekoshita",
+          mainAttackerId: "chasca",
+          supportIds: ['mav', 'citlali', 'sayu'],
+          party: [
+            { characterId: "chasca", cons: 0 },
+            { characterId: "mav", cons: 0 },
+            { characterId: "citlali", cons: 0 },
+            { characterId: "sayu", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "28:52",
+          videoUrl: "https://www.youtube.com/watch?v=8yGn2O9yVi4",
+          platform: "PC",
+          date: "2025-06-01",
+          season: "5.6",
+          isFestival: false,
+          tags: ['core-A', 'WR-tier', 'mobility-sayu'],
+        },
+        {
+          id: "npui-2945-nekoshita",
+          userId: "nekoshita",
+          userName: "Nekoshita",
+          mainAttackerId: "chasca",
+          supportIds: ['mav', 'citlali', 'sayu'],
+          party: [
+            { characterId: "chasca", cons: 0 },
+            { characterId: "mav", cons: 0 },
+            { characterId: "citlali", cons: 0 },
+            { characterId: "sayu", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "29:45",
+          videoUrl: "https://www.youtube.com/watch?v=4ZguwblpL6Q",
+          platform: "PC",
+          date: "2025-06-01",
+          season: "5.6",
+          isFestival: false,
+          tags: ['core-A', 'WR-tier', 'mobility-sayu'],
+        },
+        {
+          id: "npui-2911-nekoshita",
+          userId: "nekoshita",
+          userName: "Nekoshita",
+          mainAttackerId: "chasca",
+          supportIds: ['mav', 'citlali', 'sayu'],
+          party: [
+            { characterId: "chasca", cons: 0 },
+            { characterId: "mav", cons: 0 },
+            { characterId: "citlali", cons: 0 },
+            { characterId: "sayu", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "29:11",
+          videoUrl: "https://www.youtube.com/watch?v=UDh_JVpcvns",
+          platform: "PC",
+          date: "2025-06-01",
+          season: "5.6",
+          isFestival: false,
+          tags: ['core-A', 'WR-tier', 'mobility-sayu'],
+        },
+        {
+          id: "npui-3323-sayu1019",
+          userId: "sayu1019",
+          userName: "Genshin_Sayu1019",
+          mainAttackerId: "mav",
+          supportIds: ['citlali', 'chasca', 'wanderer'],
+          party: [
+            { characterId: "mav", cons: 0 },
+            { characterId: "citlali", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+            { characterId: "wanderer", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "33:23",
+          videoUrl: "https://www.youtube.com/watch?v=2pMYLhjdMVw",
+          platform: "PC",
+          date: "2025-02-01",
+          season: "5.2",
+          isFestival: false,
+          tags: ['core-A-variant', 'mobility-wanderer'],
+        },
+        {
+          id: "npui-3216-sayu1019",
+          userId: "sayu1019",
+          userName: "Genshin_Sayu1019",
+          mainAttackerId: "mav",
+          supportIds: ['citlali', 'chasca', 'mizuki'],
+          party: [
+            { characterId: "mav", cons: 0 },
+            { characterId: "citlali", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+            { characterId: "mizuki", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "32:16",
+          videoUrl: "https://www.youtube.com/watch?v=kWRNqHLLlq0",
+          platform: "PC",
+          date: "2025-02-01",
+          season: "5.2",
+          isFestival: false,
+          tags: ['core-A-variant', 'flex-mizuki'],
+        },
+        {
+          id: "npui-3308-unknown",
+          userId: "unknown",
+          userName: "VideoRef",
+          mainAttackerId: "mav",
+          supportIds: ['citlali', 'chasca', 'xianyun'],
+          party: [
+            { characterId: "mav", cons: 0 },
+            { characterId: "citlali", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+            { characterId: "xianyun", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "33:08",
+          videoUrl: "https://www.youtube.com/watch?v=H1t5xBKJ8pg",
+          platform: "PC",
+          date: "2025-08-01",
+          season: "5.8",
+          isFestival: false,
+          tags: ['core-A-variant', 'mobility-xianyun'],
+        },
+        {
+          id: "npui-2927-suika",
+          userId: "suika",
+          userName: "Suika",
+          mainAttackerId: "yelan",
+          supportIds: ['mav', 'xilonen', 'dehya'],
+          party: [
+            { characterId: "yelan", cons: 0 },
+            { characterId: "mav", cons: 0 },
+            { characterId: "xilonen", cons: 0 },
+            { characterId: "dehya", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "29:27",
+          videoUrl: "https://www.youtube.com/watch?v=G_5tANSA9UA",
+          platform: "PC",
+          date: "2025-07-01",
+          season: "5.7",
+          isFestival: false,
+          tags: ['alt-core', 'yelan-mavuika'],
+        },
+        {
+          id: "npui-4351-unknown",
+          userId: "unknown",
+          userName: "VideoRef",
+          mainAttackerId: "mav",
+          supportIds: ['yelan', 'xilonen', 'chasca'],
+          party: [
+            { characterId: "mav", cons: 0 },
+            { characterId: "yelan", cons: 0 },
+            { characterId: "xilonen", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "43:51",
+          videoUrl: "https://www.youtube.com/watch?v=K7--aF5G8cQ",
+          platform: "PC",
+          date: "2025-02-01",
+          season: "5.2",
+          isFestival: false,
+          tags: ['alt-core', 'whale-build'],
+        },
+        {
+          id: "ta-3620-hiro",
+          userId: "hiro",
+          userName: "Hiro",
+          mainAttackerId: "chiori",
+          supportIds: ['xilonen', 'chasca', 'varesa'],
+          party: [
+            { characterId: "chiori", cons: 0 },
+            { characterId: "xilonen", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+            { characterId: "varesa", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "36:20",
+          videoUrl: "https://youtu.be/2u2f9G-ho-4",
+          platform: "PC",
+          date: "2025-05-01",
+          season: "5.5",
+          isFestival: false,
+          tags: ['ta-meta', 'chiori-xilonen'],
+        },
+        {
+          id: "ta-3538-hiro",
+          userId: "hiro",
+          userName: "Hiro",
+          mainAttackerId: "chiori",
+          supportIds: ['xilonen', 'ranyan', 'chasca'],
+          party: [
+            { characterId: "chiori", cons: 0 },
+            { characterId: "xilonen", cons: 0 },
+            { characterId: "ranyan", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "35:38",
+          videoUrl: "https://youtu.be/fh9lGmComnI",
+          platform: "PC",
+          date: "2025-06-01",
+          season: "5.6",
+          isFestival: false,
+          tags: ['ta-meta', 'chiori-xilonen'],
+        },
+        {
+          id: "npui-4017-unknown",
+          userId: "unknown",
+          userName: "VideoRef",
+          mainAttackerId: "neuvillette",
+          supportIds: ['chasca', 'ororon', 'wanderer'],
+          party: [
+            { characterId: "neuvillette", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+            { characterId: "ororon", cons: 0 },
+            { characterId: "wanderer", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "40:17",
+          videoUrl: "https://www.youtube.com/watch?v=HSM_YMU2gpI",
+          platform: "PC",
+          date: "2025-02-01",
+          season: "5.2",
+          isFestival: false,
+          tags: ['off-meta', 'chasca+ororon'],
+        },
+        {
+          id: "npui-2941-unknown",
+          userId: "unknown",
+          userName: "VideoRef",
+          mainAttackerId: "mav",
+          supportIds: ['citlali', 'chasca', 'ifa'],
+          party: [
+            { characterId: "mav", cons: 0 },
+            { characterId: "citlali", cons: 0 },
+            { characterId: "chasca", cons: 0 },
+            { characterId: "ifa", cons: 0 },
+          ],
+          weapons: [
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+            { weaponId: "s4", refine: 5 },
+          ],
+          time: "29:41",
+          videoUrl: "https://www.youtube.com/watch?v=_F3wzk9iC9g",
+          platform: "PC",
+          date: "2025-09-01",
+          season: "LunaI",
+          isFestival: false,
+          tags: ['new-meta', 'ifa'],
+        },
+      ];
+
+      const toSeconds = (timeStr) => {
+        const parts = String(timeStr)
+          .trim()
+          .split(":")
+          .map((p) => parseInt(p, 10));
+        if (parts.some((n) => Number.isNaN(n))) return Number.POSITIVE_INFINITY;
+        if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+        if (parts.length === 2) return parts[0] * 60 + parts[1];
+        if (parts.length === 1) return parts[0];
+        return Number.POSITIVE_INFINITY;
+      };
+
+      const calcCharCost = (party) =>
+        party.reduce((sum, member) => {
+          const char = CHAR_DB[member.characterId];
+          if (!char) return sum;
+          if (char.type === "limited") return sum + (member.cons + 1);
+          if (char.type === "standard") return sum + 1;
+          return sum;
+        }, 0);
+
+      const calcWeaponCost = (weapons) =>
+        weapons.reduce((sum, wep) => {
+          const weapon = WEAPON_DB[wep.weaponId];
+          if (!weapon) return sum;
+          if (weapon.type === "five_star") return sum + wep.refine;
+          return sum;
+        }, 0);
+
+      const calcBracket = (charCost, wepCost) => {
+        if (charCost <= 3 && wepCost <= 1) return 1;
+        if (charCost <= 6 && wepCost <= 2) return 2;
+        if (charCost <= 12 && wepCost <= 3) return 3;
+        return 4;
+      };
+
+      const makeCategoryKey = (run) =>
+        [run.userId, run.mainAttackerId, run.bracket, run.season, run.isFestival ? "fes" : "main"].join("|");
+
+      const normalizeRun = (run) => {
+        const charCost = calcCharCost(run.party);
+        const wepCost = calcWeaponCost(run.weapons);
+        const bracket = calcBracket(charCost, wepCost);
+        return {
+          ...run,
+          charCost,
+          wepCost,
+          bracket,
+          mainAttacker: CHAR_DB[run.mainAttackerId]?.jpName || CHAR_DB[run.mainAttackerId]?.name || run.mainAttackerId,
+          support: run.supportIds.map((id) => CHAR_DB[id]?.jpName || CHAR_DB[id]?.name || id),
+          categoryKey: makeCategoryKey({ ...run, bracket }),
+        };
+      };
+
+      const RUNS = RUNS_RAW.map(normalizeRun);
+
+      const parseAttackerInput = (input) =>
+        input
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((token) => CHAR_NAME_TO_ID[token.toLowerCase()] || token);
+
+      const matchesAttackerFilter = (run, includeIds, excludeIds, includeMode = "or") => {
+        const partyIds =
+          ATTACKER_FILTER_SCOPE === "main"
+            ? [run.mainAttackerId]
+            : [run.mainAttackerId, ...run.supportIds];
+
+        const hasInclude =
+          includeIds.length === 0 ||
+          (includeMode === "and"
+            ? includeIds.every((id) => partyIds.includes(id))
+            : includeIds.some((id) => partyIds.includes(id)));
+        const hasExclude = excludeIds.some((id) => partyIds.includes(id));
+        return hasInclude && !hasExclude;
+      };
+
+      const filterRuns = (runs, filters) =>
+        runs.filter((run) => {
+          if (filters.season && !seasonGte(run.season, filters.season)) return false;
+          if (filters.isFestival !== null && run.isFestival !== filters.isFestival) return false;
+          if (filters.bracket && run.bracket !== filters.bracket) return false;
+          if (filters.platform && run.platform !== filters.platform) return false;
+          if (!matchesAttackerFilter(run, filters.includeIds, filters.excludeIds, filters.includeMode)) return false;
+          return true;
+        });
+
+      const isBetterRun = (a, b) => {
+        const timeDiff = toSeconds(a.time) - toSeconds(b.time);
+        if (timeDiff !== 0) return timeDiff < 0;
+        return new Date(a.date).getTime() > new Date(b.date).getTime();
+      };
+
+      const applyRLogic = (runs) => {
+        const bestByCategory = new Map();
+        runs.forEach((run) => {
+          const key = run.categoryKey;
+          const current = bestByCategory.get(key);
+          if (!current || isBetterRun(run, current)) {
+            bestByCategory.set(key, run);
+          }
+        });
+        return Array.from(bestByCategory.values());
+      };
+
+      const applyWRTag = (runs) => {
+        if (runs.length === 0) return runs;
+        let best = runs[0];
+        runs.forEach((run) => {
+          if (isBetterRun(run, best)) best = run;
+        });
+        return runs.map((run) => {
+          const tags = Array.isArray(run.tags) ? run.tags.filter((t) => t !== "WR") : [];
+          if (run.id === best.id) tags.push("WR");
+          return { ...run, tags };
+        });
+      };
+
+      const getBestRun = (runs) => {
+        if (runs.length === 0) return null;
+        return runs.reduce((best, run) => (isBetterRun(run, best) ? run : best), runs[0]);
+      };
+      const seasonRank = (season) => {
+        if (!season) return -1;
+        const s = String(season).trim();
+        const lunaMatch = s.match(/^Luna\s*(\d+)$/i);
+        if (lunaMatch) return 60 + parseInt(lunaMatch[1], 10);
+        if (s.toLowerCase() == 'lunai') return 60;
+        const num = parseFloat(s);
+        if (Number.isFinite(num)) return Math.round(num * 10);
+        return -1;
+      };
+
+      const seasonGte = (runSeason, selectedSeason) => {
+        if (!selectedSeason) return true;
+        return seasonRank(runSeason) <= seasonRank(selectedSeason);
+      };
+
+const getDefaultSeason = (seasons) => {
+        if (!seasons || seasons.length === 0) return "5.0";
+        const ranked = seasons
+          .map((s) => ({ s, r: seasonRank(s) }))
+          .sort((a, b) => b.r - a.r);
+        return ranked[0]?.s || seasons[seasons.length - 1] || "5.0";
+      };
+
+
+      const getYouTubeEmbedUrl = (url) => {
+        if (!url || url === "#") return "";
+        const match =
+          url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/) ||
+          url.match(/v=([a-zA-Z0-9_-]+)/) ||
+          url.match(/embed\/([a-zA-Z0-9_-]+)/);
+        if (!match) return "";
+        return `https://www.youtube.com/embed/${match[1]}`;
+      };
+
+      const TopPlayerCard = ({ label, run, theme, onView, activeSeason, onSelect }) => {
+        if (!run) {
+          return (
+            <div className="flex flex-col h-full bg-white rounded-xl border border-[#ebebeb] shadow-sm overflow-hidden hover:shadow-md transition-all">
+              <div className={`relative h-28 w-full bg-gradient-to-r ${theme.gradient || "from-blue-900 to-slate-900"}`}>
+                <div className="absolute top-3 left-4 z-10">
+                  <div className="text-white font-bold text-xl drop-shadow-md">{label}</div>
+                </div>
+              </div>
+            <div className="p-3 bg-white flex flex-col justify-between flex-1 relative z-10">
+                <div className="text-sm text-[#606266]">集計中...</div>
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onView();
+                  }}
+                  className="mt-4 text-sm text-black border border-[#dcdfe6] rounded-full px-3 py-1 bg-black/5">
+                  ランキングを見る
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div
+            className="flex flex-col h-full bg-white rounded-xl border border-[#ebebeb] shadow-sm overflow-hidden hover:shadow-md transition-all cursor-pointer"
+            onClick={() => onSelect?.(run.id)}
+          >
+            <div className={`relative h-28 w-full bg-gradient-to-r ${theme.gradient || "from-blue-900 to-slate-900"}`}>
+              <div className="absolute top-3 left-4 z-10">
+                <div className="text-white font-bold text-xl drop-shadow-md">{label}</div>
+                <div className="text-white/85 text-sm mt-1">{run ? run.userName : ""}</div>
+              </div>
+              <CharacterImage
+                characterId={run.mainAttackerId}
+                alt={run.mainAttacker}
+                className="absolute -bottom-6 -right-6 w-48 h-auto object-cover z-0 opacity-90 drop-shadow-lg pointer-events-none"
+              />
+            </div>
+              <div className="p-4 bg-white flex flex-col justify-between flex-1 relative z-10">
+                <div>
+                  <div className="flex items-center justify-end gap-2 mt-2 text-[16px] text-black">
+                    <button
+                      className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <LikeIcon size={14} className="text-black" />
+                    </button>
+                    <button
+                      className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <CommentIcon size={14} className="text-black" />
+                    </button>
+                  </div>
+                </div>
+              <div className="bg-[#f7f7f7] border border-black/10 rounded-lg p-2 mt-3">
+                <div className="flex items-center justify-between">
+                  {run.party.map((member, idx) => (
+                    <CharacterImage
+                        key={idx}
+                        characterId={member.characterId}
+                        alt={CHAR_DB[member.characterId]?.jpName || CHAR_DB[member.characterId]?.name || ""}
+                        variant="circle"
+                        className="w-9 h-9 rounded-full object-cover"
+                      />
+                        ))}
+                </div>
+                <div className="text-[20px] font-semibold text-black text-center mt-2">{run.time}</div>
+              </div>
+              <button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onView();
+                }}
+                className="mt-4 text-sm text-black border border-[#dcdfe6] rounded-full px-3 py-1 bg-black/5">
+                ランキングを見る
+              </button>
+            </div>
+          </div>
+        );
+      };
+
+      const getBracketLabel = (bracket) => {
+        const map = { 1: "Low", 2: "Mid.", 3: "High", 4: "Unl." };
+        return map[bracket] || "Unl.";
+      };
+
+      const RankMoveIcon = ({ move = "same", className = "" }) => {
+        if (move === "new") return null;
+        if (move === "up") {
+          return (
+            <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 5l-5 6" />
+              <path d="M12 5l5 6" />
+              <path d="M12 5v14" />
+            </svg>
+          );
+        }
+        if (move === "down") {
+          return (
+            <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 19l-5-6" />
+              <path d="M12 19l5-6" />
+              <path d="M12 5v14" />
+            </svg>
+          );
+        }
+        return (
+          <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M6 12h12" />
+          </svg>
+        );
+      };
+
+      const LeaderboardRow = ({ run, index, onSelect }) => {
+        const rankMove = run.rankMove || "same";
+        const PlatformIcon = PlatformIcons[run.platform] || PlatformIcons.PC;
+        return (
+          <div
+            className="border-t border-[#ebebeb] py-3 cursor-pointer"
+            onClick={() => onSelect?.(run.id)}
+          >
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                <div className="w-6 md:w-6 flex items-center justify-center text-black/80">
+                  <RankMoveIcon move={rankMove} className="w-5 h-5 md:w-5 md:h-5" />
+                </div>
+                <div className="text-[22px] md:text-[24px] w-9 md:w-10 text-center font-semibold">{index + 1}</div>
+                <CharacterImage
+                  characterId={run.mainAttackerId}
+                  alt={CHAR_DB[run.mainAttackerId]?.jpName || CHAR_DB[run.mainAttackerId]?.name || ""}
+                  variant="circle"
+                  className="w-10 h-10 md:w-10 md:h-10 rounded-full object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="text-[19px] md:text-[22px] font-semibold truncate">{run.userName}</div>
+                    <div className="hidden md:inline-flex text-[12px] px-2 py-0.5 rounded bg-black/5 border border-black/10">
+                      {getBracketLabel(run.bracket)}
+                    </div>
+                  </div>
+                </div>
+                <div className="ml-auto text-[22px] font-semibold md:hidden">{run.time}</div>
+                <div className="hidden md:flex w-10 h-10 rounded-full bg-black/5 border border-black/10 items-center justify-center">
+                  <PlatformIcon className="w-5 h-5 text-black" />
+                </div>
+              </div>
+              <div className="hidden md:flex items-center gap-4">
+                <button
+                  className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <LikeIcon size={14} className="text-black" />
+                </button>
+                <button
+                  className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <CommentIcon size={14} className="text-black" />
+                </button>
+                <div className="text-[24px] font-semibold w-20 text-right">{run.time}</div>
+                <a
+                  className="border border-[#dcdfe6] rounded-full w-8 h-8 flex items-center justify-center"
+                  href={run.videoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5l11 7-11 7V5z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3 md:hidden mt-1.5">
+              <div className="flex items-center gap-2">
+                <div className="text-[11px] px-1.5 py-0.5 rounded bg-black/5 border border-black/10">
+                  {getBracketLabel(run.bracket)}
+                </div>
+                <div className="w-7 h-7 rounded-full bg-black/5 border border-black/10 flex items-center justify-center">
+                  <PlatformIcon className="w-3.5 h-3.5 text-black" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+              <button
+                className="border border-[#dcdfe6] rounded-full px-1.5 py-0.5 bg-white/80"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <LikeIcon size={13} className="text-black" />
+              </button>
+              <button
+                className="border border-[#dcdfe6] rounded-full px-1.5 py-0.5 bg-white/80"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <CommentIcon size={13} className="text-black" />
+              </button>
+              <a
+                className="border border-[#dcdfe6] rounded-full w-7 h-7 flex items-center justify-center"
+                href={run.videoUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5l11 7-11 7V5z" />
+                </svg>
+              </a>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const sortRuns = (runs, sortMode) => {
+        const list = [...runs];
+        list.sort((a, b) => {
+          if (sortMode === "cost") {
+            const costA = a.charCost + a.wepCost;
+            const costB = b.charCost + b.wepCost;
+            if (costA !== costB) return costA - costB;
+            return toSeconds(a.time) - toSeconds(b.time);
+          }
+          if (sortMode === "date") {
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+          }
+          return toSeconds(a.time) - toSeconds(b.time);
+        });
+        return list;
+      };
+
+
+      // --- Helper Components ---
+      const BracketBadge = ({ bracket }) => {
+        const config = {
+          1: { label: "Low Cost", bg: "bg-green-50", text: "text-green-600", border: "border-green-100", icon: <Gem size={12} /> },
+          2: { label: "Middle", bg: "bg-blue-50", text: "text-blue-600", border: "border-blue-100", icon: <Swords size={12} /> },
+          3: { label: "High", bg: "bg-purple-50", text: "text-purple-600", border: "border-purple-100", icon: <Crown size={12} /> },
+          4: { label: "Unlimited", bg: "bg-orange-50", text: "text-orange-600", border: "border-orange-100", icon: <Flame size={12} /> },
+        };
+        const style = config[bracket] || config[4];
+        return (
+          <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${style.bg} ${style.text} ${style.border}`}>
+            {style.icon} {style.label}
+          </span>
+        );
+      };
+
+      const RunCard = ({ run, onSelect, isSelected }) => {
+                  {"\u5bfe\u8c61\u306e\u8a18\u9332\u30c7\u30fc\u30bf\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3002\u3082\u3046\u4e00\u5ea6\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002"}
+                  {"\u5bfe\u8c61\u306e\u8a18\u9332\u30c7\u30fc\u30bf\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3002\u3082\u3046\u4e00\u5ea6\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002"}
+        const selectedClass = isSelected ? "ring-2 ring-[#36a1f0]" : "";
+
+        return (
+          <div className={`hoyo-card p-5 group relative ${selectedClass}`} onClick={onSelect}>
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-[#f0f2f5] overflow-hidden border-2 border-white shadow-sm relative group-hover:border-[#36a1f0] transition-colors">
+                  <div className="absolute inset-0 flex items-center justify-center text-sm text-[#909399] font-bold">
+                    {run.mainAttacker.substring(0, 1)}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg leading-tight text-[#333333] group-hover:text-[#36a1f0] transition-colors">{run.mainAttacker}</h3>
+                  <p className="text-xs text-[#909399] flex items-center gap-1 mt-0.5">
+                    <User size={10} /> {run.userName}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-mono font-bold text-[#36a1f0]">{run.time}</div>
+                <div className="text-xs text-[#909399]">{run.date}</div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {run.support.map((char, i) => (
+                <span key={i} className="text-xs bg-[#f4f4f5] text-[#606266] px-2 py-1 rounded-md font-medium">
+                  {char}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex justify-between items-center pt-3 border-t border-[#f0f2f5]">
+              <BracketBadge bracket={run.bracket} />
+              <div className="flex gap-3 text-xs font-mono text-[#606266]">
+                <span className="flex items-center gap-1" title="Character Cost">
+                  <User size={12} className="text-[#909399]" /> {charCost}
+                </span>
+                <span className="flex items-center gap-1" title="Weapon Cost">
+                  <Swords size={12} className="text-[#909399]" /> {wepCost}
+                </span>
+              </div>
+            </div>
+
+            {/* バッジ（重なり回避：優先表示だけにしています） */}
+            {run.tags.includes("WR") ? (
+              <div className="absolute -top-2 -right-2 bg-[#ffc107] text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                <Trophy size={10} /> WR
+              </div>
+            ) : run.tags.includes("Unique") ? (
+              <div className="absolute -top-2 -right-2 bg-[#ff6b6b] text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+                <Zap size={10} /> Unique
+              </div>
+            ) : null}
+          </div>
+        );
+      };
+
+      const SectionHeader = ({ icon: Icon, title, subtitle, colorClass, iconColor }) => (
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`p-2.5 rounded-xl ${colorClass}`}>
+            <Icon size={24} className={iconColor} />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-[#333333]">{title}</h2>
+            <p className="text-sm text-[#909399]">{subtitle}</p>
+          </div>
+        </div>
+      );
+
+      const HeroSection = ({ runs }) => {
+        const metaRun = runs.find(r => r.tags.includes("Meta") && r.bracket === 4) || runs[0];
+        const budgetRun = runs.find(r => r.tags.includes("Budget")) || runs[1];
+        const offMetaRun = runs.find(r => r.tags.includes("OffMeta")) || runs[2];
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="hoyo-card p-6 border-t-4 border-t-orange-400 relative overflow-hidden group">
+              <SectionHeader icon={Trophy} title="環境最前線" subtitle="今週のメタ編成・世界記録" colorClass="bg-orange-50" iconColor="text-orange-500" />
+              {metaRun ? <RunCard run={metaRun} /> : <p>集計中...</p>}
+            </div>
+
+            <div className="hoyo-card p-6 border-t-4 border-t-green-400 relative overflow-hidden group">
+              <SectionHeader icon={Zap} title="コスパの星" subtitle="Low Cost帯の革命児" colorClass="bg-green-50" iconColor="text-green-500" />
+              {budgetRun ? <RunCard run={budgetRun} /> : <p>集計中...</p>}
+            </div>
+
+            <div className="hoyo-card p-6 border-t-4 border-t-indigo-400 relative overflow-hidden group">
+              <SectionHeader icon={Info} title="匠の編成" subtitle="使用率5%未満の開拓者" colorClass="bg-indigo-50" iconColor="text-indigo-500" />
+              {offMetaRun ? <RunCard run={offMetaRun} /> : <p>集計中...</p>}
+            </div>
+          </div>
+        );
+      };
+
+      const CalculatorModal = ({ isOpen, onClose, onSubmit, seasons }) => {
+        // Hooksは必ず先に（※これが超重要）
+        const [chars, setChars] = useState([
+          { characterId: "mav", cons: 0 },
+          { characterId: "bennett", cons: 6 },
+          { characterId: "furina", cons: 0 },
+          { characterId: "xiangling", cons: 6 },
+        ]);
+        const [activeSlot, setActiveSlot] = useState(0);
+        const [charSearch, setCharSearch] = useState("");
+        const [charElement, setCharElement] = useState("all");
+        const [weapons, setWeapons] = useState([
+          { weaponId: "s5", refine: 1 },
+          { weaponId: "s4", refine: 5 },
+          { weaponId: "s4", refine: 5 },
+          { weaponId: "s4", refine: 5 },
+        ]);
+        const [userId, setUserId] = useState("");
+        const [userName, setUserName] = useState("");
+        const [timeStr, setTimeStr] = useState("");
+        const [platform, setPlatform] = useState("PC");
+        const [date, setDate] = useState("");
+        const [season, setSeason] = useState(seasons[0] || "5.3");
+        const [isFestival, setIsFestival] = useState(false);
+        const [videoUrl, setVideoUrl] = useState("");
+        const [error, setError] = useState("");
+
+        const partyInput = chars.map((char) => ({
+          characterId: char.characterId,
+          cons: char.cons,
+        }));
+        const weaponInput = weapons.map((wep) => ({
+          weaponId: wep.weaponId,
+          refine: wep.refine,
+        }));
+
+        const charOnly = calcCharCost(partyInput);
+        const wepOnly = calcWeaponCost(weaponInput);
+
+        const normalizedQuery = charSearch.trim().toLowerCase();
+        const filteredChars = Object.values(CHAR_DB).filter((c) => {
+          const name = (c.name || "").toLowerCase();
+          const jp = c.jpName || "";
+          const matchesQuery = !normalizedQuery || name.includes(normalizedQuery) || jp.includes(charSearch.trim());
+          const matchesElement = charElement === "all" || c.element === charElement;
+          return matchesQuery && matchesElement;
+        });
+
+        let bracket = 4;
+        if (charOnly <= 3 && wepOnly <= 1) bracket = 1;
+        else if (charOnly <= 6 && wepOnly <= 2) bracket = 2;
+        else if (charOnly <= 12 && wepOnly <= 3) bracket = 3;
+
+        return (
+          <section id="submit-run" className="max-w-6xl mx-auto px-4 py-12">
+            <div className="flex items-center justify-between mb-4">
+              <button
+                type="button"
+                onClick={() => {
+                  if (onClose) onClose();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="text-sm font-semibold text-[#333333] bg-white border border-[#dcdfe6] rounded-full px-4 py-2 hover:bg-[#f4f4f5] flex items-center gap-2"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M19 12H5" />
+                  <path d="M11 6L5 12L11 18" />
+                </svg>
+                {"\u30db\u30fc\u30e0\u306b\u623b\u308b"}
+              </button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8">
+              <div className="bg-white rounded-2xl w-full p-6 shadow-sm border border-[#ebebeb]">
+                <div className="flex items-center gap-3 mb-6 border-b border-[#f0f2f5] pb-4">
+                  <h2 className="text-xl font-bold flex items-center gap-2 text-[#333333]">
+                    <Plus className="text-[#36a1f0]" /> {"\u8a18\u9332\u63d0\u51fa (\u30b3\u30b9\u30c8\u8a08\u7b97)"}
+                  </h2>
+                </div>
+
+              <div className="space-y-8">
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-[#606266] border-l-4 border-[#36a1f0] pl-2 mb-3 text-sm flex items-center gap-2">
+                      <User size={16} /> {"\u8d70\u8005\u60c5\u5831"}
+                    </h3>
+                    <p className="text-xs text-[#909399] mb-3">{"\u30e6\u30fc\u30b6\u30fc\u60c5\u5831\u3068\u8a18\u9332\u60c5\u5831\u3092\u5165\u529b"}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-sm"
+                        placeholder="User ID"
+                        value={userId}
+                        onChange={(e) => setUserId(e.target.value)}
+                      />
+                      <input
+                        className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-sm"
+                        placeholder="User Name"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                      />
+                      <input
+                        className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-sm"
+                        placeholder="Time (MM:SS or HH:MM:SS)"
+                        value={timeStr}
+                        onChange={(e) => setTimeStr(e.target.value)}
+                      />
+                      <input
+                        className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-sm"
+                        placeholder="Date (YYYY-MM-DD)"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                      />
+                      <select
+                        className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-sm"
+                        value={platform}
+                        onChange={(e) => setPlatform(e.target.value)}
+                      >
+                        <option value="PC">PC</option>
+                        <option value="PS5">PS5</option>
+                        <option value="Mobile">Mobile</option>
+                      </select>
+                      <select
+                        className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-sm"
+                        value={season}
+                        onChange={(e) => setSeason(e.target.value)}
+                      >
+                        {seasons.map((s) => (
+                          <option key={s} value={s}>Season {s}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <label className="flex items-center gap-2 text-sm text-[#606266]">
+                      <input
+                        type="checkbox"
+                        checked={isFestival}
+                        onChange={(e) => setIsFestival(e.target.checked)}
+                      />
+                      {"\u30d5\u30a7\u30b9\u8a18\u9332"}
+                    </label>
+                    <input
+                      className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-sm w-full"
+                      placeholder={"\u52d5\u753bURL"}
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                    />                    
+                    {error && <div className="text-xs text-red-500">{error}</div>}
+                  </div>
+                  <div className="pt-6 border-t border-[#f0f2f5]">
+                    <h3 className="font-bold text-[#606266] border-l-4 border-[#36a1f0] pl-2 mb-3 text-sm flex items-center gap-2">
+                      <User size={16} /> {"\u7de8\u6210\uff08\u30ad\u30e3\u30e9\u9078\u629e\uff09"}
+                    </h3>
+                    <p className="text-xs text-[#909399] mb-3">{"\u30e1\u30a4\u30f3\u30a2\u30bf\u30c3\u30ab\u30fc\u3092\u5148\u982d\u306b\u30014\u4eba\u5206\u9078\u629e"}</p>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        {chars.map((char, i) => {
+                          const isActive = i === activeSlot;
+                          return (
+                            <button
+                              key={`slot-${i}`}
+                              onClick={() => setActiveSlot(i)}
+                              className={`flex items-center gap-2 px-2 py-1.5 rounded-lg border text-sm transition-all ${
+                                isActive ? "border-[#36a1f0] bg-[#e8f4ff]" : "border-[#ebebeb] bg-white"
+                              }`}
+                            >
+                              <CharacterImage
+                                characterId={char.characterId}
+                                variant="circle"
+                                alt={CHAR_DB[char.characterId]?.jpName || CHAR_DB[char.characterId]?.name || ""}
+                                className="w-9 h-9 rounded-md object-cover"
+                              />
+                              <span className="text-xs text-[#909399]">#{i + 1}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs text-[#909399]">
+                        <div>
+                          {"\u9078\u629e\u4e2d"}: #{activeSlot + 1} / {CHAR_DB[chars[activeSlot].characterId]?.jpName || CHAR_DB[chars[activeSlot].characterId]?.name || ""}
+                        </div>
+                        {CHAR_DB[chars[activeSlot].characterId]?.type === "limited" && (
+                          <select
+                            className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-xs"
+                            value={chars[activeSlot].cons}
+                            onChange={(e) => {
+                              const newChars = [...chars];
+                              newChars[activeSlot].cons = parseInt(e.target.value, 10);
+                              setChars(newChars);
+                            }}
+                          >
+                            {[...Array(7)].map((_, n) => (
+                              <option key={n} value={n}>C{n}</option>
+                            ))}
+                          </select>
+                        )}
+                      </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+                        <input
+                          className="bg-white border border-[#dcdfe6] rounded-md px-2 py-1 text-xs"
+                          placeholder={"キャラ名で検索"}
+                          value={charSearch}
+                          onChange={(e) => setCharSearch(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="text-xs text-[#606266] border border-[#dcdfe6] rounded-md px-2"
+                          onClick={() => setCharSearch("")}
+                        >
+                          {"クリア"}
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { key: "all", label: "\u5168\u3066" },
+                          { key: "pyro", label: "\u708e" },
+                          { key: "hydro", label: "\u6c34" },
+                          { key: "electro", label: "\u96f7" },
+                          { key: "cryo", label: "\u6c37" },
+                          { key: "anemo", label: "\u98a8" },
+                          { key: "geo", label: "\u5ca9" },
+                          { key: "dendro", label: "\u8349" },
+                        ].map((item) => (
+                          <button
+                            key={item.key}
+                            type="button"
+                            onClick={() => setCharElement(item.key)}
+                            className={`px-2 py-1 text-xs rounded-full border ${
+                              charElement === item.key
+                                ? "bg-black text-white border-black"
+                                : "bg-white text-[#606266] border-[#dcdfe6]"
+                            }`}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-40 overflow-y-auto p-2 bg-[#f4f4f5] rounded-lg border border-[#ebebeb]">
+                        {filteredChars.map((c) => {
+                          const isSelected = c.id === chars[activeSlot].characterId;
+                          return (
+                            <button
+                              key={`pick-${c.id}`}
+                              onClick={() => {
+                                const newChars = [...chars];
+                                newChars[activeSlot].characterId = c.id;
+                                newChars[activeSlot].cons = 0;
+                                setChars(newChars);
+                              }}
+                              className={`relative w-full aspect-square rounded-md border transition-all ${
+                                isSelected ? "border-[#36a1f0] bg-white" : "border-[#dcdfe6] bg-white"
+                              }`}
+                            >
+                              <CharacterImage
+                                characterId={c.id}
+                                variant="circle"
+                                alt={c.jpName || c.name}
+                                className="w-full h-full object-cover rounded-md"
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-[#f0f2f5]">
+                    <h3 className="font-bold text-[#606266] border-l-4 border-[#36a1f0] pl-2 mb-3 text-sm flex items-center gap-2">
+                      <Swords size={16} /> {"\u6b66\u5668\u9078\u629e"}
+                    </h3>
+                    <p className="text-xs text-[#909399] mb-3">{"\u5404\u30ad\u30e3\u30e9\u306b\u88c5\u5099\u3059\u308b\u6b66\u5668\u3068\u7cbe\u935b\u3092\u9078\u629e"}</p>
+                    <div className="space-y-2">
+                      {weapons.map((wep, i) => (
+                        <div key={i} className="flex gap-2 items-center text-sm">
+                          <span className="w-6 text-[#909399] font-mono text-xs">W{i+1}</span>
+                          <select
+                            className="bg-[#f4f4f5] rounded-md px-2 py-1.5 border border-transparent hover:border-[#dcdfe6] focus:bg-white focus:border-[#36a1f0] flex-1 outline-none transition-all text-[#606266]"
+                            value={wep.weaponId}
+                            onChange={(e) => {
+                              const newWeps = [...weapons];
+                              newWeps[i].weaponId = e.target.value;
+                              setWeapons(newWeps);
+                            }}
+                          >
+                            {Object.values(WEAPON_DB).map((w) => (
+                              <option key={w.id} value={w.id}>{w.name}</option>
+                            ))}
+                          </select>
+
+                          {WEAPON_DB[wep.weaponId]?.type === 'five_star' && (
+                            <select
+                              className="bg-[#f4f4f5] rounded-md px-2 py-1.5 border border-transparent hover:border-[#dcdfe6] focus:bg-white focus:border-[#36a1f0] w-20 outline-none transition-all text-[#606266]"
+                              value={wep.refine}
+                              onChange={(e) => {
+                                const newWeps = [...weapons];
+                                newWeps[i].refine = parseInt(e.target.value, 10);
+                                setWeapons(newWeps);
+                              }}
+                            >
+                              {[...Array(5)].map((_, n) => <option key={n} value={n+1}>R{n+1}</option>)}
+                            </select>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+
+              <div className="mt-8 flex justify-end gap-3 border-t border-[#f0f2f5] pt-6">
+                <button onClick={onClose} className="px-5 py-2.5 text-[#606266] hover:bg-[#f4f4f5] rounded-full transition-colors text-sm font-bold">キャンセル</button>
+                <button
+                  onClick={() => {
+                    const hasEmptyChar = partyInput.some((c) => !c.characterId);
+                    const hasEmptyWeapon = weaponInput.some((w) => !w.weaponId);
+                    if (!userId || !userName || !timeStr || !date || !season) {
+                      setError("User/Time/Date/Season are required.");
+                      return;
+                    }
+                    if (hasEmptyChar || hasEmptyWeapon) {
+                      setError("Party and weapons are required.");
+                      return;
+                    }
+                    if (!Number.isFinite(toSeconds(timeStr))) {
+                      setError("Time format is invalid.");
+                      return;
+                    }
+
+                    const newRun = {
+                      id: `r${Date.now()}`,
+                      userId,
+                      userName,
+                      mainAttackerId: partyInput[0].characterId,
+                      supportIds: partyInput.slice(1).map((c) => c.characterId),
+                      party: partyInput,
+                      weapons: weaponInput,
+                      time: timeStr,
+                      videoUrl,
+                      platform,
+                      date,
+                      season,
+                      isFestival,
+                      tags: [],
+                    };
+                    setError("Party and weapons are required.");
+                    onSubmit(newRun);
+                    onClose();
+                  }}
+                  className="bg-[#36a1f0] hover:bg-[#2b8cdb] text-white px-8 py-2.5 rounded-full font-bold shadow-md shadow-blue-200 transition-all flex items-center gap-2"
+                >
+                  <CheckCircle size={18} /> 記録を提出
+                </button>
+              </div>
+            </div>
+
+              <div className="bg-[#f9f9f9] p-6 rounded-2xl flex flex-col items-center justify-center text-center border border-[#ebebeb] lg:sticky lg:top-24 self-start">
+                <div className="text-xs font-bold text-[#909399] tracking-widest uppercase mb-2">Result Bracket</div>
+                <div className={`text-6xl font-black mb-4 tracking-tighter ${
+                  bracket === 1 ? 'text-green-500' :
+                  bracket === 2 ? 'text-blue-500' :
+                  bracket === 3 ? 'text-purple-500' : 'text-orange-500'
+                }`}>
+                  {bracket === 4 ? "Unl." : `B${bracket}`}
+                </div>
+                <BracketBadge bracket={bracket} />
+
+                <div className="mt-8 w-full space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 bg-white rounded-xl shadow-sm border border-[#ebebeb]">
+                      <div className="text-xs text-[#909399] mb-1 flex items-center justify-center gap-1"><User size={10} /> Character Cost</div>
+                      <div className="font-mono font-bold text-xl text-[#333333]">{charOnly}</div>
+                    </div>
+                    <div className="p-3 bg-white rounded-xl shadow-sm border border-[#ebebeb]">
+                      <div className="text-xs text-[#909399] mb-1 flex items-center justify-center gap-1"><Swords size={10} /> Weapon Cost</div>
+                      <div className="font-mono font-bold text-xl text-[#333333]">{wepOnly}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 w-full">
+                  <div className="p-3 bg-white rounded-xl shadow-sm border border-[#ebebeb]">
+                    <div className="text-xs text-[#909399] mb-1">{"\u5408\u8a08\u30b3\u30b9\u30c8"}</div>
+                    <div className="font-mono font-bold text-2xl text-[#111]">{charOnly + wepOnly}</div>
+                    <div className="text-[11px] text-[#909399] mt-1">{"\u30ad\u30e3\u30e9"} {charOnly} + {"\u6b66\u5668"} {wepOnly}</div>
+                  </div>
+                </div>
+
+                <div className="mt-6 text-xs text-left bg-white p-4 rounded-xl border border-[#ebebeb] w-full shadow-sm">
+                  <p className="font-bold text-[#606266] mb-2 flex items-center gap-1"><Info size={12}/> 判定条件 (AND):</p>
+                  <ul className="space-y-1.5 text-[#909399] font-mono">
+                    <li className={`flex justify-between ${bracket === 1 ? "text-green-600 font-bold" : ""}`}><span>Low</span><span>Char≤3 & Wep≤1</span></li>
+                    <li className={`flex justify-between ${bracket === 2 ? "text-blue-600 font-bold" : ""}`}><span>Middle</span><span>Char≤6 & Wep≤2</span></li>
+                    <li className={`flex justify-between ${bracket === 3 ? "text-purple-600 font-bold" : ""}`}><span>High</span><span>Char≤12 & Wep≤3</span></li>
+                    <li className={`flex justify-between ${bracket === 4 ? "text-orange-600 font-bold" : ""}`}><span>Unlimited</span><span>{"\u305d\u306e\u4ed6"}</span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      };
+
+      const RunDetailModal = ({ isOpen, onClose, run }) => {
+        if (!isOpen) return null;
+        if (!run) {
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
+              <div className="bg-white rounded-2xl max-w-md w-full shadow-xl border border-black/10" onClick={(event) => event.stopPropagation()}>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[#ebebeb]">
+                  <div className="text-xl font-semibold text-black">記録が見つかりません</div>
+                  <button className="rounded-full border border-[#dcdfe6] w-8 h-8 flex items-center justify-center" onClick={onClose} aria-label="Close">
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="w-4 h-4 text-[#606266]"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M6 6L18 18" />
+                      <path d="M18 6L6 18" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="px-6 py-6 text-sm text-black/70">
+                  {"\u5bfe\u8c61\u306e\u8a18\u9332\u30c7\u30fc\u30bf\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3002\u3082\u3046\u4e00\u5ea6\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002"}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const embedUrl = getYouTubeEmbedUrl(run.videoUrl);
+        const totalCost = run.charCost + run.wepCost;
+        const loadout = run.party.map((member, idx) => {
+          const weapon = run.weapons?.[idx];
+          return {
+            member,
+            weapon,
+            characterName:
+              CHAR_DB[member.characterId]?.jpName ||
+              CHAR_DB[member.characterId]?.name ||
+              member.characterId,
+            weaponName: WEAPON_DB[weapon?.weaponId]?.name || "Unknown Weapon",
+          };
+        });
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={onClose}>
+            <div className="bg-white rounded-2xl max-w-4xl w-full shadow-xl border border-black/10" onClick={(event) => event.stopPropagation()}>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#ebebeb]">
+                <div>
+                  <div className="text-sm text-[#909399]">Run Detail</div>
+                  <div className="text-xl font-semibold text-black">
+                    {run.userName} ・ {run.time}
+                  </div>
+                </div>
+                <button className="rounded-full border border-[#dcdfe6] w-8 h-8 flex items-center justify-center" onClick={onClose} aria-label="Close">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4 text-[#606266]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M6 6L18 18" />
+                    <path d="M18 6L6 18" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6 px-6 py-6">
+                <div className="space-y-4">
+                  <div className="text-sm font-semibold text-black">Video</div>
+                  {embedUrl ? (
+                    <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-black/10">
+                      <iframe
+                        title="Run Video"
+                        src={embedUrl}
+                        className="absolute inset-0 w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-video rounded-xl border border-dashed border-[#dcdfe6] flex items-center justify-center text-sm text-[#909399]">
+                      動画が登録されていません
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <div className="text-sm font-semibold text-black">Cost Breakdown</div>
+                    <div className="bg-[#f7f7f7] border border-black/10 rounded-xl p-4">
+                      <div className="text-[15px] text-black">
+                        キャラコスト: <span className="font-semibold">{run.charCost}</span> + 武器コスト:{" "}
+                        <span className="font-semibold">{run.wepCost}</span> = 合計{" "}
+                        <span className="font-semibold">{totalCost}</span> (
+                        {getBracketLabel(run.bracket)})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <div className="text-sm font-semibold text-black mb-2">Loadout</div>
+                    <div className="space-y-3">
+                      {loadout.map(({ member, weapon, characterName, weaponName }, idx) => (
+                        <div key={`${member.characterId}-${idx}`} className="flex items-center justify-between bg-white border border-black/10 rounded-xl px-3 py-2">
+                          <div className="flex items-center gap-3">
+                            <CharacterImage
+                              characterId={member.characterId}
+                              variant="circle"
+                              alt={characterName}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                            <div>
+                              <div className="font-medium text-black">{characterName}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm text-black">{weaponName}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#f7f7f7] border border-black/10 rounded-xl p-4 space-y-2">
+                    <div className="text-sm font-semibold text-black">Metadata</div>
+                    <div className="text-sm text-black/70">Platform: {run.platform}</div>
+                    <div className="text-sm text-black/70">Date: {run.date}</div>
+                    <div className="text-sm text-black/70">Version: {run.season}</div>
+                    <div className="text-sm text-black/70">Bracket: {getBracketLabel(run.bracket)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const FilterModal = ({
+        isOpen,
+        onClose,
+        onApply,
+        onReset,
+        initialIncludeIds,
+        initialExcludeIds,
+        initialPlatform,
+        initialIncludeMode,
+        characters,
+      }) => {
+        const [includeIds, setIncludeIds] = useState([]);
+        const [excludeIds, setExcludeIds] = useState([]);
+        const [platform, setPlatform] = useState(null);
+        const [includeMode, setIncludeMode] = useState("or");
+
+        useEffect(() => {
+          if (!isOpen) return;
+          setIncludeIds(initialIncludeIds || []);
+          setExcludeIds(initialExcludeIds || []);
+          setPlatform(initialPlatform || null);
+          setIncludeMode(initialIncludeMode || "or");
+        }, [isOpen, initialIncludeIds, initialExcludeIds, initialPlatform, initialIncludeMode]);
+
+        const toggleInclude = (charId) => {
+          if (includeIds.includes(charId)) {
+            setIncludeIds(includeIds.filter((id) => id !== charId));
+          } else {
+            setIncludeIds([...includeIds, charId]);
+            if (excludeIds.includes(charId)) {
+              setExcludeIds(excludeIds.filter((id) => id !== charId));
+            }
+          }
+        };
+
+        const toggleExclude = (charId) => {
+          if (excludeIds.includes(charId)) {
+            setExcludeIds(excludeIds.filter((id) => id !== charId));
+          } else {
+            setExcludeIds([...excludeIds, charId]);
+            if (includeIds.includes(charId)) {
+              setIncludeIds(includeIds.filter((id) => id !== charId));
+            }
+          }
+        };
+
+        const applyFilters = () => {
+          onApply({
+            includeIds,
+            excludeIds,
+            platform,
+            includeMode,
+          });
+        };
+
+
+        if (!isOpen) return null;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
+            <div
+              className="bg-white text-[#333333] rounded-2xl max-w-5xl w-full max-h-[85vh] shadow-sm border border-[#ebebeb] flex flex-col"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#ebebeb] shrink-0">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.3em] text-[#909399]">Filter Catalog</div>
+                  <div className="text-2xl font-semibold">{"絞り込み"}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center bg-[#f4f4f5] rounded-full border border-[#ebebeb] overflow-hidden">
+                    {[
+                      { key: "and", label: "かつ" },
+                      { key: "or", label: "または" },
+                    ].map((item) => (
+                      <button
+                        key={item.key}
+                        className={`px-4 py-1.5 text-xs font-semibold ${
+                          includeMode === item.key ? "bg-cyan-400 text-black" : "text-[#909399]"
+                        }`}
+                        onClick={() => setIncludeMode(item.key)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button className="rounded-full border border-[#dcdfe6] w-8 h-8 flex items-center justify-center text-[#606266]" onClick={(event) => {
+                    event.stopPropagation();
+                    onClose();
+                  }} aria-label="Close">
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="w-4 h-4 text-[#606266]"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M6 6L18 18" />
+                      <path d="M18 6L6 18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div className="px-6 py-6 space-y-8 overflow-y-auto flex-1">
+                <div>
+                  <div className="text-sm font-semibold text-[#606266] mb-3">{"メインアタッカー (含む)"}</div>
+                  <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
+                    {characters.map((char) => {
+                      const isActive = includeIds.includes(char.id);
+                      return (
+                        <button
+                          key={`include-${char.id}`}
+                          className={`relative aspect-square rounded-md border transition-all ${
+                            isActive ? "bg-[#e8f4ff] border-[#6aa8ff]" : "bg-[#f4f4f5] border-[#ebebeb] hover:border-[#c0c4cc]"
+                          }`}
+                          onClick={() => toggleInclude(char.id)}
+                        >
+                          <CharacterImage
+                            characterId={char.id}
+                            variant="circle"
+                            alt={char.jpName || char.name}
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-semibold text-[#606266] mb-3">{"除外キャラ"}</div>
+                  <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
+                    {characters.map((char) => {
+                      const isActive = excludeIds.includes(char.id);
+                      return (
+                        <button
+                          key={`exclude-${char.id}`}
+                          className={`relative aspect-square rounded-md border transition-all ${
+                            isActive ? "bg-[#ffecec] border-[#ff6b6b]" : "bg-[#f4f4f5] border-[#ebebeb] hover:border-[#c0c4cc]"
+                          }`}
+                          onClick={() => toggleExclude(char.id)}
+                        >
+                          <CharacterImage
+                            characterId={char.id}
+                            variant="circle"
+                            alt={char.jpName || char.name}
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-semibold text-[#606266] mb-3">{"プラットフォーム"}</div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {["PC", "PS5", "Mobile"].map((item) => {
+                      const Icon = PlatformIcons[item] || PlatformIcons.PC;
+                      const active = platform === item;
+                      return (
+                        <button
+                          key={item}
+                          className={`flex items-center gap-2 px-5 py-2 rounded-full border text-sm ${
+                            active ? "bg-cyan-400 text-black border-cyan-300" : "bg-white text-[#606266] border-[#dcdfe6]"
+                          }`}
+                          onClick={() => setPlatform(active ? null : item)}
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span>{item}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 py-5 border-t border-[#ebebeb] flex items-center justify-between shrink-0">
+                <button
+                  className="text-sm text-[#909399] underline"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIncludeIds([]);
+                    setExcludeIds([]);
+                    setPlatform(null);
+                    setIncludeMode("or");
+                    onReset?.();
+                  }}
+                >
+                  {"リセット"}
+                </button>
+                <div className="flex items-center gap-3">
+                  <button className="px-4 py-2 rounded-full border border-[#dcdfe6] text-sm text-[#606266]" onClick={(event) => { event.stopPropagation(); onClose(); }}>
+                    {"キャンセル"}
+                  </button>
+                  <button
+                    className="px-6 py-2 rounded-full bg-cyan-400 text-black text-sm font-semibold"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      applyFilters();
+                      onClose();
+                    }}
+                  >
+                    {"適用"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      const App = () => {
+        const leaderboardRef = useRef(null);
+        const [runs, setRuns] = useState(applyWRTag(RUNS));
+        const seasons = ["Luna3", "Luna2", "Luna1", "5.8", "5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"];
+
+        const [activeSeason, setActiveSeason] = useState(getDefaultSeason(seasons));
+        const [activeTab, setActiveTab] = useState("main");
+        const [filterBracket, setFilterBracket] = useState(null);
+        const [filterPlatform, setFilterPlatform] = useState(null);
+        const [includeInput, setIncludeInput] = useState("");
+        const [excludeInput, setExcludeInput] = useState("");
+        const [includeMode, setIncludeMode] = useState("or");
+        const [sortMode, setSortMode] = useState("time");
+        const [enableRLogic, setEnableRLogic] = useState(false);
+        const [selectedRunId, setSelectedRunId] = useState(null);
+        const [isDetailOpen, setIsDetailOpen] = useState(false);
+        const [isFilterOpen, setIsFilterOpen] = useState(false);
+        const [showSubmitPage, setShowSubmitPage] = useState(false);
+        const [subHeaderTab, setSubHeaderTab] = useState("NPUI");
+        const [leaderboardView, setLeaderboardView] = useState("rta");
+        const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
+        const topRowRef = useRef(null);
+        const [showTopScrollLeft, setShowTopScrollLeft] = useState(false);
+        const [showTopScrollRight, setShowTopScrollRight] = useState(false);
+
+        const includeIds = parseAttackerInput(includeInput);
+        const excludeIds = parseAttackerInput(excludeInput);
+        const characters = Object.values(CHAR_DB);
+        const filters = {
+          season: activeSeason,
+          isFestival: activeTab === "festival",
+          bracket: filterBracket,
+          platform: filterPlatform,
+          includeIds,
+          excludeIds,
+        };
+
+        const filteredBase = filterRuns(runs, filters);
+        const rLogicApplied = enableRLogic ? applyRLogic(filteredBase) : filteredBase;
+        const filteredRuns = sortRuns(rLogicApplied, sortMode);
+        const charTopRuns = (() => {
+          const bestByAttacker = new Map();
+          rLogicApplied.forEach((run) => {
+            const key = run.mainAttackerId;
+            const current = bestByAttacker.get(key);
+            if (!current || toSeconds(run.time) < toSeconds(current.time)) {
+              bestByAttacker.set(key, run);
+            }
+          });
+          return Array.from(bestByAttacker.values()).sort(
+            (a, b) => toSeconds(a.time) - toSeconds(b.time)
+          );
+        })();
+        const leaderboardRuns = leaderboardView === "char" ? charTopRuns : filteredRuns;
+        const selectedRun = runs.find((run) => run.id === selectedRunId) || null;
+        const heroRuns = runs.filter((run) => seasonGte(run.season, activeSeason) && !run.isFestival);
+
+        const updateTopScrollButtons = () => {
+          if (!topRowRef.current) return;
+          const { scrollLeft, scrollWidth, clientWidth } = topRowRef.current;
+          setShowTopScrollLeft(scrollLeft > 10);
+          setShowTopScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+        };
+
+        useEffect(() => {
+          updateTopScrollButtons();
+          window.addEventListener("resize", updateTopScrollButtons);
+          return () => window.removeEventListener("resize", updateTopScrollButtons);
+        }, [activeTab, heroRuns.length]);
+
+        const handleSubmitRun = (newRun) => {
+          const normalized = normalizeRun(newRun);
+          setRuns((prev) => applyWRTag([normalized, ...prev]));
+          setSelectedRunId(normalized.id);
+          setActiveTab(normalized.isFestival ? "festival" : "main");
+          setActiveSeason(normalized.season);
+        };
+
+        const scrollToLeaderboard = () => {
+          if (leaderboardRef.current) {
+            leaderboardRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        };
+
+        const openRunDetail = (runId) => {
+          setSelectedRunId(runId);
+          setIsDetailOpen(true);
+        };
+
+        return (
+          <div className="min-h-screen text-[#333333] font-sans pb-20">
+            <nav className="bg-white sticky top-0 z-40 border-b border-[#ebebeb]">
+              <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-2 md:py-3 flex items-center justify-between header-font">
+                {/* !!!!!!!! HEADER PADDING: adjust px-* and py-* here !!!!!!!! */}
+                <div className="flex items-center gap-4 md:gap-6">
+                  <h1 className="text-[26px] md:text-[38px] font-semibold tracking-tight text-black">
+                    精鋭狩りDB
+                  </h1>
+                  <div className="relative">
+                    <select
+                      className="appearance-none bg-white border border-black/30 rounded-full pl-3 md:pl-4 pr-12 md:pr-14 py-1.5 text-[16px] md:text-[20px] font-medium text-black"
+                      value={activeSeason}
+                      onChange={(e) => setActiveSeason(e.target.value)}
+                    >
+                      {seasons.map((season) => {
+                        const seasonStr = String(season);
+                        const lunaSuffix = seasonStr.includes(".") ? seasonStr.split(".")[1] : seasonStr;
+                        return (
+                          <option key={season} value={season}>{String(season)}</option>
+                        );
+                      })}
+                    </select>
+                    <span className="pointer-events-none absolute right-4 md:right-5 top-1/2 -translate-y-1/2 text-black/70">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 md:gap-4">
+                  <button
+                    onClick={() => {
+                      setShowSubmitPage(true);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="bg-black text-white rounded-full text-[16px] md:text-[20px] font-medium flex items-center justify-center md:justify-start gap-0 md:gap-2 w-9 h-9 md:w-auto md:h-auto px-0 md:px-5 py-0 md:py-2.5"
+                  >
+                    <span className="md:hidden flex items-center justify-center w-full h-full"><Plus size={20} /></span>
+                    <span className="hidden md:inline"><Plus size={22} /></span>
+                    <span className="hidden md:inline">記録提出</span>
+                  </button>
+                  <div className="w-9 h-9 rounded-full border border-black/30 bg-white" aria-label="User avatar" />
+                </div>
+              </div>
+            </nav>
+            {showSubmitPage ? (
+              <CalculatorModal
+                onClose={() => {
+                  setShowSubmitPage(false);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                onSubmit={handleSubmitRun}
+                seasons={seasons}
+              />
+            ) : (
+              <>
+                {activeTab === "main" && (
+              <div
+                className="relative w-full h-[320px] md:h-[560px] overflow-hidden mb-8 bg-center bg-cover"
+                style={{ backgroundImage: `url(${HERO_IMAGE_URL})` }}
+                aria-label="Hero visual"
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#f0f2f5]" />
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl bg-black/15 backdrop-blur-sm rounded-full border border-white/30 px-4 py-2">
+                  <div className="flex items-center justify-between text-sm font-medium text-white">
+                    {["NPUI", "PUI", "PUA", "その他"].map((label) => (
+                      <div key={label} className="relative">
+                        {(() => {
+                          const isOther = label === "その他";
+                          const isOtherSelected = isOther && !["NPUI", "PUI", "PUA"].includes(subHeaderTab);
+                          const buttonLabel = isOtherSelected ? `その他（${subHeaderTab}）` : label;
+                          const isActive = isOtherSelected || subHeaderTab === label;
+                          return (
+                            <>
+                        <button
+                          onClick={() => {
+                            if (label === "その他") {
+                              setIsOtherMenuOpen((prev) => !prev);
+                            } else {
+                              setSubHeaderTab(label);
+                              setIsOtherMenuOpen(false);
+                            }
+                          }}
+                          className={`py-1 px-4 md:px-5 -mx-2 transition-colors ${
+                            isActive ? "border-b-2 border-white" : "text-white/80 hover:text-white"
+                          }`}
+                        >
+                          {buttonLabel}
+                        </button>
+                        {label === "その他" && isOtherMenuOpen && (
+                          <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-black/80 border border-[#dcdfe6] rounded-lg py-2 w-40 text-white text-xs">
+                            {["Npui飯", "淵下宮", "マルチNpui", "マルチPui", "マルチPUA"].map((opt) => (
+                              <button
+                                key={opt}
+                                onClick={() => {
+                                  setSubHeaderTab(opt);
+                                  setIsOtherMenuOpen(false);
+                                }}
+                                className="block w-full text-left px-3 py-1.5 hover:bg-white/10"
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <main className="max-w-7xl mx-auto px-4 py-8">
+              {activeTab === "main" && (
+                <>
+                  <div className="relative z-10 -mt-40 md:-mt-72 mb-12">
+                    <div className="relative">
+                      <div
+                        ref={topRowRef}
+                        className="flex gap-6 overflow-x-auto no-scrollbar"
+                        onScroll={() => {
+                          updateTopScrollButtons();
+                        }}
+                      >
+                        <div className="bg-white rounded-xl border border-black/10 p-4 md:p-6 shadow-sm min-w-[780px] flex-shrink-0">
+                          <div className="text-[18px] font-semibold text-black mb-3">TOPプレイヤー</div>
+                          <div className="grid grid-cols-4 gap-4 min-w-[900px]">
+                            {[
+                            { label: "無制限 1位", bracket: 4, theme: { gradient: "from-[#274060] to-[#1b2f45]" } },
+                            { label: "High 1位", bracket: 3, theme: { gradient: "from-[#2c3e3d] to-[#1e2c2b]" } },
+                            { label: "Middle 1位", bracket: 2, theme: { gradient: "from-[#3d2a4a] to-[#2b1f35]" } },
+                            { label: "Low 1位", bracket: 1, theme: { gradient: "from-[#4a3528] to-[#2f231c]" } },
+                            ].map((item) => {
+                              const run = getBestRun(heroRuns.filter((r) => r.bracket === item.bracket));
+                              return (
+                                  <TopPlayerCard
+                                    key={item.label}
+                                    label={item.label}
+                                    run={run}
+                                    theme={item.theme}
+                                    onView={() => {
+                                      setFilterBracket(item.bracket);
+                                      setLeaderboardView("rta");
+                                      scrollToLeaderboard();
+                                    }}
+                                    onSelect={(runId) => openRunDetail(runId)}
+                                  />
+                                );
+                              })}
+                          </div>
+                        </div>
+                        <div className="bg-white rounded-xl border border-black/10 p-4 md:p-6 shadow-sm min-w-[240px] flex-shrink-0">
+                          <div className="text-[18px] font-semibold text-black mb-3">注目プレイヤー</div>
+                          <div className="space-y-4">
+                            {[
+                              { title: "初投稿 新しい狩り仲間！", run: getBestRun(heroRuns.filter((r) => r.tags.includes("New"))) },
+                              { title: "開拓者 使用率5%未満編成", run: getBestRun(heroRuns.filter((r) => r.tags.includes("OffMeta"))) },
+                            ].map((item) => (
+                              <div
+                                key={item.title}
+                                className="border border-black/10 rounded-lg p-3 relative overflow-hidden shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+                                onClick={() => item.run && openRunDetail(item.run.id)}
+                              >
+                                <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/5 to-transparent pointer-events-none" />
+                                <div className="text-black font-medium">{item.title}</div>
+                                {item.run ? (
+                                  <div className="mt-2">
+                                    <div className="text-[14px] text-black">{item.run.userName}</div>
+                                    <div className="mt-2 space-y-2">
+                                      <div className="flex justify-end items-center gap-2 text-[16px] text-black">
+                                        <button
+                                        className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80"
+                                        onClick={(event) => event.stopPropagation()}
+                                      >
+                                        <LikeIcon size={14} className="text-black" />
+                                      </button>
+                                        <button
+                                        className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80"
+                                        onClick={(event) => event.stopPropagation()}
+                                      >
+                                        <CommentIcon size={14} className="text-black" />
+                                      </button>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        {item.run.party.map((member, idx) => (
+                                          <CharacterImage
+                                            key={idx}
+                                            characterId={member.characterId}
+                                            alt={CHAR_DB[member.characterId]?.jpName || CHAR_DB[member.characterId]?.name || ""}
+                                            variant="circle"
+                                            className="w-8 h-8 rounded-full object-cover"
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="mt-2 text-sm text-[#606266]">集計中...</div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      {showTopScrollLeft && (
+                        <button
+                          className="flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 border border-[#dcdfe6] rounded-full w-8 h-8 items-center justify-center z-20 shadow-sm"
+                          aria-label="Scroll left"
+                          onClick={() => {
+                            if (topRowRef.current) {
+                              topRowRef.current.scrollBy({ left: -320, behavior: "smooth" });
+                              setTimeout(updateTopScrollButtons, 350);
+                            }
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M15 6l-6 6 6 6" />
+                          </svg>
+                        </button>
+                      )}
+                      {showTopScrollRight && (
+                        <button
+                          className="flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 border border-[#dcdfe6] rounded-full w-8 h-8 items-center justify-center z-20 shadow-sm"
+                          aria-label="Scroll right"
+                          onClick={() => {
+                            if (topRowRef.current) {
+                              topRowRef.current.scrollBy({ left: 320, behavior: "smooth" });
+                              setTimeout(updateTopScrollButtons, 350);
+                            }
+                          }}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M9 6l6 6-6 6" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div ref={leaderboardRef} className="bg-white rounded-xl border border-black/10 p-4 md:p-6 shadow-sm mb-10">
+                    <div className="text-[20px] font-semibold text-black mb-4">リーダーボード</div>
+                    <div className="flex items-center justify-center mb-4">
+                      <div className="flex items-center border border-[#dcdfe6] rounded-full overflow-hidden w-full max-w-[520px] md:min-w-[520px]">
+                        {[
+                          { key: "rta", label: "RTAランキング", shortLabel: "RTA" },
+                          { key: "char", label: "キャラTOPプレイヤー", shortLabel: "キャラTOP" },
+                          { key: "fes", label: "限定フェス", shortLabel: "フェス" },
+                        ].map((item) => (
+                          <button
+                            key={item.key}
+                            onClick={() => setLeaderboardView(item.key)}
+                            className={`px-4 py-1.5 text-sm font-medium flex-1 ${
+                              leaderboardView === item.key ? "bg-black text-white" : "bg-white text-black"
+                            }`}
+                            title={item.label}
+                            aria-label={item.label}
+                          >
+                            <span className="md:hidden">{item.shortLabel}</span>
+                            <span className="hidden md:inline">{item.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center mb-3">
+                      <button
+                        className="border border-[#dcdfe6] rounded-full w-9 h-9 flex items-center justify-center"
+                        onClick={() => setIsFilterOpen(true)}
+                      >
+                        <FilterIcons.Funnel className="w-5 h-5 text-black" />
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between text-sm font-medium mb-4">
+                        {[
+                        { label: "全て", shortLabel: "全て", value: null },
+                        { label: "Unlimited", shortLabel: "Unl.", value: 4 },
+                        { label: "High", shortLabel: "High", value: 3 },
+                        { label: "Middle", shortLabel: "Mid.", value: 2 },
+                        { label: "Low", shortLabel: "Low", value: 1 },
+                      ].map((item) => (
+                        <button
+                          key={item.label}
+                          onClick={() => setFilterBracket(item.value)}
+                          className={`pb-2 border-b-2 flex-1 text-center ${
+                            filterBracket === item.value || (item.value === null && filterBracket === null)
+                              ? "border-black text-black"
+                              : "border-transparent text-[#909399] hover:text-black"
+                          }`}
+                        >
+                          <span className="md:hidden">{item.shortLabel}</span>
+                          <span className="hidden md:inline">{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div>
+                      {leaderboardRuns.map((run, idx) => (
+                        <LeaderboardRow key={run.id} run={run} index={idx} onSelect={openRunDetail} />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeTab === "festival" && (
+                <div className="bg-gradient-to-r from-[#ff7e5f] to-[#feb47b] rounded-2xl p-8 mb-8 text-center relative overflow-hidden shadow-lg">
+                  <div className="relative z-10">
+                    <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-white text-xs font-bold mb-3 border border-white/40 backdrop-blur-sm">
+                      <Calendar size={12} /> SEASON EVENT
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-black text-white mb-2 drop-shadow-md tracking-tight">
+                      打倒・炎神杯
+                    </h2>
+                    <p className="text-white/90 text-lg font-bold">ルール：マーヴィカを編成に含めないこと。</p>
+                  </div>
+                </div>
+              )}
+
+              {leaderboardRuns.length === 0 && (
+                <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-[#dcdfe6]">
+                  <Search size={48} className="mx-auto mb-4 text-[#dcdfe6]" />
+                  <h3 className="text-lg font-bold text-[#606266]">記録が見つかりません</h3>
+                  <p className="text-sm text-[#909399]">条件を変更するか、最初の記録者になりましょう！</p>
+                </div>
+              )}
+            </main>
+
+            <footer className="mt-20 border-t border-[#ebebeb] bg-white py-12">
+              <div className="max-w-7xl mx-auto px-4 text-center text-[#909399] text-sm">
+                <div className="flex items-center justify-center gap-2 mb-4 opacity-70">
+                  <Timer size={20} />
+                  <span className="font-bold text-lg">Teyvat EliteDB</span>
+                </div>
+                <p className="mb-2">Community Driven Elite Hunting RTA Database (Prototype)</p>
+                <p>Created based on R's concept & Community Feedback.</p>
+              </div>
+            </footer>
+
+            <RunDetailModal
+              isOpen={isDetailOpen}
+              onClose={() => setIsDetailOpen(false)}
+              run={selectedRun}
+            />
+            <FilterModal
+              isOpen={isFilterOpen}
+              onClose={() => setIsFilterOpen(false)}
+              onReset={() => {
+                setIncludeInput("");
+                setExcludeInput("");
+                setFilterPlatform(null);
+              }}
+              onApply={({ includeIds: nextInclude, excludeIds: nextExclude, platform, includeMode: nextIncludeMode }) => {
+                setIncludeInput(nextInclude.join(","));
+                setExcludeInput(nextExclude.join(","));
+                setFilterPlatform(platform || null);
+                setIncludeMode(nextIncludeMode || "or");
+              }}
+              initialIncludeIds={includeIds}
+              initialExcludeIds={excludeIds}
+              initialPlatform={filterPlatform}
+              initialIncludeMode={includeMode}
+              characters={characters}
+            />
+              </>
+            )}
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
