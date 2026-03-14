@@ -1,9 +1,10 @@
+﻿@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
-  color: #f4f4f5;
-  background-color: #09090b;
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: #000000;
+  background-color: #ffffff;
+  font-family: "Noto Sans JP", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -24,8 +25,26 @@ body,
 
 body {
   margin: 0;
+  background: #ffffff;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9999b1;
+}
+
+.header-font {
+  font-family: "Space Grotesk", "Noto Sans JP", sans-serif;
 }
 
 code {
   font-family: "Consolas", "SFMono-Regular", monospace;
 }
+
