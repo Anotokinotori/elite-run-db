@@ -218,7 +218,7 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
   const partyLoadout = getPartyLoadout(run);
 
   return (
-    <div className="flex min-h-full flex-col gap-[16px] bg-white px-3 py-3 md:px-4 md:py-4 lg:px-5 lg:py-5">
+    <div className="flex min-h-full flex-col gap-[16px] bg-white px-3 py-3">
       <VideoFrame title={run.title} videoUrl={run.videoUrl} iframeRef={iframeRef} mute />
 
       <div className="flex flex-col gap-[12px]">
@@ -335,7 +335,7 @@ function CompareDrawer({
   return (
     <div className="fixed inset-y-0 right-0 z-50 hidden lg:block" aria-modal="false" role="complementary">
       <div className="flex h-full w-[50vw] flex-col border-l border-[#ebebeb] bg-white shadow-[-12px_0_24px_rgba(0,0,0,0.08)]">
-        <div className="flex min-h-[52px] items-center justify-between border-b border-[#ebebeb] px-3 py-2 md:px-4 lg:px-5">
+        <div className="flex min-h-[52px] items-center justify-between border-b border-[#ebebeb] px-4 py-2">
           <div className="min-w-0">
             <div className="text-[16px] font-semibold text-black md:text-[18px]">比較ビュー</div>
           </div>
