@@ -40,20 +40,15 @@ Before making changes, read these files first:
 - `docs/mocks/submit-step2-uid-modal.mock.tsx`
 - `docs/mocks/submit-step3.mock.tsx`
 
-### Temporary working baseline
+### Legacy prototype reference
 - `docs/mocks/submit-page-ui-prototype.html`
 
 Most files under `docs/` are **reference materials**, not production code.
 Use them to understand layout, hierarchy, and interaction intent.
-
-Exception:
-- `docs/mocks/submit-page-ui-prototype.html` is the current temporary integration baseline during this phase.
-- It may be edited directly while the prototype is being stabilized and expanded.
-- Other files under `docs/` should still be treated as reference-only unless a task explicitly says otherwise.
-
-Long-term target:
-- The final real app should live in the real source tree under `src/`.
-- After the flow is validated, the working prototype should be migrated out of `docs/` into the actual app source.
+- `docs/mocks/submit-page-ui-prototype.html` is a legacy prototype reference only.
+- Do not treat files under `docs/` as the real implementation target unless a task explicitly says otherwise.
+- Build the real app in the actual source tree under `src/`.
+- Use the HTML prototype to understand existing flow, data shape, and interaction intent, then migrate those ideas into the real app code.
 
 ---
 
@@ -67,10 +62,9 @@ This repo should become a maintainable React frontend later, but **right now** t
 - get UID-based character selection working
 - get local draft persistence working
 
-During this phase, it is acceptable for the actively edited working prototype to remain in
-`docs/mocks/submit-page-ui-prototype.html`.
+The current phase should move the app forward inside `src/`, using the legacy HTML prototype only as a migration reference.
 
-Later, after the flow is validated, a dedicated refactor / migration task should move that implementation into the proper `src`-based app structure.
+Do not keep expanding the real implementation inside `docs/`.
 
 ---
 
