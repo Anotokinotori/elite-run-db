@@ -444,6 +444,26 @@ function SectionTitle({
   );
 }
 
+function SearchSvdIcon() {
+  return (
+    <span className="inline-flex h-7 w-7 items-center justify-center text-current">
+      <svg
+        viewBox="0 0 24 24"
+        className="h-6 w-6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="10.5" cy="10.5" r="4.75" />
+        <path d="M14.25 14.25L18.5 18.5" />
+      </svg>
+    </span>
+  );
+}
+
 function StepIndicator({ currentStep, onBack }: { currentStep: SubmitStep; onBack: () => void }) {
   const steps = [
     { step: 1, label: "基本情報" },
@@ -1702,8 +1722,14 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                           placeholder="UID を入力"
                           className="min-w-0 flex-1 bg-transparent text-[18px] text-black outline-none md:text-[20px]"
                         />
-                        <button type="submit" className="shrink-0 text-left text-[18px] text-[#9999b1] md:text-[20px]">
-                          検索SVD
+                        <button
+                          type="submit"
+                          aria-label={"UID\u3092\u691c\u7d22"}
+                          title={"UID\u3092\u691c\u7d22"}
+                          className="group inline-flex h-[44px] shrink-0 items-center justify-center gap-[10px] rounded-[8px] bg-[#ececf2] px-4 text-[#5f6373] shadow-[inset_0_0_0_1px_rgba(123,123,141,0.14)] transition duration-150 hover:-translate-y-[1px] hover:bg-[#e4e5ec] hover:text-[#4d5160] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#333333]/10"
+                        >
+                          <SearchSvdIcon />
+                          <span className="text-[16px] font-medium leading-none md:text-[17px]">{"\u53d6\u5f97"}</span>
                         </button>
                       </div>
                     </form>
