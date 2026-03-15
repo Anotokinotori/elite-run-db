@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import {
   type Bracket,
@@ -16,6 +16,7 @@ import { CharacterIcon } from "./CharacterIcon";
 
 const SUBMIT_DRAFT_KEY = "elite-run-db.submitDraft.v1";
 const AUTO_SAVE_DELAY_MS = 500;
+const SUBMIT_SURFACE_SCALE = 0.75;
 const CHARACTER_OPTIONS = Object.values(characterDb);
 const WEAPON_OPTIONS = Object.values(weaponDb);
 const RULESET_OPTIONS = ["NPUI", "PUI", "PUA", "Npui飯", "淵下宮", "マルチNpui", "マルチPui", "マルチPUA"];
@@ -514,6 +515,44 @@ function StepIndicator({ currentStep, onBack }: { currentStep: SubmitStep; onBac
   );
 }
 
+function SubmitSurfaceScale({ children }: { children: ReactNode }) {
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [scaledHeight, setScaledHeight] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const node = contentRef.current;
+
+    if (!node) {
+      return;
+    }
+
+    const updateHeight = () => {
+      setScaledHeight(node.offsetHeight * SUBMIT_SURFACE_SCALE);
+    };
+
+    updateHeight();
+
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateHeight();
+    });
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="w-full" style={scaledHeight ? { height: scaledHeight } : undefined}>
+      <div ref={contentRef} style={{ transform: `scale(${SUBMIT_SURFACE_SCALE})`, transformOrigin: "top center" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function EmptyCharacterBadge({ label }: { label: string }) {
   return (
     <div className="grid h-[72px] w-[72px] place-items-center rounded-full bg-[#f2f2f2] text-[24px] font-medium text-[#b2b2c0]">
@@ -528,6 +567,40 @@ function BracketBadge({ bracket }: { bracket: Bracket }) {
   return (
     <span className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-semibold ${meta.accent} ${meta.text}`}>
       {meta.label}
+    </span>
+  );
+}
+
+function AttackerSelectionIndicator({
+  selected,
+  multiSelect,
+}: {
+  selected: boolean;
+  multiSelect: boolean;
+}) {
+  if (multiSelect) {
+    return (
+      <span
+        className={`grid h-7 w-7 place-items-center rounded-full border-2 transition md:h-8 md:w-8 ${
+          selected ? "border-[#333333] bg-[#333333] text-white" : "border-[#9999b1] bg-white text-transparent"
+        }`}
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12.5L9.5 17L19 7.5" />
+        </svg>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`grid h-7 w-7 place-items-center rounded-full border-2 transition md:h-8 md:w-8 ${
+        selected ? "border-[#333333]" : "border-[#9999b1]"
+      }`}
+      aria-hidden="true"
+    >
+      <span className={`h-3 w-3 rounded-full transition md:h-3.5 md:w-3.5 ${selected ? "bg-[#333333]" : "bg-transparent"}`} />
     </span>
   );
 }
@@ -1486,11 +1559,12 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
           </div>
         </nav>
 
-        <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6">
-          <StepIndicator currentStep={draft.currentStep} onBack={handleStepBack} />
+        <SubmitSurfaceScale>
+          <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6">
+            <StepIndicator currentStep={draft.currentStep} onBack={handleStepBack} />
 
-          {draft.currentStep === 1 ? (
-            <section className="mx-auto flex w-full max-w-[980px] flex-col gap-8">
+            {draft.currentStep === 1 ? (
+              <section className="mx-auto flex w-full max-w-[980px] flex-col gap-8">
               <StepHeroHeader
                 title="1.基本情報の入力"
                 description="記録申請に必要な情報を入力して下さい。※この項目は必須項目です。"
@@ -1627,16 +1701,16 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
 
                 <div className="h-px w-full bg-[#d9d9d9]" />
               </div>
-            </section>
-          ) : null}
+              </section>
+            ) : null}
 
-          {draft.currentStep === 2 ? (
-            <section className="mx-auto flex w-full max-w-[1180px] flex-col gap-8">
+            {draft.currentStep === 2 ? (
+              <section className="mx-auto flex w-full max-w-[1180px] flex-col gap-8">
               <StepHeroHeader title="2.編成情報の入力" description="申請する狩りの記録で使用した編成を入力してください。" />
 
               <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:gap-16">
                 <div className="flex flex-1 flex-col gap-8 border-b-2 border-[#d9d9d9] pb-8 xl:min-h-[864px]">
-                  <div className="md:px-[60px]">
+                  <div>
                     <form onSubmit={handleUidSearchSubmit} className="relative rounded-[8px] bg-[#f6f6f6]">
                       <div className="pointer-events-none absolute inset-0 rounded-[8px] border border-[rgba(0,0,0,0.4)]" />
                       <div className="flex items-center gap-3 px-4 py-3">
@@ -1659,7 +1733,7 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                   </div>
 
                   <div className="border-b border-[#d9d9d9]">
-                    <div className="flex gap-4 overflow-x-auto px-0 md:px-[60px]">
+                    <div className="flex gap-4 overflow-x-auto">
                       {draft.party.map((slot, index) => {
                         const active = activeSlot === index;
                         const slotCharacter = slot.characterId ? characterDb[slot.characterId] : null;
@@ -1845,11 +1919,11 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
 
                 </aside>
               </div>
-            </section>
-          ) : null}
+              </section>
+            ) : null}
 
-          {draft.currentStep === 3 ? (
-            <section className="mx-auto flex w-full max-w-[980px] flex-col gap-8">
+            {draft.currentStep === 3 ? (
+              <section className="mx-auto flex w-full max-w-[980px] flex-col gap-8">
               <StepHeroHeader title="3.詳細情報・ガイドライン" description="検索で見つけてもらいやすくするための項目です。" />
 
               <div className="flex flex-col gap-[44px]">
@@ -1864,17 +1938,20 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                           availablePartyCharacters.map((characterId) => {
                             const character = characterDb[characterId];
                             const isSelected = draft.details.mainAttackerIds.includes(characterId);
+                            const isMultiSelect = draft.basicInfo.playMode === "multiplayer";
 
                             return (
                               <button
                                 key={`attacker-${characterId}`}
                                 type="button"
                                 onClick={() => toggleMainAttacker(characterId)}
+                                role={isMultiSelect ? "checkbox" : "radio"}
+                                aria-checked={isSelected}
                                 className={`flex items-center gap-8 rounded-[8px] bg-[#f6f6f6] px-4 py-4 text-left ${
                                   isSelected ? "ring-2 ring-[#333333]" : ""
                                 }`}
                               >
-                                <div className={`text-[20px] md:text-[24px] ${isSelected ? "text-[#333333]" : "text-[#9999b1]"}`}>〇のSVD</div>
+                                <AttackerSelectionIndicator selected={isSelected} multiSelect={isMultiSelect} />
                                 <div className="flex items-center gap-3 text-[20px] text-[#9999b1] md:text-[24px]">
                                   <CharacterIcon characterId={characterId} alt={character.name} fallbackLabel={character.name} size={36} />
                                   <span>{character.name}</span>
@@ -1974,21 +2051,22 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                   </div>
                 </div>
               </div>
-            </section>
-          ) : null}
+              </section>
+            ) : null}
 
-          <div className="mt-8 flex flex-col gap-4">
-            <BottomActionButtons
-              currentStep={draft.currentStep}
-              onSave={handleManualSave}
-              onAdvance={handleStepAdvance}
-              onSubmit={handleSubmit}
-            />
-            <div className="mx-auto w-full max-w-[500px] text-center text-[13px] leading-[1.7] text-[#7b7b8d]">
-              下書きはブラウザに保持され、ダミー submit 後も自動では消しません。
+            <div className="mt-8 flex flex-col gap-4">
+              <BottomActionButtons
+                currentStep={draft.currentStep}
+                onSave={handleManualSave}
+                onAdvance={handleStepAdvance}
+                onSubmit={handleSubmit}
+              />
+              <div className="mx-auto w-full max-w-[500px] text-center text-[13px] leading-[1.7] text-[#7b7b8d]">
+                下書きはブラウザに保持され、ダミー submit 後も自動では消しません。
+              </div>
             </div>
           </div>
-        </div>
+        </SubmitSurfaceScale>
       </main>
 
       <CharacterPickerModal
