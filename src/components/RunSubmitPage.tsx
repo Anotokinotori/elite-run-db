@@ -865,14 +865,14 @@ function UidCharacterPickerModal({
   const profileCharacters = Array.from({ length: 8 }, (_, index) => profile?.characters[index] ?? null);
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[rgba(0,0,0,0.2)] px-4 py-6" onClick={onClose}>
+    <div className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-[rgba(0,0,0,0.2)] px-4 py-6" onClick={onClose}>
       <div
-        className="w-full max-w-[980px] rounded-[36px] bg-white p-6 shadow-[0_24px_48px_rgba(0,0,0,0.18)] md:p-[52px]"
+        className="flex max-h-[calc(100vh-48px)] w-full max-w-[980px] flex-col overflow-hidden rounded-[36px] bg-white p-6 shadow-[0_24px_48px_rgba(0,0,0,0.18)] md:p-[52px]"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="text-center text-[28px] font-bold text-black md:text-[32px]">キャラクター選択</div>
 
-        <div className="mt-10 flex flex-col gap-10">
+        <div className="mt-10 flex min-h-0 flex-1 flex-col gap-10 overflow-y-auto pr-1">
           <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_376px] xl:items-end">
             <div className="flex flex-col gap-4">
               <div className="text-[22px] font-bold text-[#9999b1] md:text-[24px]">プロフィールキャラクター</div>
@@ -889,9 +889,9 @@ function UidCharacterPickerModal({
                     type="button"
                     onClick={onFetch}
                     disabled={isLoading}
-                    className="rounded-[8px] bg-[#333333] px-5 py-3 text-[16px] text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex w-fit shrink-0 items-center justify-center self-start whitespace-nowrap rounded-[8px] bg-[#333333] px-5 py-3 text-[16px] text-white disabled:cursor-not-allowed disabled:opacity-60 md:self-auto"
                   >
-                    {isLoading ? "取得中..." : "プロフィール取得"}
+                    {isLoading ? "取得中..." : "取得"}
                   </button>
                 </div>
                 {profile?.nickname ? (
@@ -943,6 +943,9 @@ function UidCharacterPickerModal({
 
             <div className="flex flex-col gap-4">
               <div className="text-[22px] font-bold text-[#9999b1] md:text-[24px]">使用キャラクター</div>
+              <div className="text-[13px] leading-[1.7] text-[#7b7b8d]">
+                左のキャラを押すと選択、右の枠を押すとその枠だけ解除します。4 人埋まっている状態では 5 人目は追加されません。
+              </div>
               <div className="grid grid-cols-2 gap-[16px] sm:grid-cols-4 xl:grid-cols-4">
                 {Array.from({ length: 4 }, (_, index) => {
                   const selectedCharacter = selectedCharacters[index] ?? null;
@@ -971,9 +974,6 @@ function UidCharacterPickerModal({
                   );
                 })}
               </div>
-              <div className="text-[13px] leading-[1.7] text-[#7b7b8d]">
-                左のキャラを押すと選択、右の枠を押すとその枠だけ解除します。4 人埋まっている状態では 5 人目は追加されません。
-              </div>
             </div>
           </div>
 
@@ -981,7 +981,7 @@ function UidCharacterPickerModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-full rounded-[8px] border border-[#333333] bg-white px-6 py-4 text-[18px] text-black md:w-[152px] md:text-[24px]"
+              className="inline-flex w-fit shrink-0 items-center justify-center self-end whitespace-nowrap rounded-[8px] border border-[#333333] bg-white px-6 py-4 text-[18px] text-black md:self-auto md:text-[24px]"
             >
               キャンセル
             </button>
@@ -1885,7 +1885,7 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                 </div>
 
                 <aside className="w-full self-start rounded-[8px] bg-[#f6f6f6] p-4 xl:w-[492px]">
-                  <div className="rounded-[8px] border border-[#d9d9d9] bg-white">
+                  <div className="rounded-[8px] bg-white">
                     <div className="px-4 py-8 text-center">
                       <div className={`text-[72px] font-bold md:text-[96px] ${BRACKET_META[summary.bracket].text}`}>
                         {BRACKET_META[summary.bracket].label}
