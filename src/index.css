@@ -28,11 +28,13 @@ body {
   background: #ffffff;
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
+@layer base {
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
 }
 
 input::placeholder,
@@ -47,4 +49,6 @@ textarea::placeholder {
 code {
   font-family: "Consolas", "SFMono-Regular", monospace;
 }
+
+
 
