@@ -16,7 +16,7 @@ import { CharacterIcon } from "./CharacterIcon";
 
 const SUBMIT_DRAFT_KEY = "elite-run-db.submitDraft.v1";
 const AUTO_SAVE_DELAY_MS = 500;
-const SUBMIT_SURFACE_SCALE = 0.75;
+const SUBMIT_SURFACE_SCALE = 0.6;
 const CHARACTER_OPTIONS = Object.values(characterDb);
 const WEAPON_OPTIONS = Object.values(weaponDb);
 const RULESET_OPTIONS = ["NPUI", "PUI", "PUA", "Npui飯", "淵下宮", "マルチNpui", "マルチPui", "マルチPUA"];
@@ -59,7 +59,6 @@ const BRACKET_META: Record<Bracket, { label: string; accent: string; text: strin
 type SubmitStep = 1 | 2 | 3;
 type PlayMode = "solo" | "multiplayer";
 type FieldErrors = Record<string, string>;
-type DraftStatus = "idle" | "saving" | "saved";
 
 type SubmitPartySlot = {
   characterId: string;
@@ -655,8 +654,16 @@ function CharacterPickerModal({
           title="キャラ選択"
           description="Step 2 の 1 / 2 / 3 / 4 はパーティスロットです。選択すると現在のスロットに反映されます。"
           action={
-            <button type="button" onClick={onClose} className="rounded-full bg-[#f2f2f2] px-4 py-2 text-[13px] font-medium text-black">
-              閉じる
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="閉じる"
+              className="grid h-10 w-10 place-items-center rounded-full bg-[#f2f2f2] text-black"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <path d="M6 6L18 18" />
+                <path d="M18 6L6 18" />
+              </svg>
             </button>
           }
         />
@@ -1147,8 +1154,6 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
   const [draft, setDraft] = useState<SubmitDraft>(initialState.draft);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [activeSlot, setActiveSlot] = useState(0);
-  const [draftStatus, setDraftStatus] = useState<DraftStatus>("idle");
-  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [showCharacterPicker, setShowCharacterPicker] = useState(false);
   const [showWeaponPicker, setShowWeaponPicker] = useState(false);
   const [showGuidelines, setShowGuidelines] = useState(false);
@@ -1182,17 +1187,8 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
   );
 
   useEffect(() => {
-    setDraftStatus("saving");
-
     const timerId = window.setTimeout(() => {
-      const persisted = persistDraft(draft);
-
-      if (persisted) {
-        setDraftStatus("saved");
-        setLastSavedAt(Date.now());
-      } else {
-        setDraftStatus("idle");
-      }
+      persistDraft(draft);
     }, AUTO_SAVE_DELAY_MS);
 
     return () => window.clearTimeout(timerId);
@@ -1326,12 +1322,7 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
   };
 
   const handleManualSave = () => {
-    const persisted = persistDraft(draft);
-
-    if (persisted) {
-      setDraftStatus("saved");
-      setLastSavedAt(Date.now());
-    }
+    persistDraft(draft);
   };
 
   const handleSubmit = () => {
@@ -1522,18 +1513,6 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
     setShowUidModal(false);
   };
 
-  const saveStatusLabel =
-    draftStatus === "saving"
-      ? "下書きを保存中..."
-      : lastSavedAt
-        ? `下書き保存: ${new Date(lastSavedAt).toLocaleTimeString("ja-JP", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}`
-        : initialState.restored
-          ? "保存済み下書きを復元しました"
-          : "自動保存対応";
-
   return (
     <>
       <main className="min-h-screen bg-white text-[#333333]">
@@ -1553,7 +1532,6 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
               </button>
               <div>
                 <div className="text-[24px] font-semibold tracking-tight text-black md:text-[34px]">記録提出</div>
-                <div className="mt-1 text-[12px] font-medium text-[#7b7b8d] md:text-[13px]">{saveStatusLabel}</div>
               </div>
             </div>
           </div>
