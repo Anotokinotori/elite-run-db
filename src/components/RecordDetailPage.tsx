@@ -17,6 +17,7 @@ import {
   weaponDb,
 } from "../data/mockRuns";
 import { getSimilarRuns } from "../lib/getSimilarRuns";
+import { getYouTubeEmbedUrl } from "../lib/youtube";
 import { CharacterIcon } from "./CharacterIcon";
 
 const collapsedCopyStyle: CSSProperties = {
@@ -25,68 +26,6 @@ const collapsedCopyStyle: CSSProperties = {
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 3,
 };
-
-function getYouTubeVideoId(videoUrl: string) {
-  try {
-    const parsed = new URL(videoUrl);
-    const host = parsed.hostname.replace(/^www\./, "");
-
-    if (host === "youtu.be") {
-      return parsed.pathname.slice(1) || null;
-    }
-
-    if (host.endsWith("youtube.com")) {
-      const fromSearch = parsed.searchParams.get("v");
-
-      if (fromSearch) {
-        return fromSearch;
-      }
-
-      if (parsed.pathname.startsWith("/embed/")) {
-        return parsed.pathname.split("/")[2] ?? null;
-      }
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function getYouTubeEmbedUrl(
-  videoUrl: string,
-  options?: {
-    autoplay?: boolean;
-    mute?: boolean;
-    enableJsApi?: boolean;
-  },
-) {
-  const videoId = getYouTubeVideoId(videoUrl);
-
-  if (!videoId) {
-    return null;
-  }
-
-  const params = new URLSearchParams({
-    rel: "0",
-    modestbranding: "1",
-    playsinline: "1",
-  });
-
-  if (options?.autoplay) {
-    params.set("autoplay", "1");
-  }
-
-  if (options?.mute) {
-    params.set("mute", "1");
-  }
-
-  if (options?.enableJsApi) {
-    params.set("enablejsapi", "1");
-  }
-
-  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
-}
 
 function postYouTubeCommand(iframe: HTMLIFrameElement | null, command: "playVideo" | "pauseVideo") {
   iframe?.contentWindow?.postMessage(
@@ -425,7 +364,7 @@ function SimilarActionMenu({
   );
 }
 
-export function RecordDetailPage() {
+export function RecordDetailPage({ onRequestSubmit }: { onRequestSubmit?: () => void }) {
   const currentRun = getRunById(defaultRunId);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -567,6 +506,7 @@ export function RecordDetailPage() {
             <div className={`flex items-center ${forceMobileLayout ? "gap-2" : "gap-3 md:gap-4"}`}>
               <button
                 type="button"
+                onClick={onRequestSubmit}
                 className={`flex h-9 w-9 items-center justify-center rounded-full bg-black text-white ${forceMobileLayout ? "" : "md:h-auto md:w-auto md:gap-2 md:px-5 md:py-2.5 md:text-[20px]"}`}
               >
                 <span className="text-[20px] leading-none md:text-[22px]">＋</span>
@@ -764,7 +704,6 @@ export function RecordDetailPage() {
     </>
   );
 }
-
 
 
 
