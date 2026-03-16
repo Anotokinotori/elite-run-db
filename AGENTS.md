@@ -277,6 +277,7 @@ If the environment supports tests/build:
 - if something is skipped, state that clearly in the final summary
 
 When creating a pull request:
+- write the pull request title and body in Japanese unless the human explicitly asks for another language
 - include what changed
 - include why the code was written that way
 - include the intent behind non-obvious implementation choices or tradeoffs
