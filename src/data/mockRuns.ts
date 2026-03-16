@@ -408,7 +408,7 @@ const rawRuns: RunRecordRaw[] = [
     videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
     summary:
       "Natlan 側の密集を先に崩してから Npui 側へ戻る、短期決戦寄りの高難度ルートです。\n\n炎付着を切らさないことと、Furina の burst を最後まで温存しすぎないことが今回の安定ポイントでした。細かいルート取りはまだ詰め切れていないので、更新余地はあります。",
-    tags: ["高難度", "Natlan", "Mavuika", "Furina", "高速処理", "炎共鳴", "短期決戦", "PCのSVD"],
+    tags: ["高難度", "Natlan", "Mavuika", "Furina", "高速処理", "炎共鳴", "短期決戦", "PC"],
     likeCount: 68,
     shareCount: 9,
     mainAttackerId: "mav",
@@ -457,7 +457,7 @@ const rawRuns: RunRecordRaw[] = [
     videoUrl: "https://www.youtube.com/watch?v=8yGn2O9yVi4",
     summary:
       "Citlali を入れて事故率を下げた安定寄りの編成。終盤の移動を少し長めに取っている代わりに、被弾リカバリーがしやすいです。",
-    tags: ["高難度", "安定寄り", "Mavuika", "Citlali", "PC+PCのSVD"],
+    tags: ["高難度", "安定寄り", "Mavuika", "Citlali", "PC+PC"],
     likeCount: 41,
     shareCount: 5,
     mainAttackerId: "mav",
