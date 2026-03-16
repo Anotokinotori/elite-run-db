@@ -953,14 +953,20 @@ function HomeShell({ children }: { children: ReactNode }) {
 export function RunHomePage({
   onRequestSubmit,
   onSelectRun,
+  embedded = false,
+  selectedSeason,
+  onSelectedSeasonChange,
 }: {
   onRequestSubmit: () => void;
   onSelectRun: (runId: string) => void;
+  embedded?: boolean;
+  selectedSeason?: string;
+  onSelectedSeasonChange?: (season: string) => void;
 }) {
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
   const topRowRef = useRef<HTMLDivElement | null>(null);
   const [runs] = useState<HomeRun[]>(() => applyWRTag(mockRuns.map(normalizeHomeRun)));
-  const [activeSeason, setActiveSeason] = useState(getDefaultSeason(SEASONS));
+  const [activeSeasonInternal, setActiveSeasonInternal] = useState(getDefaultSeason(SEASONS));
   const [activeTab] = useState<"main" | "festival">("main");
   const [filterBracket, setFilterBracket] = useState<Bracket | null>(null);
   const [filterPlatform, setFilterPlatform] = useState<Platform | null>(null);
@@ -975,6 +981,8 @@ export function RunHomePage({
   const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
   const [showTopScrollLeft, setShowTopScrollLeft] = useState(false);
   const [showTopScrollRight, setShowTopScrollRight] = useState(false);
+  const activeSeason = selectedSeason ?? activeSeasonInternal;
+  const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
 
   const includeIds = useMemo(() => parseAttackerInput(includeInput), [includeInput]);
   const excludeIds = useMemo(() => parseAttackerInput(excludeInput), [excludeInput]);
@@ -1038,47 +1046,49 @@ export function RunHomePage({
 
   return (
     <HomeShell>
-      <nav className="bg-white sticky top-0 z-40 border-b border-[#ebebeb]">
-        <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-2 md:py-3 flex items-center justify-between header-font">
-          <div className="flex items-center gap-4 md:gap-6">
-            <h1 className="text-[26px] md:text-[38px] font-semibold tracking-tight text-black">{APP_TITLE}</h1>
-            <div className="relative">
-              <select
-                className="appearance-none bg-white border border-black/30 rounded-full pl-3 md:pl-4 pr-12 md:pr-14 py-1.5 text-[16px] md:text-[20px] font-medium text-black"
-                value={activeSeason}
-                onChange={(event) => setActiveSeason(event.target.value)}
+      {embedded ? null : (
+        <nav className="bg-white sticky top-0 z-40 border-b border-[#ebebeb]">
+          <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-2 md:py-3 flex items-center justify-between header-font">
+            <div className="flex items-center gap-4 md:gap-6">
+              <h1 className="text-[26px] md:text-[38px] font-semibold tracking-tight text-black">{APP_TITLE}</h1>
+              <div className="relative">
+                <select
+                  className="appearance-none bg-white border border-black/30 rounded-full pl-3 md:pl-4 pr-12 md:pr-14 py-1.5 text-[16px] md:text-[20px] font-medium text-black"
+                  value={activeSeason}
+                  onChange={(event) => setActiveSeason(event.target.value)}
+                >
+                  {SEASONS.map((season) => (
+                    <option key={season} value={season}>
+                      {season}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-4 md:right-5 top-1/2 -translate-y-1/2 text-black/70">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 md:gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  onRequestSubmit();
+                }}
+                className="bg-black text-white rounded-full text-[16px] md:text-[20px] font-medium flex items-center justify-center md:justify-start gap-0 md:gap-2 w-9 h-9 md:w-auto md:h-auto px-0 md:px-5 py-0 md:py-2.5"
               >
-                {SEASONS.map((season) => (
-                  <option key={season} value={season}>
-                    {season}
-                  </option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-4 md:right-5 top-1/2 -translate-y-1/2 text-black/70">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </span>
+                <span className="md:hidden flex items-center justify-center w-full h-full text-[20px] leading-none">+</span>
+                <span className="hidden md:inline text-[22px] leading-none">+</span>
+                <span className="hidden md:inline">{SUBMIT_LABEL}</span>
+              </button>
+              <div className="w-9 h-9 rounded-full border border-black/30 bg-white" aria-label="User avatar" />
             </div>
           </div>
-
-          <div className="flex items-center gap-3 md:gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                onRequestSubmit();
-              }}
-              className="bg-black text-white rounded-full text-[16px] md:text-[20px] font-medium flex items-center justify-center md:justify-start gap-0 md:gap-2 w-9 h-9 md:w-auto md:h-auto px-0 md:px-5 py-0 md:py-2.5"
-            >
-              <span className="md:hidden flex items-center justify-center w-full h-full text-[20px] leading-none">+</span>
-              <span className="hidden md:inline text-[22px] leading-none">+</span>
-              <span className="hidden md:inline">{SUBMIT_LABEL}</span>
-            </button>
-            <div className="w-9 h-9 rounded-full border border-black/30 bg-white" aria-label="User avatar" />
-          </div>
-        </div>
-      </nav>
+        </nav>
+      )}
 
       {activeTab === "main" ? (
         <div

@@ -270,6 +270,7 @@ function CompareDrawer({
   comparedRun,
   isOpen,
   syncPlaying,
+  embedded = false,
   onClose,
   onToggleSync,
 }: {
@@ -277,6 +278,7 @@ function CompareDrawer({
   comparedRun: RunRecord | null;
   isOpen: boolean;
   syncPlaying: boolean;
+  embedded?: boolean;
   onClose: () => void;
   onToggleSync: () => void;
 }) {
@@ -317,7 +319,7 @@ function CompareDrawer({
   }
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 hidden lg:block" aria-modal="false" role="complementary">
+    <div className={embedded ? "fixed top-[80px] right-0 bottom-0 z-20 hidden lg:block" : "fixed inset-y-0 right-0 z-50 hidden lg:block"} aria-modal="false" role="complementary">
       <div className="flex h-full w-[50vw] flex-col border-l border-[#ebebeb] bg-white shadow-[-12px_0_24px_rgba(0,0,0,0.08)]">
         <div className="flex min-h-[52px] items-center justify-between border-b border-[#ebebeb] px-4 py-2">
           <div className="min-w-0">
@@ -416,10 +418,12 @@ export function RecordDetailPage({
   runId,
   onBack,
   onRequestSubmit,
+  embedded = false,
 }: {
   runId?: string;
   onBack?: () => void;
   onRequestSubmit?: () => void;
+  embedded?: boolean;
 }) {
   const currentRun = getRunById(runId ?? defaultRunId) ?? getRunById(defaultRunId) ?? null;
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
@@ -487,9 +491,16 @@ export function RecordDetailPage({
   const shouldShowExpandedArea = descriptionExpanded && (currentRun.summary.length > 0 || currentRun.tags.length > 0);
   const canExpandDescription = currentRun.tags.length > 0 || currentRun.summary.length > 0;
   const partyLoadout = getPartyLoadout(currentRun);
+  const mainSurfaceClass = embedded
+    ? compareOpen
+      ? "min-h-full lg:mr-[50vw]"
+      : "min-h-full"
+    : compareOpen
+      ? "fixed inset-y-0 left-0 z-40 overflow-y-auto lg:w-[50vw]"
+      : "min-h-screen lg:w-full";
 
   useEffect(() => {
-    if (!compareOpen) {
+    if (!compareOpen || embedded) {
       return;
     }
 
@@ -499,7 +510,7 @@ export function RecordDetailPage({
     return () => {
       document.body.style.overflow = originalOverflow;
     };
-  }, [compareOpen]);
+  }, [compareOpen, embedded]);
 
   const handleCommentSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -551,8 +562,30 @@ export function RecordDetailPage({
 
   return (
     <>
-      <main className={`bg-white text-[#333333] transition-[width] duration-300 ${compareOpen ? "fixed inset-y-0 left-0 z-40 overflow-y-auto lg:w-[50vw]" : "min-h-screen lg:w-full"}`}>
-        <nav className="sticky top-0 z-40 border-b border-[#ebebeb] bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)]">
+      <main className={`bg-white text-[#333333] transition-[width] duration-300 ${mainSurfaceClass}`}>
+        {embedded ? (
+          <div className="border-b border-[#ebebeb] bg-white">
+            <div className={`header-font mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 ${forceMobileLayout ? "" : "md:px-6"}`}>
+              {onBack ? (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  aria-label="一覧へ戻る"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f2f2f2] text-black transition hover:bg-[#e8e8e8]"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M15 5L8 12L15 19" />
+                  </svg>
+                </button>
+              ) : null}
+              <div className="min-w-0">
+                <div className={`font-semibold tracking-tight text-black ${forceMobileLayout ? "text-[20px]" : "text-[22px] md:text-[28px]"}`}>記録詳細</div>
+                <div className="truncate text-[12px] text-[#9999b1] md:text-[13px]">{currentRun.title}</div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+        <nav className={embedded ? "hidden" : "sticky top-0 z-40 border-b border-[#ebebeb] bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)]"}>
           <div className={`header-font mx-auto flex max-w-[1600px] items-center justify-between px-4 py-2 ${forceMobileLayout ? "min-h-[52px]" : "md:px-6 md:py-3"}`}>
             <div className={`flex items-center ${forceMobileLayout ? "gap-3" : "gap-4 md:gap-6"}`}>
               {onBack ? (
@@ -782,6 +815,7 @@ export function RecordDetailPage({
         comparedRun={compareRun}
         isOpen={compareOpen}
         syncPlaying={syncPlaying}
+        embedded={embedded}
         onClose={() => {
           setCompareQueuedRunId(null);
           setSyncPlaying(false);
@@ -791,12 +825,6 @@ export function RecordDetailPage({
     </>
   );
 }
-
-
-
-
-
-
 
 
 
