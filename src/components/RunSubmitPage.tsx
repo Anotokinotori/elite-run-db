@@ -13,6 +13,7 @@ import {
 import { fetchEnkaProfile, isValidEnkaUid, type EnkaProfile, type EnkaProfileCharacter } from "../lib/enkaNetwork";
 import { isYouTubeUrl } from "../lib/youtube";
 import { CharacterIcon } from "./CharacterIcon";
+import { PlatformIcon } from "./UiIcons";
 
 const SUBMIT_DRAFT_KEY = "elite-run-db.submitDraft.v1";
 const AUTO_SAVE_DELAY_MS = 500;
@@ -447,7 +448,7 @@ function SectionTitle({
   );
 }
 
-function SearchSvdIcon() {
+function SearchActionIcon() {
   return (
     <span className="inline-flex h-7 w-7 items-center justify-center text-current">
       <svg
@@ -464,6 +465,15 @@ function SearchSvdIcon() {
         <path d="M14.25 14.25L18.5 18.5" />
       </svg>
     </span>
+  );
+}
+
+function PlatformChoiceContent({ platform }: { platform: Platform }) {
+  return (
+    <>
+      <PlatformIcon platform={platform} className="h-5 w-5 md:h-6 md:w-6" />
+      <span>{platform}</span>
+    </>
   );
 }
 
@@ -1118,7 +1128,7 @@ function MockChoiceButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-[42px] px-5 py-4 text-[18px] transition md:text-[24px] ${
+      className={`inline-flex items-center justify-center gap-3 rounded-[42px] px-5 py-4 text-[18px] transition md:text-[24px] ${
         active ? "bg-[#333333] text-white" : "bg-[#f2f2f2] text-[#9999b1]"
       } ${className}`}
     >
@@ -1675,7 +1685,7 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                           onClick={() => updateBasicInfo("primaryPlatform", option)}
                           className="w-full"
                         >
-                          {option}
+                          <PlatformChoiceContent platform={option} />
                         </MockChoiceButton>
                       ))}
                     </div>
@@ -1692,7 +1702,7 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                             onClick={() => updateBasicInfo("secondaryPlatform", option)}
                             className="w-full"
                           >
-                            {option}
+                            <PlatformChoiceContent platform={option} />
                           </MockChoiceButton>
                         ))}
                       </div>
@@ -1732,7 +1742,7 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
                           title={"UID\u3092\u691c\u7d22"}
                           className="group inline-flex h-[44px] shrink-0 items-center justify-center gap-[10px] rounded-[8px] bg-[#ececf2] px-4 text-[#5f6373] shadow-[inset_0_0_0_1px_rgba(123,123,141,0.14)] transition duration-150 hover:-translate-y-[1px] hover:bg-[#e4e5ec] hover:text-[#4d5160] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#333333]/10"
                         >
-                          <SearchSvdIcon />
+                          <SearchActionIcon />
                           <span className="text-[16px] font-medium leading-none md:text-[17px]">{"\u53d6\u5f97"}</span>
                         </button>
                       </div>

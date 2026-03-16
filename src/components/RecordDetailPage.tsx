@@ -19,6 +19,7 @@ import {
 import { getSimilarRuns } from "../lib/getSimilarRuns";
 import { getYouTubeEmbedUrl } from "../lib/youtube";
 import { CharacterIcon } from "./CharacterIcon";
+import { LikeIcon, PauseIcon, PlayIcon, PlatformIcon, ShareIcon } from "./UiIcons";
 
 const collapsedCopyStyle: CSSProperties = {
   display: "-webkit-box",
@@ -122,6 +123,52 @@ function SectionTitle({ children }: { children: ReactNode }) {
   return <div className="text-[16px] font-bold leading-none text-black md:text-[18px]">{children}</div>;
 }
 
+function parsePlatformTag(tag: string): RunRecord["platform"][] | null {
+  const parts = tag.replace(/\s/g, "").split("+");
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  if (parts.every((part) => part === "PC" || part === "PS5" || part === "Mobile")) {
+    return parts as RunRecord["platform"][];
+  }
+
+  return null;
+}
+
+function PlatformLabel({
+  platform,
+  iconClassName = "h-4 w-4",
+}: {
+  platform: RunRecord["platform"];
+  iconClassName?: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-[6px]">
+      <PlatformIcon platform={platform} className={iconClassName} />
+      <span>{platform}</span>
+    </span>
+  );
+}
+
+function TagChip({ tag }: { tag: string }) {
+  const platformParts = parsePlatformTag(tag);
+
+  return (
+    <span className="inline-flex items-center gap-[6px] rounded-[42px] bg-white px-[10px] py-[5px] text-[12px] text-black md:px-[12px] md:py-[6px] md:text-[13px]">
+      {platformParts ? (
+        <span className="inline-flex items-center gap-[4px]">
+          {platformParts.map((platform, index) => (
+            <PlatformIcon key={`${tag}-${platform}-${index}`} platform={platform} className="h-[13px] w-[13px] md:h-[14px] md:w-[14px]" />
+          ))}
+        </span>
+      ) : null}
+      <span>{tag}</span>
+    </span>
+  );
+}
+
 function VideoFrame({
   title,
   videoUrl,
@@ -168,8 +215,9 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
               <CircleAvatar label={run.userName} size={40} />
               <div className="truncate text-[16px] font-bold leading-none text-black md:text-[18px]">{run.userName}</div>
             </div>
-            <div className="shrink-0 rounded-[42px] bg-[#f2f2f2] px-[10px] py-[5px] text-[12px] text-black md:text-[13px]">
-              {run.platform}
+            <div className="inline-flex shrink-0 items-center gap-[6px] rounded-[42px] bg-[#f2f2f2] px-[10px] py-[5px] text-[12px] text-black md:text-[13px]">
+              <PlatformIcon platform={run.platform} className="h-[13px] w-[13px]" />
+              <span>{run.platform}</span>
             </div>
           </div>
         </div>
@@ -178,16 +226,13 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
           <div className="flex items-center gap-x-[16px] overflow-x-auto whitespace-nowrap text-[13px] text-black md:gap-x-[18px] md:text-[14px]">
             <span>ver : {run.versionLabel}</span>
             <span>{run.postedLabel}</span>
-            <span>{run.platform}のSVD</span>
-            <span>{run.platform}</span>
+            <PlatformLabel platform={run.platform} />
           </div>
           <div className="mt-[12px] space-y-[12px]">
             <p className="whitespace-pre-line text-[14px] leading-[1.75] text-black md:text-[15px]">{run.summary}</p>
             <div className="flex flex-wrap gap-[10px] md:gap-[12px]">
               {run.tags.map((tag) => (
-                <span key={`${run.id}-${tag}`} className="rounded-[42px] bg-white px-[10px] py-[5px] text-[12px] text-black md:px-[12px] md:py-[6px] md:text-[13px]">
-                  {tag}
-                </span>
+                <TagChip key={`${run.id}-${tag}`} tag={tag} />
               ))}
             </div>
           </div>
@@ -282,9 +327,10 @@ function CompareDrawer({
             <button
               type="button"
               onClick={onToggleSync}
-              className="inline-flex h-9 items-center justify-center rounded-[42px] bg-[#f2f2f2] px-4 text-[13px] font-medium text-black transition hover:bg-[#e8e8e8]"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] bg-[#f2f2f2] px-4 text-[13px] font-medium text-black transition hover:bg-[#e8e8e8]"
             >
-              {syncPlaying ? "同期停止" : "同期再生"}
+              {syncPlaying ? <PauseIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
+              <span>{syncPlaying ? "同期停止" : "同時再生"}</span>
             </button>
             <button
               type="button"
@@ -339,17 +385,19 @@ function SimilarActionMenu({
         <div className="absolute right-0 top-full z-20 mt-2 w-[168px] rounded-[12px] border border-[#ebebeb] bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
           <button
             type="button"
-            className="block w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2]"
+            className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2]"
             onClick={() => onAction("like")}
           >
-            {liked ? "いいね解除" : "いいねSVD"}
+            <LikeIcon className="h-4 w-4" />
+            <span>{liked ? "いいね解除" : "いいね"}</span>
           </button>
           <button
             type="button"
-            className="block w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2]"
+            className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2]"
             onClick={() => onAction("share")}
           >
-            {shared ? "共有解除" : "共有SVD"}
+            <ShareIcon className="h-4 w-4" />
+            <span>{shared ? "共有解除" : "共有"}</span>
           </button>
           <button
             type="button"
@@ -568,10 +616,12 @@ export function RecordDetailPage({
                   </div>
                   <div className={`flex gap-[12px] md:gap-[12px] ${compareOpen ? "w-full shrink min-w-0 flex-wrap" : "shrink-0 flex-nowrap"}`}>
                     <PillButton active={liked} onClick={() => setLiked((previous) => !previous)} className="min-h-[36px] min-w-[92px]">
-                      いいねSVD
+                      <LikeIcon className="h-4 w-4" />
+                      <span>いいね</span>
                     </PillButton>
                     <PillButton active={shared} onClick={() => setShared((previous) => !previous)} className="min-h-[36px] min-w-[92px]">
-                      共有SVD
+                      <ShareIcon className="h-4 w-4" />
+                      <span>共有</span>
                     </PillButton>
                   </div>
                 </div>
@@ -582,8 +632,7 @@ export function RecordDetailPage({
                   <div className={`flex min-w-0 gap-x-[16px] text-[13px] text-black md:gap-x-[18px] md:text-[14px] ${compareOpen ? "flex-wrap items-center gap-y-[6px]" : "items-center"}`}>
                     <span>ver : {currentRun.versionLabel}</span>
                     <span>{currentRun.postedLabel}</span>
-                    <span>{currentRun.platform}のSVD</span>
-                    <span>{currentRun.platform}</span>
+                    <PlatformLabel platform={currentRun.platform} />
                   </div>
                   {canExpandDescription && !descriptionExpanded ? (
                     <button
@@ -603,9 +652,7 @@ export function RecordDetailPage({
                     </p>
                     <div className="flex flex-wrap gap-[10px] md:gap-[12px]">
                       {visibleTags.map((tag) => (
-                        <span key={tag} className={`rounded-[42px] bg-white px-[10px] py-[5px] text-black ${forceMobileLayout ? "text-[12px]" : "text-[12px] md:px-[12px] md:py-[6px] md:text-[13px]"}`}>
-                          {tag}
-                        </span>
+                        <TagChip key={tag} tag={tag} />
                       ))}
                     </div>
                   </div>
@@ -623,9 +670,9 @@ export function RecordDetailPage({
                       value={commentDraft}
                       onChange={(event) => setCommentDraft(event.target.value)}
                       placeholder="コメントする..."
-                      className={`w-full border-none bg-transparent text-black outline-none ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}
+                      className={`min-w-0 flex-1 border-none bg-transparent text-black outline-none ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}
                     />
-                    <PillButton className="ml-[8px] min-h-[30px] px-[12px] py-[5px] text-[12px] md:text-[13px]">送信SVD</PillButton>
+                    <PillButton className="ml-[8px] min-h-[30px] shrink-0 whitespace-nowrap px-[12px] py-[5px] text-[12px] md:text-[13px]">送信</PillButton>
                   </div>
                 </form>
               </div>
@@ -641,7 +688,10 @@ export function RecordDetailPage({
                       </div>
                       <div className={`leading-[1.75] text-[#3d3d3d] ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}>{comment.body}</div>
                       <div className={`flex gap-[12px] md:gap-[12px] ${compareOpen ? "w-full shrink min-w-0 flex-wrap" : "shrink-0 flex-nowrap"}`}>
-                        <PillButton className="px-[8px] py-[4px] text-[11px] md:text-[12px]">いいねSVD</PillButton>
+                        <PillButton className="px-[8px] py-[4px] text-[11px] md:text-[12px]">
+                          <LikeIcon className="h-3 w-3" />
+                          <span>いいね</span>
+                        </PillButton>
                         <PillButton className="px-[8px] py-[4px] text-[11px] md:text-[12px]">返信</PillButton>
                       </div>
                     </div>
@@ -741,14 +791,6 @@ export function RecordDetailPage({
     </>
   );
 }
-
-
-
-
-
-
-
-
 
 
 
