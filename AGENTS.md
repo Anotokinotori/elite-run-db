@@ -78,6 +78,14 @@ Do not keep expanding the real implementation inside `docs/`.
 - Do not keep raw Figma `FrameXX` names in production code
 - Replace them with meaningful component names
 
+### Mock fidelity
+- When a task says to follow a mock, prioritize reproducing the mock's visual layout as closely as practical
+- Correct behavior matters, but visual fidelity also matters and should not be traded away casually
+- Do not replace mock-specific layout with a more generic UI just to improve cross-page consistency or reduce implementation effort unless the human explicitly allows that deviation
+- Match spacing, sizing, alignment, density, hierarchy, and relative positioning as closely as practical
+- If extra UI is required for functionality that the mock did not show, attach it beneath or adjacent to the most semantically related mock element instead of redesigning the layout around it
+- If the implementation must deviate from the mock for a concrete reason, explicitly say so and keep the deviation as small as possible
+
 ### Componentization
 Minimal necessary componentization is encouraged.
 Good examples:
@@ -267,6 +275,12 @@ If the environment supports tests/build:
 - run the smallest relevant verification first
 - prefer targeted checks before expensive full checks
 - if something is skipped, state that clearly in the final summary
+
+When creating a pull request:
+- include what changed
+- include why the code was written that way
+- include the intent behind non-obvious implementation choices or tradeoffs
+- do not rely on the human to ask for implementation rationale separately every time
 
 ---
 
