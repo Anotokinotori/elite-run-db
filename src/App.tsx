@@ -1,5 +1,5 @@
-﻿import { RecordDetailPage } from "./components/RecordDetailPage";
+import RootApp from "./RootApp";
 
 export default function App() {
-  return <RecordDetailPage />;
+  return <RootApp />;
 }

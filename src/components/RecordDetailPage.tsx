@@ -364,8 +364,16 @@ function SimilarActionMenu({
   );
 }
 
-export function RecordDetailPage({ onRequestSubmit }: { onRequestSubmit?: () => void }) {
-  const currentRun = getRunById(defaultRunId);
+export function RecordDetailPage({
+  runId,
+  onBack,
+  onRequestSubmit,
+}: {
+  runId?: string;
+  onBack?: () => void;
+  onRequestSubmit?: () => void;
+}) {
+  const currentRun = getRunById(runId ?? defaultRunId) ?? getRunById(defaultRunId) ?? null;
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [liked, setLiked] = useState(false);
   const [shared, setShared] = useState(false);
@@ -401,6 +409,23 @@ export function RecordDetailPage({ onRequestSubmit }: { onRequestSubmit?: () => 
     setCompareQueuedRunId(null);
     setSyncPlaying(false);
   }, [isDesktop]);
+
+  useEffect(() => {
+    if (!currentRun) {
+      return;
+    }
+
+    setDescriptionExpanded(false);
+    setLiked(false);
+    setShared(false);
+    setCommentDraft("");
+    setComments(currentRun.comments);
+    setOpenMenuRunId(null);
+    setCompareQueuedRunId(null);
+    setSyncPlaying(false);
+    setSimilarActionState({});
+    setHeaderVersion(currentRun.versionLabel);
+  }, [currentRun]);
 
   if (!currentRun) {
     return null;
@@ -482,6 +507,18 @@ export function RecordDetailPage({ onRequestSubmit }: { onRequestSubmit?: () => 
         <nav className="sticky top-0 z-40 border-b border-[#ebebeb] bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)]">
           <div className={`header-font mx-auto flex max-w-[1600px] items-center justify-between px-4 py-2 ${forceMobileLayout ? "min-h-[52px]" : "md:px-6 md:py-3"}`}>
             <div className={`flex items-center ${forceMobileLayout ? "gap-3" : "gap-4 md:gap-6"}`}>
+              {onBack ? (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  aria-label="一覧へ戻る"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f2f2f2] text-black transition hover:bg-[#e8e8e8]"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M15 5L8 12L15 19" />
+                  </svg>
+                </button>
+              ) : null}
               <h1 className={`font-semibold tracking-tight text-black ${forceMobileLayout ? "text-[24px]" : "text-[26px] md:text-[38px]"}`}>精鋭狩りDB</h1>
               <div className="relative">
                 <select
@@ -704,8 +741,6 @@ export function RecordDetailPage({ onRequestSubmit }: { onRequestSubmit?: () => 
     </>
   );
 }
-
-
 
 
 
