@@ -179,7 +179,10 @@ function loadInitialDraftState() {
     }
 
     return {
-      draft: mergeDraft(JSON.parse(raw)),
+      draft: {
+        ...mergeDraft(JSON.parse(raw)),
+        currentStep: 1 as SubmitStep,
+      },
       restored: true,
     };
   } catch {
@@ -1366,8 +1369,9 @@ export function RunSubmitPage({ onBack }: { onBack: () => void }) {
       return;
     }
 
-    window.alert("提出しました");
     handleManualSave();
+    window.alert("提出しました");
+    onBack();
   };
 
   const toggleTag = (tag: string) => {
