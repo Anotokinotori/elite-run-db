@@ -28,6 +28,12 @@ const collapsedCopyStyle: CSSProperties = {
   WebkitLineClamp: 3,
 };
 
+const DETAIL_PANEL_SHELL_CLASS = "relative overflow-hidden rounded-[20px] bg-[#3d3c3d] drop-shadow-xl";
+const DETAIL_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#323132] text-white/90";
+const DETAIL_MUTED_SURFACE_CLASS = "rounded-[16px] border border-white/10 bg-[#272727]";
+const DETAIL_ICON_BUTTON_CLASS =
+  "grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-[#272727] text-white/82 transition hover:bg-white/[0.12] hover:text-white";
+
 function postYouTubeCommand(iframe: HTMLIFrameElement | null, command: "playVideo" | "pauseVideo") {
   iframe?.contentWindow?.postMessage(
     JSON.stringify({
@@ -114,7 +120,9 @@ function PillButton({
       type="button"
       onClick={onClick}
       className={`inline-flex items-center justify-center gap-2 rounded-[42px] px-[14px] py-[7px] text-[14px] font-medium leading-none transition duration-150 hover:-translate-y-[1px] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] md:text-[15px] ${
-        dark || active ? "bg-[#333333] text-white" : "bg-[#f2f2f2] text-black"
+        dark || active
+          ? "border border-black/50 bg-black text-white"
+          : "border border-white/10 bg-[#272727] text-white/90 hover:bg-[#303030]"
       } ${className}`}
     >
       {children}
@@ -137,30 +145,37 @@ function TinyBadge({ label, highlighted = false }: { label: string; highlighted?
 }
 
 function SectionTitle({ children }: { children: ReactNode }) {
-  return <div className="text-[16px] font-bold leading-none text-black md:text-[18px]">{children}</div>;
+  return <div className="text-[16px] font-bold leading-none text-white/90 md:text-[18px]">{children}</div>;
 }
 
 function SidebarPanel({ children }: { children: ReactNode }) {
-  return <section className="w-full rounded-[16px] border border-[#ebebeb] bg-white p-[16px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">{children}</section>;
+  return (
+    <section className={`w-full ${DETAIL_PANEL_SHELL_CLASS}`}>
+      <div className={`${DETAIL_PANEL_INNER_CLASS} p-[16px]`}>
+        <div className="pointer-events-none absolute -left-[30%] -top-[44%] h-[220px] w-[220px] rounded-full bg-white/18 blur-[72px]" />
+        <div className="relative z-[1]">{children}</div>
+      </div>
+    </section>
+  );
 }
 
 function SidebarSectionHeader({ title, meta }: { title: ReactNode; meta?: ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-[12px]">
       <SectionTitle>{title}</SectionTitle>
-      {meta ? <div className="shrink-0 text-[12px] font-medium text-[#8d93a3] md:text-[13px]">{meta}</div> : null}
+      {meta ? <div className="shrink-0 text-[12px] font-medium text-white/52 md:text-[13px]">{meta}</div> : null}
     </div>
   );
 }
 
 function LoadoutEntryCard({ entry }: { entry: PartyLoadoutEntry }) {
   return (
-    <div className="rounded-[16px] border border-[#eceff3] bg-[#fbfbfc] p-[12px] md:p-[14px]">
+    <div className="rounded-[16px] border border-white/10 bg-[#272727] p-[12px] md:p-[14px]">
       <div className="flex items-start gap-[12px] md:gap-[14px]">
         <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={56} />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[16px] font-semibold leading-[1.2] text-black md:text-[17px]">{entry.characterName}</div>
-          <div className="mt-[5px] truncate text-[13px] leading-[1.45] text-[#8f94a3] md:text-[14px]">{entry.weaponName}</div>
+          <div className="truncate text-[16px] font-semibold leading-[1.2] text-white/92 md:text-[17px]">{entry.characterName}</div>
+          <div className="mt-[5px] truncate text-[13px] leading-[1.45] text-white/56 md:text-[14px]">{entry.weaponName}</div>
           <div className="mt-[10px] flex flex-wrap gap-[8px]">
             <TinyBadge label={`C${entry.cons}`} highlighted={entry.cons === 6} />
             <TinyBadge label={`R${entry.refine}`} highlighted={entry.refine === 5} />
@@ -173,7 +188,7 @@ function LoadoutEntryCard({ entry }: { entry: PartyLoadoutEntry }) {
 
 function SimilarityReasonChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-[#f2f4f7] px-[10px] py-[5px] text-[11px] font-medium leading-none text-[#5f6678] md:text-[12px]">
+    <span className="inline-flex items-center rounded-full border border-white/10 bg-[#272727] px-[10px] py-[5px] text-[11px] font-medium leading-none text-white/68 md:text-[12px]">
       {label}
     </span>
   );
@@ -212,7 +227,7 @@ function TagChip({ tag }: { tag: string }) {
   const platformParts = parsePlatformTag(tag);
 
   return (
-    <span className="inline-flex items-center gap-[6px] rounded-[42px] bg-white px-[10px] py-[5px] text-[12px] text-black md:px-[12px] md:py-[6px] md:text-[13px]">
+    <span className="inline-flex items-center gap-[6px] rounded-[42px] border border-white/10 bg-[#272727] px-[10px] py-[5px] text-[12px] text-white/85 md:px-[12px] md:py-[6px] md:text-[13px]">
       {platformParts ? (
         <span className="inline-flex items-center gap-[4px]">
           {platformParts.map((platform, index) => (
@@ -241,7 +256,7 @@ function VideoFrame({
   const embedUrl = getYouTubeEmbedUrl(videoUrl, { autoplay, mute, enableJsApi: true });
 
   return (
-    <div className="aspect-[669/380] w-full overflow-hidden rounded-[12px] border border-[#ebebeb] bg-[#d9d9d9] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+    <div className="aspect-[669/380] w-full overflow-hidden rounded-[16px] border border-white/10 bg-[#272727] shadow-[0_20px_40px_rgba(0,0,0,0.28)]">
       {embedUrl ? (
         <iframe
           ref={iframeRef}
@@ -260,32 +275,32 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
   const partyLoadout = getPartyLoadout(run);
 
   return (
-    <div className="flex min-h-full flex-col gap-[16px] bg-white px-3 py-3">
+    <div className="flex min-h-full flex-col gap-[16px] bg-[#212121] px-3 py-3 text-white/90">
       <VideoFrame title={run.title} videoUrl={run.videoUrl} iframeRef={iframeRef} mute />
 
       <div className="flex flex-col gap-[12px]">
         <div className="flex flex-col gap-[12px]">
-          <div className="text-[16px] font-bold leading-none text-black md:text-[18px]">{run.title}</div>
+          <div className="text-[16px] font-bold leading-none text-white md:text-[18px]">{run.title}</div>
           <div className="flex items-center justify-between gap-[12px]">
             <div className="flex min-w-0 items-center gap-[12px]">
               <CircleAvatar label={run.userName} size={40} />
-              <div className="truncate text-[16px] font-bold leading-none text-black md:text-[18px]">{run.userName}</div>
+              <div className="truncate text-[16px] font-bold leading-none text-white md:text-[18px]">{run.userName}</div>
             </div>
-            <div className="inline-flex shrink-0 items-center gap-[6px] rounded-[42px] bg-[#f2f2f2] px-[10px] py-[5px] text-[12px] text-black md:text-[13px]">
+            <div className="inline-flex shrink-0 items-center gap-[6px] rounded-[42px] border border-white/10 bg-[#272727] px-[10px] py-[5px] text-[12px] text-white/82 md:text-[13px]">
               <PlatformIcon platform={run.platform} className="h-[13px] w-[13px]" />
               <span>{run.platform}</span>
             </div>
           </div>
         </div>
 
-        <div className="w-full rounded-[12px] border border-[#ebebeb] bg-[#f5f6f8] p-[12px]">
-          <div className="flex items-center gap-x-[16px] overflow-x-auto whitespace-nowrap text-[13px] text-black md:gap-x-[18px] md:text-[14px]">
+        <div className={`w-full ${DETAIL_MUTED_SURFACE_CLASS} p-[12px]`}>
+          <div className="flex items-center gap-x-[16px] overflow-x-auto whitespace-nowrap text-[13px] text-white/74 md:gap-x-[18px] md:text-[14px]">
             <span>ver : {run.versionLabel}</span>
             <span>{run.postedLabel}</span>
             <PlatformLabel platform={run.platform} />
           </div>
           <div className="mt-[12px] space-y-[12px]">
-            <p className="whitespace-pre-line text-[14px] leading-[1.75] text-black md:text-[15px]">{run.summary}</p>
+            <p className="whitespace-pre-line text-[14px] leading-[1.75] text-white/88 md:text-[15px]">{run.summary}</p>
             <div className="flex flex-wrap gap-[10px] md:gap-[12px]">
               {run.tags.map((tag) => (
                 <TagChip key={`${run.id}-${tag}`} tag={tag} />
@@ -364,16 +379,16 @@ function CompareDrawer({
 
   return (
     <div className={embedded ? "fixed top-[80px] right-0 bottom-0 z-20 hidden lg:block" : "fixed inset-y-0 right-0 z-50 hidden lg:block"} aria-modal="false" role="complementary">
-      <div className="flex h-full w-[50vw] flex-col border-l border-[#ebebeb] bg-white shadow-[-12px_0_24px_rgba(0,0,0,0.08)]">
-        <div className="flex min-h-[52px] items-center justify-between border-b border-[#ebebeb] px-4 py-2">
+      <div className="flex h-full w-[50vw] flex-col border-l border-white/10 bg-[#212121] shadow-[-20px_0_40px_rgba(0,0,0,0.35)]">
+        <div className="flex min-h-[52px] items-center justify-between border-b border-white/10 bg-[#212121] px-4 py-2">
           <div className="min-w-0">
-            <div className="text-[16px] font-semibold text-black md:text-[18px]">比較ビュー</div>
+            <div className="text-[16px] font-semibold text-white/92 md:text-[18px]">比較ビュー</div>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onToggleSync}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] bg-[#f2f2f2] px-4 text-[13px] font-medium text-black transition hover:bg-[#e8e8e8]"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] border border-white/10 bg-[#272727] px-4 text-[13px] font-medium text-white transition hover:bg-[#303030]"
             >
               {syncPlaying ? <PauseIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
               <span>{syncPlaying ? "同期停止" : "同時再生"}</span>
@@ -382,7 +397,7 @@ function CompareDrawer({
               type="button"
               aria-label="比較ビューを閉じる"
               onClick={onClose}
-              className="grid h-9 w-9 place-items-center rounded-full bg-[#f2f2f2] text-black transition hover:bg-[#e8e8e8]"
+              className={DETAIL_ICON_BUTTON_CLASS}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M6 6l12 12" />
@@ -392,7 +407,7 @@ function CompareDrawer({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[#fbfbfb]">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[#212121]">
           <CompareRunPane run={comparedRun} iframeRef={comparedIframeRef} />
         </div>
       </div>
@@ -419,7 +434,7 @@ function SimilarActionMenu({
         type="button"
         onClick={onToggle}
         aria-label="類似記録の操作"
-        className="grid h-9 w-9 place-items-center rounded-full border border-[#dde2ea] bg-white text-[#5f6678] transition hover:bg-[#f5f6f8]"
+        className={DETAIL_ICON_BUTTON_CLASS}
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
           <circle cx="12" cy="5" r="1.8" />
@@ -428,10 +443,10 @@ function SimilarActionMenu({
         </svg>
       </button>
       {isOpen ? (
-        <div className="absolute right-0 top-full z-20 mt-2 w-[180px] rounded-[16px] border border-[#ebebeb] bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        <div className="absolute right-0 top-full z-20 mt-2 w-[180px] rounded-[16px] border border-white/10 bg-[#323132] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.28)]">
           <button
             type="button"
-            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-black hover:bg-[#f2f2f2]"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-white/90 hover:bg-white/[0.08]"
             onClick={() => onAction("like")}
           >
             <LikeIcon className="h-4 w-4" />
@@ -439,7 +454,7 @@ function SimilarActionMenu({
           </button>
           <button
             type="button"
-            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-black hover:bg-[#f2f2f2]"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-white/90 hover:bg-white/[0.08]"
             onClick={() => onAction("share")}
           >
             <ShareIcon className="h-4 w-4" />
@@ -447,7 +462,7 @@ function SimilarActionMenu({
           </button>
           <button
             type="button"
-            className="hidden h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-black hover:bg-[#f2f2f2] lg:flex"
+            className="hidden h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-white/90 hover:bg-white/[0.08] lg:flex"
             onClick={() => onAction("compare")}
           >
             <CompareViewIcon className="h-4 w-4" />
@@ -481,16 +496,16 @@ function SimilarRunCard({
   return (
     <article
       className={`rounded-[16px] border p-[14px] transition-colors ${
-        isCompareQueued ? "border-[#d5dbe5] bg-[#f7f8fa]" : "border-[#eceff3] bg-[#fcfcfd] hover:bg-white"
+        isCompareQueued ? "border-white/20 bg-[#3b3a3b]" : "border-white/10 bg-[#323132] hover:bg-[#353435]"
       }`}
     >
       <div className="flex items-start gap-[10px]">
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-[12px]">
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[15px] font-semibold leading-[1.4] text-black md:text-[16px]">{match.run.title}</div>
-              <div className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[4px] text-[12px] text-[#8f94a3] md:text-[13px]">
-                <span className="font-medium text-[#5f6678]">{match.run.userName}</span>
+              <div className="truncate text-[15px] font-semibold leading-[1.4] text-white/92 md:text-[16px]">{match.run.title}</div>
+              <div className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[4px] text-[12px] text-white/52 md:text-[13px]">
+                <span className="font-medium text-white/78">{match.run.userName}</span>
                 <span>{match.run.postedLabel}</span>
                 <PlatformLabel platform={match.run.platform} iconClassName="h-[13px] w-[13px]" />
               </div>
@@ -500,7 +515,7 @@ function SimilarRunCard({
             </div>
           </div>
 
-          <div className="mt-[12px] rounded-[16px] border border-[#eceff3] bg-[#f5f6f8] px-[10px] py-[9px]">
+          <div className="mt-[12px] rounded-[16px] border border-white/10 bg-[#272727] px-[10px] py-[9px]">
             <div className="flex items-center justify-between gap-[8px]">
               {match.run.party.map((member) => {
                 const characterName = characterDb[member.characterId]?.name ?? member.characterId;
@@ -668,27 +683,27 @@ export function RecordDetailPage({
 
   return (
     <>
-      <main className={`bg-white text-[#333333] transition-[width] duration-300 ${mainSurfaceClass}`}>
+      <main className={`bg-[#212121] text-white/90 transition-[width] duration-300 ${mainSurfaceClass}`}>
         {embedded ? (
-          <div className="border-b border-[#ebebeb] bg-white">
+          <div className="border-b border-white/10 bg-[#212121]">
             <div className={`header-font mx-auto flex min-h-[52px] max-w-[1600px] items-center gap-3 px-4 py-2 ${forceMobileLayout ? "" : "md:px-6"}`}>
               {onBack ? (
                 <button
                   type="button"
                   onClick={onBack}
                   aria-label="一覧へ戻る"
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f2f2f2] text-black transition hover:bg-[#e8e8e8]"
+                  className={`${DETAIL_ICON_BUTTON_CLASS} shrink-0`}
                 >
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M15 5L8 12L15 19" />
                   </svg>
                 </button>
               ) : null}
-              <div className="min-w-0 text-[16px] font-semibold tracking-tight text-black md:text-[18px]">記録詳細</div>
+              <div className="min-w-0 text-[16px] font-semibold tracking-tight text-white/92 md:text-[18px]">記録詳細</div>
             </div>
           </div>
         ) : null}
-        <nav className={embedded ? "hidden" : "sticky top-0 z-40 border-b border-[#ebebeb] bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)]"}>
+        <nav className={embedded ? "hidden" : "sticky top-0 z-40 border-b border-white/10 bg-[#212121] shadow-[0_1px_0_rgba(255,255,255,0.04)]"}>
           <div className={`header-font mx-auto flex max-w-[1600px] items-center justify-between px-4 py-2 ${forceMobileLayout ? "min-h-[52px]" : "md:px-6 md:py-3"}`}>
             <div className={`flex items-center ${forceMobileLayout ? "gap-3" : "gap-4 md:gap-6"}`}>
               {onBack ? (
@@ -696,17 +711,17 @@ export function RecordDetailPage({
                   type="button"
                   onClick={onBack}
                   aria-label="一覧へ戻る"
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#f2f2f2] text-black transition hover:bg-[#e8e8e8]"
+                  className={`${DETAIL_ICON_BUTTON_CLASS} shrink-0`}
                 >
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M15 5L8 12L15 19" />
                   </svg>
                 </button>
               ) : null}
-              <h1 className={`font-semibold tracking-tight text-black ${forceMobileLayout ? "text-[24px]" : "text-[26px] md:text-[38px]"}`}>精鋭狩りDB</h1>
+              <h1 className={`font-semibold tracking-tight text-white ${forceMobileLayout ? "text-[24px]" : "text-[26px] md:text-[38px]"}`}>精鋭狩りDB</h1>
               <div className="relative">
                 <select
-                  className={`appearance-none rounded-full border border-black/30 bg-white py-1.5 pl-3 pr-10 font-medium text-black ${forceMobileLayout ? "text-[15px]" : "text-[16px] md:pl-4 md:pr-12 md:text-[20px]"}`}
+                  className={`appearance-none rounded-full border border-white/10 bg-[#272727] py-1.5 pl-3 pr-10 font-medium text-[#d9d9d9] ${forceMobileLayout ? "text-[15px]" : "text-[16px] md:pl-4 md:pr-12 md:text-[20px]"}`}
                   value={headerVersion}
                   onChange={(event) => setHeaderVersion(event.target.value)}
                 >
@@ -716,7 +731,7 @@ export function RecordDetailPage({
                     </option>
                   ))}
                 </select>
-                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-black/70">
+                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M6 9l6 6 6-6" />
                   </svg>
@@ -728,7 +743,7 @@ export function RecordDetailPage({
               <button
                 type="button"
                 onClick={onRequestSubmit}
-                className={`flex h-9 w-9 items-center justify-center rounded-full bg-black text-white ${forceMobileLayout ? "" : "md:h-auto md:w-auto md:gap-2 md:px-5 md:py-2.5 md:text-[20px]"}`}
+                className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/12 bg-[#272727] text-white ${forceMobileLayout ? "" : "md:h-auto md:w-auto md:gap-2 md:px-5 md:py-2.5 md:text-[20px]"}`}
               >
                 <span className="text-[20px] leading-none md:text-[22px]">＋</span>
                 <span className={forceMobileLayout ? "hidden" : "hidden md:inline"}>記録提出</span>
@@ -744,11 +759,11 @@ export function RecordDetailPage({
 
             <div className="flex flex-col gap-[12px]">
               <div className="flex flex-col gap-[12px]">
-                <div className="text-[16px] font-bold leading-none text-black md:text-[18px]">{currentRun.title}</div>
+                <div className="text-[16px] font-bold leading-none text-white md:text-[18px]">{currentRun.title}</div>
                 <div className={`flex gap-[12px] ${compareOpen ? "flex-col items-start" : "items-center justify-between"}`}>
                   <div className="flex min-w-0 items-center gap-[12px]">
                     <CircleAvatar label={currentRun.userName} size={40} />
-                    <div className="truncate text-[16px] font-bold leading-none text-black md:text-[18px]">{currentRun.userName}</div>
+                    <div className="truncate text-[16px] font-bold leading-none text-white md:text-[18px]">{currentRun.userName}</div>
                   </div>
                   <div className={`flex gap-[12px] md:gap-[12px] ${compareOpen ? "w-full shrink min-w-0 flex-wrap" : "shrink-0 flex-nowrap"}`}>
                     <PillButton active={liked} onClick={() => setLiked((previous) => !previous)} className="min-h-[36px] min-w-[92px]">
@@ -763,9 +778,9 @@ export function RecordDetailPage({
                 </div>
               </div>
 
-              <div className="w-full rounded-[12px] border border-[#ebebeb] bg-[#f5f6f8] p-[12px]">
+              <div className={`w-full ${DETAIL_MUTED_SURFACE_CLASS} p-[12px]`}>
                 <div className={`flex gap-[16px] ${compareOpen ? "flex-col items-start whitespace-normal" : "items-center justify-between whitespace-nowrap"}`}>
-                  <div className={`flex min-w-0 gap-x-[16px] text-[13px] text-black md:gap-x-[18px] md:text-[14px] ${compareOpen ? "flex-wrap items-center gap-y-[6px]" : "items-center"}`}>
+                  <div className={`flex min-w-0 gap-x-[16px] text-[13px] text-white/74 md:gap-x-[18px] md:text-[14px] ${compareOpen ? "flex-wrap items-center gap-y-[6px]" : "items-center"}`}>
                     <span>ver : {currentRun.versionLabel}</span>
                     <span>{currentRun.postedLabel}</span>
                     <PlatformLabel platform={currentRun.platform} />
@@ -774,7 +789,7 @@ export function RecordDetailPage({
                     <button
                       type="button"
                       onClick={() => setDescriptionExpanded((previous) => !previous)}
-                      className={`shrink-0 text-right text-black ${forceMobileLayout ? "text-[13px]" : "text-[13px] md:text-[14px]"}`}
+                      className={`shrink-0 text-right text-white/78 ${forceMobileLayout ? "text-[13px]" : "text-[13px] md:text-[14px]"}`}
                     >
                       ...もっと見る
                     </button>
@@ -783,7 +798,7 @@ export function RecordDetailPage({
 
                 {shouldShowExpandedArea ? (
                   <div className="mt-[12px] space-y-[12px]">
-                    <p className={`whitespace-pre-line leading-[1.75] text-black ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`} style={descriptionExpanded ? undefined : collapsedCopyStyle}>
+                    <p className={`whitespace-pre-line leading-[1.75] text-white/88 ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`} style={descriptionExpanded ? undefined : collapsedCopyStyle}>
                       {currentRun.summary}
                     </p>
                     <div className="flex flex-wrap gap-[10px] md:gap-[12px]">
@@ -801,12 +816,12 @@ export function RecordDetailPage({
                 <SectionTitle>{comments.length}件のコメント</SectionTitle>
                 <form onSubmit={handleCommentSubmit} className="flex w-full items-center gap-[8px]">
                   <CircleAvatar label="You" size={36} />
-                  <div className="flex flex-1 items-center justify-between border-b border-[#d9d9d9] p-[8px] transition focus-within:border-[#b9b9cc]">
+                  <div className="flex flex-1 items-center justify-between border-b border-white/12 p-[8px] transition focus-within:border-white/30">
                     <input
                       value={commentDraft}
                       onChange={(event) => setCommentDraft(event.target.value)}
                       placeholder="コメントする..."
-                      className={`min-w-0 flex-1 border-none bg-transparent text-black outline-none ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}
+                      className={`min-w-0 flex-1 border-none bg-transparent text-white outline-none placeholder:text-white/36 ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}
                     />
                     <PillButton className="ml-[8px] min-h-[30px] shrink-0 whitespace-nowrap px-[12px] py-[5px] text-[12px] md:text-[13px]">送信</PillButton>
                   </div>
@@ -818,11 +833,11 @@ export function RecordDetailPage({
                   <article key={comment.id} className="flex items-start gap-[12px]">
                     <CircleAvatar label={comment.userName} size={40} />
                     <div className="flex min-w-0 flex-1 flex-col gap-[8px] justify-center">
-                      <div className={`flex flex-wrap items-center gap-[8px] text-black ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}>
+                      <div className={`flex flex-wrap items-center gap-[8px] text-white/88 ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}>
                         <span>{comment.userName}</span>
-                        <span className="text-[#9999b1]">{comment.postedLabel}</span>
+                        <span className="text-white/42">{comment.postedLabel}</span>
                       </div>
-                      <div className={`leading-[1.75] text-[#3d3d3d] ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}>{comment.body}</div>
+                      <div className={`leading-[1.75] text-white/74 ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}>{comment.body}</div>
                       <div className={`flex gap-[12px] md:gap-[12px] ${compareOpen ? "w-full shrink min-w-0 flex-wrap" : "shrink-0 flex-nowrap"}`}>
                         <PillButton className="px-[8px] py-[4px] text-[11px] md:text-[12px]">
                           <LikeIcon className="h-3 w-3" />
@@ -874,7 +889,7 @@ export function RecordDetailPage({
                     })}
                   </div>
                 ) : (
-                  <div className="rounded-[16px] border border-dashed border-[#d9dee7] bg-[#fbfbfc] px-[14px] py-[16px] text-[13px] leading-[1.7] text-[#8f94a3]">
+                  <div className="rounded-[16px] border border-dashed border-white/14 bg-[#272727] px-[14px] py-[16px] text-[13px] leading-[1.7] text-white/52">
                     近い条件の記録はまだありません。
                   </div>
                 )}
