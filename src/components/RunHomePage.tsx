@@ -42,6 +42,12 @@ const OFFMETA_PICKUP_LABEL = "\u958b\u62d3\u8005 \u4f7f\u7528\u73875%\u672a\u6e8
 const NO_RESULTS_LABEL = "\u8a18\u9332\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093";
 const NO_RESULTS_COPY = "\u6761\u4ef6\u3092\u5909\u66f4\u3059\u308b\u304b\u3001\u65b0\u3057\u3044\u8a18\u9332\u306e\u8ffd\u52a0\u3092\u304a\u5f85\u3061\u304f\u3060\u3055\u3044\u3002";
 const OTHER_RULESET_TABS = ["Npui別", "武器別", "マルチPUI", "マルチUI", "マルチUA"];
+const HOME_SECTION_PANEL_CLASS = "bg-white rounded-[20px] border border-black/10 shadow-sm";
+const HOME_SECTION_TITLE_CLASS = "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-black";
+const HOME_ICON_BUTTON_CLASS =
+  "flex h-8 w-8 items-center justify-center rounded-full border border-[#dcdfe6] bg-white text-black transition-colors hover:bg-black/5";
+const HOME_PRIMARY_BUTTON_CLASS =
+  "inline-flex h-10 items-center justify-center rounded-full border border-[#d8dde6] bg-[#f5f6f8] px-4 text-[13px] font-semibold tracking-[0.01em] text-black transition-colors hover:border-[#c8ced8] hover:bg-[#eceff3]";
 
 const AMBR_NAME_MAP: Record<string, string> = {
   amber: "Ambor",
@@ -430,9 +436,10 @@ function LikeIcon({ size = 16, className = "" }: { size?: number; className?: st
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
-        d="M7 11v9H4v-9h3zm3.6-6.5L7 11v9h9.1c.8 0 1.5-.5 1.7-1.2l1.7-6.1c.3-1.1-.5-2.2-1.7-2.2H13V6c0-1.1-.9-2-2-2h-.4z"
+        d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
     </svg>
@@ -443,9 +450,10 @@ function CommentIcon({ size = 16, className = "" }: { size?: number; className?:
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
-        d="M7 18l-3 3V6a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7z"
+        d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
+        strokeLinecap="round"
         strokeLinejoin="round"
       />
     </svg>
@@ -482,8 +490,11 @@ function PlatformMobileIcon({ className = "" }: { className?: string }) {
 function PlatformPs5Icon({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 13c0-2 2-3 4-3h12c2 0 4 1 4 3v3c0 1.5-1.5 3-3 3-1.5 0-2.5-1-3-2l-1.5-2h-5l-1.5 2c-.5 1-1.5 2-3 2-1.5 0-3-1.5-3-3v-3z" />
-      <rect x="8" y="11" width="8" height="3" rx="0.5" />
+      <line x1="6" x2="10" y1="12" y2="12" />
+      <line x1="8" x2="8" y1="10" y2="14" />
+      <line x1="15" x2="15.01" y1="13" y2="13" />
+      <line x1="18" x2="18.01" y1="11" y2="11" />
+      <rect width="20" height="12" x="2" y="6" rx="2" />
     </svg>
   );
 }
@@ -593,15 +604,15 @@ function TopPlayerCard({
 }) {
   if (!run) {
     return (
-      <div className="flex flex-col h-full bg-white rounded-xl border border-[#ebebeb] shadow-sm overflow-hidden hover:shadow-md transition-all">
-        <div className={`relative h-28 w-full bg-gradient-to-r ${theme.gradient}`}>
-          <div className="absolute top-3 left-4 z-10">
-            <div className="text-white font-bold text-xl drop-shadow-md">{label}</div>
+      <div className="flex h-full flex-col overflow-hidden rounded-[16px] border border-[#e8eaef] bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <div className={`relative h-24 w-full bg-gradient-to-r ${theme.gradient}`}>
+          <div className="absolute top-4 left-4 z-10 space-y-1">
+            <div className="text-[17px] font-bold leading-tight tracking-[0.01em] text-white drop-shadow-md md:text-[18px]">{label}</div>
           </div>
         </div>
-        <div className="p-3 bg-white flex flex-col justify-between flex-1 relative z-10">
+        <div className="relative z-10 flex flex-1 flex-col justify-between gap-4 bg-white p-4">
           <div className="text-sm text-[#606266]">{LOADING_LABEL}</div>
-          <button type="button" onClick={onView} className="mt-4 text-sm text-black border border-[#dcdfe6] rounded-full px-3 py-1 bg-black/5">
+          <button type="button" onClick={onView} className={`${HOME_PRIMARY_BUTTON_CLASS} w-full`}>
             {VIEW_RANKING_LABEL}
           </button>
         </div>
@@ -610,42 +621,43 @@ function TopPlayerCard({
   }
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl border border-[#ebebeb] shadow-sm overflow-hidden hover:shadow-md transition-all cursor-pointer" onClick={() => onSelect(run.id)}>
-      <div className={`relative h-28 w-full bg-gradient-to-r ${theme.gradient}`}>
-        <div className="absolute top-3 left-4 z-10">
-          <div className="text-white font-bold text-xl drop-shadow-md">{label}</div>
-          <div className="text-white/85 text-sm mt-1">{run.userName}</div>
+    <div
+      className="flex h-full cursor-pointer flex-col overflow-hidden rounded-[16px] border border-[#e8eaef] bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      onClick={() => onSelect(run.id)}
+    >
+      <div className={`relative h-24 w-full bg-gradient-to-r ${theme.gradient}`}>
+        <div className="absolute top-4 left-4 z-10 space-y-1">
+          <div className="text-[17px] font-bold leading-tight tracking-[0.01em] text-white drop-shadow-md md:text-[18px]">{label}</div>
+          <div className="text-[13px] font-medium text-white/80">{run.userName}</div>
         </div>
         <CharacterImage
           characterId={run.mainAttackerId}
           alt={run.mainAttacker}
-          className="absolute -bottom-6 -right-6 w-48 h-auto object-cover z-0 opacity-90 drop-shadow-lg pointer-events-none"
+          className="pointer-events-none absolute -right-5 -bottom-5 z-0 h-auto w-44 object-cover opacity-85 drop-shadow-lg"
         />
       </div>
-      <div className="p-4 bg-white flex flex-col justify-between flex-1 relative z-10">
-        <div>
-          <div className="flex items-center justify-end gap-2 mt-2 text-[16px] text-black">
-            <button type="button" className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
-              <LikeIcon size={14} className="text-black" />
-            </button>
-            <button type="button" className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
-              <CommentIcon size={14} className="text-black" />
-            </button>
-          </div>
+      <div className="relative z-10 flex flex-1 flex-col gap-4 bg-white p-4">
+        <div className="flex items-center justify-end gap-2 text-black">
+          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
+            <LikeIcon size={14} className="text-black" />
+          </button>
+          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
+            <CommentIcon size={14} className="text-black" />
+          </button>
         </div>
-        <div className="bg-[#f7f7f7] border border-black/10 rounded-lg p-2 mt-3">
-          <div className="flex items-center justify-between">
+        <div className="rounded-[12px] border border-[#eceff3] bg-[#f7f8fa] p-3">
+          <div className="flex items-center justify-between gap-2">
             {run.party.map((member, index) => (
               <CharacterImage
                 key={`${run.id}-${member.characterId}-${index}`}
                 characterId={member.characterId}
                 alt={characterDb[member.characterId]?.name ?? member.characterId}
                 variant="circle"
-                className="w-9 h-9 rounded-full object-cover"
+                className="h-9 w-9 rounded-full object-cover"
               />
             ))}
           </div>
-          <div className="text-[20px] font-semibold text-black text-center mt-2">{run.time}</div>
+          <div className="mt-3 text-center text-[24px] font-semibold leading-none text-black">{run.time}</div>
         </div>
         <button
           type="button"
@@ -653,7 +665,7 @@ function TopPlayerCard({
             event.stopPropagation();
             onView();
           }}
-          className="mt-4 text-sm text-black border border-[#dcdfe6] rounded-full px-3 py-1 bg-black/5"
+          className={`${HOME_PRIMARY_BUTTON_CLASS} w-full`}
         >
           {VIEW_RANKING_LABEL}
         </button>
@@ -674,40 +686,42 @@ function LeaderboardRow({
   const PlatformIcon = PLATFORM_ICONS[run.platform] ?? PLATFORM_ICONS.PC;
 
   return (
-    <div className="border-t border-[#ebebeb] py-3 cursor-pointer" onClick={() => onSelect(run.id)}>
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3 md:gap-4 min-w-0">
-          <div className="w-6 md:w-6 flex items-center justify-center text-black/80">
-            <RankMoveIcon move={run.rankMove} className="w-5 h-5 md:w-5 md:h-5" />
+    <div className="cursor-pointer border-t border-[#ebebeb] py-4" onClick={() => onSelect(run.id)}>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 items-center gap-3 md:gap-5">
+          <div className="flex w-6 items-center justify-center text-black/70">
+            <RankMoveIcon move={run.rankMove} className="h-5 w-5" />
           </div>
-          <div className="text-[22px] md:text-[24px] w-9 md:w-10 text-center font-semibold">{index + 1}</div>
+          <div className="w-9 text-center text-[20px] font-semibold md:w-10 md:text-[22px]">{index + 1}</div>
           <CharacterImage
             characterId={run.mainAttackerId}
             alt={characterDb[run.mainAttackerId]?.name ?? run.mainAttackerId}
             variant="circle"
-            className="w-10 h-10 md:w-10 md:h-10 rounded-full object-cover"
+            className="h-11 w-11 rounded-full object-cover"
           />
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="text-[19px] md:text-[22px] font-semibold truncate">{run.userName}</div>
-              <div className="hidden md:inline-flex text-[12px] px-2 py-0.5 rounded bg-black/5 border border-black/10">{getBracketLabel(run.bracket)}</div>
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="truncate text-[17px] font-semibold md:text-[19px]">{run.userName}</div>
+              <div className="hidden rounded-full border border-black/10 bg-black/[0.04] px-2.5 py-1 text-[11px] font-medium md:inline-flex">
+                {getBracketLabel(run.bracket)}
+              </div>
             </div>
           </div>
-          <div className="ml-auto text-[22px] font-semibold md:hidden">{run.time}</div>
-          <div className="hidden md:flex w-10 h-10 rounded-full bg-black/5 border border-black/10 items-center justify-center">
-            <PlatformIcon className="w-5 h-5 text-black" />
+          <div className="ml-auto text-[20px] font-semibold md:hidden">{run.time}</div>
+          <div className="hidden h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] md:flex">
+            <PlatformIcon className="h-[18px] w-[18px] text-black" />
           </div>
         </div>
-        <div className="hidden md:flex items-center gap-4">
-          <button type="button" className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
+        <div className="hidden items-center gap-3 md:flex">
+          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
             <LikeIcon size={14} className="text-black" />
           </button>
-          <button type="button" className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
+          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
             <CommentIcon size={14} className="text-black" />
           </button>
-          <div className="text-[24px] font-semibold w-20 text-right">{run.time}</div>
+          <div className="w-20 text-right text-[22px] font-semibold">{run.time}</div>
           <a
-            className="border border-[#dcdfe6] rounded-full w-8 h-8 flex items-center justify-center"
+            className={HOME_ICON_BUTTON_CLASS}
             href={run.videoUrl}
             target="_blank"
             rel="noreferrer"
@@ -719,22 +733,22 @@ function LeaderboardRow({
           </a>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-3 md:hidden mt-1.5">
+      <div className="mt-2 flex items-center justify-between gap-3 md:hidden">
         <div className="flex items-center gap-2">
-          <div className="text-[11px] px-1.5 py-0.5 rounded bg-black/5 border border-black/10">{getBracketLabel(run.bracket)}</div>
-          <div className="w-7 h-7 rounded-full bg-black/5 border border-black/10 flex items-center justify-center">
-            <PlatformIcon className="w-3.5 h-3.5 text-black" />
+          <div className="rounded-full border border-black/10 bg-black/[0.04] px-2 py-0.5 text-[11px] font-medium">{getBracketLabel(run.bracket)}</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 bg-black/[0.04]">
+            <PlatformIcon className="h-3.5 w-3.5 text-black" />
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" className="border border-[#dcdfe6] rounded-full px-1.5 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
+          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
             <LikeIcon size={13} className="text-black" />
           </button>
-          <button type="button" className="border border-[#dcdfe6] rounded-full px-1.5 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
+          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
             <CommentIcon size={13} className="text-black" />
           </button>
           <a
-            className="border border-[#dcdfe6] rounded-full w-7 h-7 flex items-center justify-center"
+            className={HOME_ICON_BUTTON_CLASS}
             href={run.videoUrl}
             target="_blank"
             rel="noreferrer"
@@ -953,14 +967,20 @@ function HomeShell({ children }: { children: ReactNode }) {
 export function RunHomePage({
   onRequestSubmit,
   onSelectRun,
+  embedded = false,
+  selectedSeason,
+  onSelectedSeasonChange,
 }: {
   onRequestSubmit: () => void;
   onSelectRun: (runId: string) => void;
+  embedded?: boolean;
+  selectedSeason?: string;
+  onSelectedSeasonChange?: (season: string) => void;
 }) {
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
   const topRowRef = useRef<HTMLDivElement | null>(null);
   const [runs] = useState<HomeRun[]>(() => applyWRTag(mockRuns.map(normalizeHomeRun)));
-  const [activeSeason, setActiveSeason] = useState(getDefaultSeason(SEASONS));
+  const [activeSeasonInternal, setActiveSeasonInternal] = useState(getDefaultSeason(SEASONS));
   const [activeTab] = useState<"main" | "festival">("main");
   const [filterBracket, setFilterBracket] = useState<Bracket | null>(null);
   const [filterPlatform, setFilterPlatform] = useState<Platform | null>(null);
@@ -975,6 +995,8 @@ export function RunHomePage({
   const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
   const [showTopScrollLeft, setShowTopScrollLeft] = useState(false);
   const [showTopScrollRight, setShowTopScrollRight] = useState(false);
+  const activeSeason = selectedSeason ?? activeSeasonInternal;
+  const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
 
   const includeIds = useMemo(() => parseAttackerInput(includeInput), [includeInput]);
   const excludeIds = useMemo(() => parseAttackerInput(excludeInput), [excludeInput]);
@@ -1038,47 +1060,49 @@ export function RunHomePage({
 
   return (
     <HomeShell>
-      <nav className="bg-white sticky top-0 z-40 border-b border-[#ebebeb]">
-        <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-2 md:py-3 flex items-center justify-between header-font">
-          <div className="flex items-center gap-4 md:gap-6">
-            <h1 className="text-[26px] md:text-[38px] font-semibold tracking-tight text-black">{APP_TITLE}</h1>
-            <div className="relative">
-              <select
-                className="appearance-none bg-white border border-black/30 rounded-full pl-3 md:pl-4 pr-12 md:pr-14 py-1.5 text-[16px] md:text-[20px] font-medium text-black"
-                value={activeSeason}
-                onChange={(event) => setActiveSeason(event.target.value)}
+      {embedded ? null : (
+        <nav className="bg-white sticky top-0 z-40 border-b border-[#ebebeb]">
+          <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-2 md:py-3 flex items-center justify-between header-font">
+            <div className="flex items-center gap-4 md:gap-6">
+              <h1 className="text-[26px] md:text-[38px] font-semibold tracking-tight text-black">{APP_TITLE}</h1>
+              <div className="relative">
+                <select
+                  className="appearance-none bg-white border border-black/30 rounded-full pl-3 md:pl-4 pr-12 md:pr-14 py-1.5 text-[16px] md:text-[20px] font-medium text-black"
+                  value={activeSeason}
+                  onChange={(event) => setActiveSeason(event.target.value)}
+                >
+                  {SEASONS.map((season) => (
+                    <option key={season} value={season}>
+                      {season}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-4 md:right-5 top-1/2 -translate-y-1/2 text-black/70">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 md:gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                  onRequestSubmit();
+                }}
+                className="bg-black text-white rounded-full text-[16px] md:text-[20px] font-medium flex items-center justify-center md:justify-start gap-0 md:gap-2 w-9 h-9 md:w-auto md:h-auto px-0 md:px-5 py-0 md:py-2.5"
               >
-                {SEASONS.map((season) => (
-                  <option key={season} value={season}>
-                    {season}
-                  </option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-4 md:right-5 top-1/2 -translate-y-1/2 text-black/70">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </span>
+                <span className="md:hidden flex items-center justify-center w-full h-full text-[20px] leading-none">+</span>
+                <span className="hidden md:inline text-[22px] leading-none">+</span>
+                <span className="hidden md:inline">{SUBMIT_LABEL}</span>
+              </button>
+              <div className="w-9 h-9 rounded-full border border-black/30 bg-white" aria-label="User avatar" />
             </div>
           </div>
-
-          <div className="flex items-center gap-3 md:gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                onRequestSubmit();
-              }}
-              className="bg-black text-white rounded-full text-[16px] md:text-[20px] font-medium flex items-center justify-center md:justify-start gap-0 md:gap-2 w-9 h-9 md:w-auto md:h-auto px-0 md:px-5 py-0 md:py-2.5"
-            >
-              <span className="md:hidden flex items-center justify-center w-full h-full text-[20px] leading-none">+</span>
-              <span className="hidden md:inline text-[22px] leading-none">+</span>
-              <span className="hidden md:inline">{SUBMIT_LABEL}</span>
-            </button>
-            <div className="w-9 h-9 rounded-full border border-black/30 bg-white" aria-label="User avatar" />
-          </div>
-        </div>
-      </nav>
+        </nav>
+      )}
 
       {activeTab === "main" ? (
         <div
@@ -1145,10 +1169,10 @@ export function RunHomePage({
           <>
             <div className="relative z-10 -mt-40 md:-mt-72 mb-12">
               <div className="relative">
-                <div ref={topRowRef} className="flex gap-6 overflow-x-auto no-scrollbar" onScroll={updateTopScrollButtons}>
-                  <div className="bg-white rounded-xl border border-black/10 p-4 md:p-6 shadow-sm min-w-[780px] flex-shrink-0">
-                    <div className="text-[18px] font-semibold text-black mb-3">{TOP_PLAYERS_LABEL}</div>
-                    <div className="grid grid-cols-4 gap-4 min-w-[900px]">
+                <div ref={topRowRef} className="flex gap-5 overflow-x-auto no-scrollbar" onScroll={updateTopScrollButtons}>
+                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[820px] flex-shrink-0 p-5`}>
+                    <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{TOP_PLAYERS_LABEL}</div>
+                    <div className="grid min-w-[860px] grid-cols-4 gap-5">
                       {[
                         { label: "Unlimited 1st", bracket: 4 as Bracket, theme: { gradient: "from-[#274060] to-[#1b2f45]" } },
                         { label: "High 1st", bracket: 3 as Bracket, theme: { gradient: "from-[#2c3e3d] to-[#1e2c2b]" } },
@@ -1171,16 +1195,16 @@ export function RunHomePage({
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-xl border border-black/10 p-4 md:p-6 shadow-sm min-w-[240px] flex-shrink-0">
-                    <div className="text-[18px] font-semibold text-black mb-3">{FEATURED_PLAYERS_LABEL}</div>
-                    <div className="space-y-4">
+                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[300px] flex-shrink-0 p-5`}>
+                    <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{FEATURED_PLAYERS_LABEL}</div>
+                    <div className="space-y-3">
                       {[
                         { title: FIRST_POST_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("New"))) },
                         { title: OFFMETA_PICKUP_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("OffMeta"))) },
                       ].map((item) => (
                         <div
                           key={item.title}
-                          className="border border-black/10 rounded-lg p-3 relative overflow-hidden shadow-md transition-transform hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+                          className="relative cursor-pointer overflow-hidden rounded-[16px] border border-black/10 bg-[#fcfcfd] p-4 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md"
                           onClick={() => {
                             if (item.run) {
                               openRunDetail(item.run.id);
@@ -1188,27 +1212,27 @@ export function RunHomePage({
                           }}
                         >
                           <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/5 to-transparent pointer-events-none" />
-                          <div className="text-black font-medium">{item.title}</div>
+                          <div className="pr-8 text-[15px] font-semibold leading-snug text-black">{item.title}</div>
                           {item.run ? (
-                            <div className="mt-2">
-                              <div className="text-[14px] text-black">{item.run.userName}</div>
-                              <div className="mt-2 space-y-2">
-                                <div className="flex justify-end items-center gap-2 text-[16px] text-black">
-                                  <button type="button" className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
+                            <div className="mt-3 space-y-3">
+                              <div className="text-[14px] font-semibold text-black">{item.run.userName}</div>
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-end gap-2 text-black">
+                                  <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
                                     <LikeIcon size={14} className="text-black" />
                                   </button>
-                                  <button type="button" className="border border-[#dcdfe6] rounded-full px-2 py-0.5 bg-white/80" onClick={(event) => event.stopPropagation()}>
+                                  <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
                                     <CommentIcon size={14} className="text-black" />
                                   </button>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2.5">
                                   {item.run.party.map((member, index) => (
                                     <CharacterImage
                                       key={`${item.run?.id}-${member.characterId}-${index}`}
                                       characterId={member.characterId}
                                       alt={characterDb[member.characterId]?.name ?? member.characterId}
                                       variant="circle"
-                                      className="w-8 h-8 rounded-full object-cover"
+                                      className="h-9 w-9 rounded-full object-cover"
                                     />
                                   ))}
                                 </div>
@@ -1257,9 +1281,9 @@ export function RunHomePage({
               </div>
             </div>
 
-            <div ref={leaderboardRef} className="bg-white rounded-xl border border-black/10 p-4 md:p-6 shadow-sm mb-10">
-              <div className="text-[20px] font-semibold text-black mb-4">{LEADERBOARD_LABEL}</div>
-              <div className="flex items-center justify-center mb-4">
+            <div ref={leaderboardRef} className={`${HOME_SECTION_PANEL_CLASS} mb-10 p-5 md:p-6`}>
+              <div className="mb-5 text-[18px] font-bold tracking-[0.01em] text-black md:text-[20px]">{LEADERBOARD_LABEL}</div>
+              <div className="mb-5 flex items-center justify-center">
                 <div className="flex items-center border border-[#dcdfe6] rounded-full overflow-hidden w-full max-w-[520px] md:min-w-[520px]">
                   {[
                     { key: "rta", label: "RTAランキング", shortLabel: "RTA" },
@@ -1270,7 +1294,9 @@ export function RunHomePage({
                       key={item.key}
                       type="button"
                       onClick={() => setLeaderboardView(item.key as "rta" | "char" | "fes")}
-                      className={`px-4 py-1.5 text-sm font-medium flex-1 ${leaderboardView === item.key ? "bg-black text-white" : "bg-white text-black"}`}
+                      className={`flex-1 px-4 py-2.5 text-[13px] font-semibold transition-colors md:text-[14px] ${
+                        leaderboardView === item.key ? "bg-black text-white" : "bg-white text-black"
+                      }`}
                       title={item.label}
                       aria-label={item.label}
                     >
@@ -1280,12 +1306,16 @@ export function RunHomePage({
                   ))}
                 </div>
               </div>
-              <div className="flex items-center mb-3">
-                <button type="button" className="border border-[#dcdfe6] rounded-full w-9 h-9 flex items-center justify-center" onClick={() => setIsFilterOpen(true)}>
+              <div className="mb-4 flex items-center">
+                <button
+                  type="button"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#dcdfe6] transition-colors hover:bg-black/5"
+                  onClick={() => setIsFilterOpen(true)}
+                >
                   <FilterFunnelIcon className="w-5 h-5 text-black" />
                 </button>
               </div>
-              <div className="flex items-center justify-between text-sm font-medium mb-4">
+              <div className="mb-5 flex items-center justify-between text-[13px] font-semibold md:text-[14px]">
                 {[
                   { label: ALL_LABEL, shortLabel: ALL_LABEL, value: null },
                   { label: "Unlimited", shortLabel: "Unl.", value: 4 as Bracket },
@@ -1297,7 +1327,7 @@ export function RunHomePage({
                     key={item.label}
                     type="button"
                     onClick={() => setFilterBracket(item.value)}
-                    className={`pb-2 border-b-2 flex-1 text-center ${
+                    className={`flex-1 border-b-2 pb-3 text-center ${
                       filterBracket === item.value || (item.value === null && filterBracket === null)
                         ? "border-black text-black"
                         : "border-transparent text-[#909399] hover:text-black"
