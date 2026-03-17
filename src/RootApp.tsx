@@ -316,6 +316,17 @@ export default function RootApp() {
     navigate({ name: "account" });
   };
 
+  const navigateHomeFromTitle = () => {
+    homeScrollRef.current = 0;
+
+    if (routeRef.current.name === "home") {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      return;
+    }
+
+    navigate({ name: "home" });
+  };
+
   return (
     <AppShell
       routeName={route.name}
@@ -323,6 +334,7 @@ export default function RootApp() {
       versionOptions={APP_VERSION_OPTIONS}
       hasUnreadNotifications={route.name !== "notifications"}
       onNavigate={navigateFromShell}
+      onTitleClick={navigateHomeFromTitle}
       onRequestSubmit={() => navigate({ name: "submit" })}
       onVersionChange={setSelectedVersion}
     >
@@ -359,3 +371,7 @@ export default function RootApp() {
     </AppShell>
   );
 }
+
+
+
+

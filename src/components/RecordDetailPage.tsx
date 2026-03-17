@@ -16,10 +16,10 @@ import {
   mockRuns,
   weaponDb,
 } from "../data/mockRuns";
-import { getSimilarRuns } from "../lib/getSimilarRuns";
+import { getSimilarRuns, type SimilarRunMatch } from "../lib/getSimilarRuns";
 import { getYouTubeEmbedUrl } from "../lib/youtube";
 import { CharacterIcon } from "./CharacterIcon";
-import { LikeIcon, PauseIcon, PlayIcon, PlatformIcon, ShareIcon } from "./UiIcons";
+import { CompareViewIcon, LikeIcon, PauseIcon, PlayIcon, PlatformIcon, ShareIcon } from "./UiIcons";
 
 const collapsedCopyStyle: CSSProperties = {
   display: "-webkit-box",
@@ -43,6 +43,16 @@ function getInitials(label: string) {
   return label.slice(0, 2).toUpperCase();
 }
 
+type PartyLoadoutEntry = {
+  slot: number;
+  characterId: string;
+  characterName: string;
+  cons: number;
+  weaponName: string;
+  refine: number;
+  isMainAttacker: boolean;
+};
+
 function getPartyLoadout(run: RunRecord) {
   return run.party.map((member, index) => {
     const character = characterDb[member.characterId];
@@ -56,6 +66,7 @@ function getPartyLoadout(run: RunRecord) {
       cons: member.cons,
       weaponName: weapon?.name ?? weaponLoadout.weaponId,
       refine: weaponLoadout.refine,
+      isMainAttacker: member.characterId === run.mainAttackerId,
     };
   });
 }
@@ -111,16 +122,61 @@ function PillButton({
   );
 }
 
-function TinyBadge({ label }: { label: string }) {
+function TinyBadge({ label, highlighted = false }: { label: string; highlighted?: boolean }) {
   return (
-    <div className="w-full rounded-[4px] bg-[rgba(248,196,163,0.25)] px-[4px] py-[3px] text-center text-[11px] leading-none text-[#f09e78] md:text-[12px]">
+    <span
+      className={`inline-flex min-w-[38px] items-center justify-center rounded-full px-[9px] py-[5px] text-[11px] font-semibold leading-none md:text-[12px] ${
+        highlighted
+          ? "border border-[#efc9b0] bg-[#fbf1ea] text-[#c27642]"
+          : "border border-[#dde2ea] bg-[#f2f4f7] text-[#5f6678]"
+      }`}
+    >
       {label}
-    </div>
+    </span>
   );
 }
 
 function SectionTitle({ children }: { children: ReactNode }) {
   return <div className="text-[16px] font-bold leading-none text-black md:text-[18px]">{children}</div>;
+}
+
+function SidebarPanel({ children }: { children: ReactNode }) {
+  return <section className="w-full rounded-[16px] border border-[#ebebeb] bg-white p-[16px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">{children}</section>;
+}
+
+function SidebarSectionHeader({ title, meta }: { title: ReactNode; meta?: ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-[12px]">
+      <SectionTitle>{title}</SectionTitle>
+      {meta ? <div className="shrink-0 text-[12px] font-medium text-[#8d93a3] md:text-[13px]">{meta}</div> : null}
+    </div>
+  );
+}
+
+function LoadoutEntryCard({ entry }: { entry: PartyLoadoutEntry }) {
+  return (
+    <div className="rounded-[16px] border border-[#eceff3] bg-[#fbfbfc] p-[12px] md:p-[14px]">
+      <div className="flex items-start gap-[12px] md:gap-[14px]">
+        <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={56} />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-[16px] font-semibold leading-[1.2] text-black md:text-[17px]">{entry.characterName}</div>
+          <div className="mt-[5px] truncate text-[13px] leading-[1.45] text-[#8f94a3] md:text-[14px]">{entry.weaponName}</div>
+          <div className="mt-[10px] flex flex-wrap gap-[8px]">
+            <TinyBadge label={`C${entry.cons}`} highlighted={entry.cons === 6} />
+            <TinyBadge label={`R${entry.refine}`} highlighted={entry.refine === 5} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SimilarityReasonChip({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center rounded-full bg-[#f2f4f7] px-[10px] py-[5px] text-[11px] font-medium leading-none text-[#5f6678] md:text-[12px]">
+      {label}
+    </span>
+  );
 }
 
 function parsePlatformTag(tag: string): RunRecord["platform"][] | null {
@@ -239,28 +295,16 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
         </div>
       </div>
 
-      <section className="w-full rounded-[12px] border border-[#ebebeb] bg-white p-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-        <div className="flex flex-col gap-[20px]">
-          <SectionTitle>使用編成</SectionTitle>
-          <div className="flex flex-col gap-[18px] md:gap-[20px]">
+      <SidebarPanel>
+        <div className="flex flex-col gap-[16px]">
+          <SidebarSectionHeader title="使用編成" meta={`${partyLoadout.length}メンバー`} />
+          <div className="flex flex-col gap-[12px]">
             {partyLoadout.map((entry) => (
-              <div key={`${run.id}-${entry.characterName}-${entry.slot}`} className="flex items-center gap-[12px]">
-                <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={60} />
-                <div className="flex min-w-0 flex-1 items-center justify-between gap-[12px]">
-                  <div className="min-w-0">
-                    <div className="truncate text-[17px] font-medium leading-none text-black md:text-[18px]">{entry.characterName}</div>
-                    <div className="mt-[4px] truncate text-[12px] text-[#9999b1] md:text-[13px]">{entry.weaponName}</div>
-                  </div>
-                  <div className="flex w-[30px] shrink-0 flex-col gap-[6px] pb-[2px] pt-[4px]">
-                    <TinyBadge label={`C${entry.cons}`} />
-                    <TinyBadge label={`R${entry.refine}`} />
-                  </div>
-                </div>
-              </div>
+              <LoadoutEntryCard key={`${run.id}-${entry.characterName}-${entry.slot}`} entry={entry} />
             ))}
           </div>
         </div>
-      </section>
+      </SidebarPanel>
     </div>
   );
 }
@@ -375,7 +419,7 @@ function SimilarActionMenu({
         type="button"
         onClick={onToggle}
         aria-label="類似記録の操作"
-        className="grid h-8 w-8 place-items-center rounded-full bg-[#f2f2f2] text-black transition hover:bg-[#e7e7e7]"
+        className="grid h-9 w-9 place-items-center rounded-full border border-[#dde2ea] bg-white text-[#5f6678] transition hover:bg-[#f5f6f8]"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
           <circle cx="12" cy="5" r="1.8" />
@@ -384,10 +428,10 @@ function SimilarActionMenu({
         </svg>
       </button>
       {isOpen ? (
-        <div className="absolute right-0 top-full z-20 mt-2 w-[168px] rounded-[12px] border border-[#ebebeb] bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+        <div className="absolute right-0 top-full z-20 mt-2 w-[180px] rounded-[16px] border border-[#ebebeb] bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
           <button
             type="button"
-            className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2]"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-black hover:bg-[#f2f2f2]"
             onClick={() => onAction("like")}
           >
             <LikeIcon className="h-4 w-4" />
@@ -395,7 +439,7 @@ function SimilarActionMenu({
           </button>
           <button
             type="button"
-            className="flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2]"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-black hover:bg-[#f2f2f2]"
             onClick={() => onAction("share")}
           >
             <ShareIcon className="h-4 w-4" />
@@ -403,14 +447,76 @@ function SimilarActionMenu({
           </button>
           <button
             type="button"
-            className="hidden w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-black hover:bg-[#f2f2f2] lg:block"
+            className="hidden h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-black hover:bg-[#f2f2f2] lg:flex"
             onClick={() => onAction("compare")}
           >
+            <CompareViewIcon className="h-4 w-4" />
             比較ビュー
           </button>
         </div>
       ) : null}
     </div>
+  );
+}
+
+function SimilarRunCard({
+  match,
+  liked,
+  shared,
+  isMenuOpen,
+  isCompareQueued,
+  onToggleMenu,
+  onAction,
+}: {
+  match: SimilarRunMatch;
+  liked: boolean;
+  shared: boolean;
+  isMenuOpen: boolean;
+  isCompareQueued: boolean;
+  onToggleMenu: () => void;
+  onAction: (action: "like" | "share" | "compare") => void;
+}) {
+  const visibleReasons = match.reasons.slice(0, 2);
+
+  return (
+    <article
+      className={`rounded-[16px] border p-[14px] transition-colors ${
+        isCompareQueued ? "border-[#d5dbe5] bg-[#f7f8fa]" : "border-[#eceff3] bg-[#fcfcfd] hover:bg-white"
+      }`}
+    >
+      <div className="flex items-start gap-[10px]">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-[12px]">
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-[15px] font-semibold leading-[1.4] text-black md:text-[16px]">{match.run.title}</div>
+              <div className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[4px] text-[12px] text-[#8f94a3] md:text-[13px]">
+                <span className="font-medium text-[#5f6678]">{match.run.userName}</span>
+                <span>{match.run.postedLabel}</span>
+                <PlatformLabel platform={match.run.platform} iconClassName="h-[13px] w-[13px]" />
+              </div>
+            </div>
+            <div className="flex shrink-0 items-start">
+              <SimilarActionMenu isOpen={isMenuOpen} liked={liked} shared={shared} onToggle={onToggleMenu} onAction={onAction} />
+            </div>
+          </div>
+
+          <div className="mt-[12px] rounded-[16px] border border-[#eceff3] bg-[#f5f6f8] px-[10px] py-[9px]">
+            <div className="flex items-center justify-between gap-[8px]">
+              {match.run.party.map((member) => {
+                const characterName = characterDb[member.characterId]?.name ?? member.characterId;
+                return <CharacterIcon key={`${match.run.id}-${member.characterId}`} characterId={member.characterId} alt={characterName} fallbackLabel={characterName} size={36} />;
+              })}
+            </div>
+          </div>
+
+          <div className="mt-[12px] flex flex-wrap gap-[8px]">
+            {(visibleReasons.length > 0 ? visibleReasons : ["近い条件"]).map((reason) => (
+              <SimilarityReasonChip key={`${match.run.id}-${reason}`} label={reason} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -565,7 +671,7 @@ export function RecordDetailPage({
       <main className={`bg-white text-[#333333] transition-[width] duration-300 ${mainSurfaceClass}`}>
         {embedded ? (
           <div className="border-b border-[#ebebeb] bg-white">
-            <div className={`header-font mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 ${forceMobileLayout ? "" : "md:px-6"}`}>
+            <div className={`header-font mx-auto flex min-h-[52px] max-w-[1600px] items-center gap-3 px-4 py-2 ${forceMobileLayout ? "" : "md:px-6"}`}>
               {onBack ? (
                 <button
                   type="button"
@@ -578,10 +684,7 @@ export function RecordDetailPage({
                   </svg>
                 </button>
               ) : null}
-              <div className="min-w-0">
-                <div className={`font-semibold tracking-tight text-black ${forceMobileLayout ? "text-[20px]" : "text-[22px] md:text-[28px]"}`}>記録詳細</div>
-                <div className="truncate text-[12px] text-[#9999b1] md:text-[13px]">{currentRun.title}</div>
-              </div>
+              <div className="min-w-0 text-[16px] font-semibold tracking-tight text-black md:text-[18px]">記録詳細</div>
             </div>
           </div>
         ) : null}
@@ -735,77 +838,48 @@ export function RecordDetailPage({
           </section>
 
           <aside className={`flex w-full shrink-0 flex-col gap-[18px] ${compareOpen ? "lg:w-full xl:w-full" : "lg:w-[360px] xl:w-[372px]"}`}>
-            <section className="w-full rounded-[12px] border border-[#ebebeb] bg-white p-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-              <div className="flex flex-col gap-[20px]">
-                <SectionTitle>使用編成</SectionTitle>
-                <div className="flex flex-col gap-[18px] md:gap-[20px]">
+            <SidebarPanel>
+              <div className="flex flex-col gap-[16px]">
+                <SidebarSectionHeader title="使用編成" meta={`${partyLoadout.length}メンバー`} />
+                <div className="flex flex-col gap-[12px]">
                   {partyLoadout.map((entry) => (
-                    <div key={`${entry.characterName}-${entry.slot}`} className="flex items-center gap-[12px]">
-                      <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={60} />
-                      <div className="flex min-w-0 flex-1 items-center justify-between gap-[12px]">
-                        <div className="min-w-0">
-                          <div className="truncate text-[17px] font-medium leading-none text-black md:text-[18px]">{entry.characterName}</div>
-                          <div className="mt-[4px] truncate text-[12px] text-[#9999b1] md:text-[13px]">{entry.weaponName}</div>
-                        </div>
-                        <div className="flex w-[30px] shrink-0 flex-col gap-[6px] pb-[2px] pt-[4px]">
-                          <TinyBadge label={`C${entry.cons}`} />
-                          <TinyBadge label={`R${entry.refine}`} />
-                        </div>
-                      </div>
-                    </div>
+                    <LoadoutEntryCard key={`${entry.characterName}-${entry.slot}`} entry={entry} />
                   ))}
                 </div>
               </div>
-            </section>
+            </SidebarPanel>
 
-            <section className="w-full rounded-[12px] border border-[#ebebeb] bg-white p-[12px] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-              <div className="flex flex-col gap-[20px]">
-                <SectionTitle>類似編成の記録</SectionTitle>
-                <div className="flex flex-col gap-[18px] md:gap-[20px]">
-                  {similarRuns.map((match) => {
-                    const runState = similarActionState[match.run.id] ?? { liked: false, shared: false };
-                    const isOpen = openMenuRunId === match.run.id;
-                    const isCompareQueued = compareQueuedRunId === match.run.id;
+            <SidebarPanel>
+              <div className="flex flex-col gap-[16px]">
+                <SidebarSectionHeader title="類似編成の記録" meta={`${similarRuns.length}件`} />
+                {similarRuns.length > 0 ? (
+                  <div className="flex flex-col gap-[12px]">
+                    {similarRuns.map((match) => {
+                      const runState = similarActionState[match.run.id] ?? { liked: false, shared: false };
+                      const isOpen = openMenuRunId === match.run.id;
+                      const isCompareQueued = compareQueuedRunId === match.run.id;
 
-                    return (
-                      <div key={match.run.id} className={isCompareQueued ? "rounded-[12px] bg-[#f7f7f7] px-[8px] py-[8px]" : "rounded-[12px] px-[4px] py-[4px] transition-colors hover:bg-[#fafafa]"}>
-                        <div className="flex flex-col items-end gap-[10px]">
-                          <div className="h-[40px] w-full px-[8px]">
-                            <div className="flex h-[40px] items-center justify-between gap-[4px]">
-                              {match.run.party.map((member) => {
-                                const characterName = characterDb[member.characterId]?.name ?? member.characterId;
-                                return <CharacterIcon key={`${match.run.id}-${member.characterId}`} characterId={member.characterId} alt={characterName} fallbackLabel={characterName} size={32} />;
-                              })}
-                            </div>
-                          </div>
-                          <div className="flex w-full items-end gap-[4px]">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-col gap-[8px]">
-                                <div className="truncate text-[14px] font-medium leading-[1.35] text-black md:text-[15px]">{match.run.title}</div>
-                                <div className="flex flex-wrap items-center gap-[4px] text-[12px] text-[#9999b1] md:text-[13px]">
-                                  <span>{match.run.userName}</span>
-                                  <span>・</span>
-                                  <span>{match.run.postedLabel}</span>
-                                  <span>・</span>
-                                  <span>{match.run.platform}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <SimilarActionMenu
-                              isOpen={isOpen}
-                              liked={runState.liked}
-                              shared={runState.shared}
-                              onToggle={() => setOpenMenuRunId((previous) => (previous === match.run.id ? null : match.run.id))}
-                              onAction={(action) => handleSimilarAction(match.run.id, action)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      return (
+                        <SimilarRunCard
+                          key={match.run.id}
+                          match={match}
+                          liked={runState.liked}
+                          shared={runState.shared}
+                          isMenuOpen={isOpen}
+                          isCompareQueued={isCompareQueued}
+                          onToggleMenu={() => setOpenMenuRunId((previous) => (previous === match.run.id ? null : match.run.id))}
+                          onAction={(action) => handleSimilarAction(match.run.id, action)}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-[16px] border border-dashed border-[#d9dee7] bg-[#fbfbfc] px-[14px] py-[16px] text-[13px] leading-[1.7] text-[#8f94a3]">
+                    近い条件の記録はまだありません。
+                  </div>
+                )}
               </div>
-            </section>
+            </SidebarPanel>
           </aside>
         </div>
       </main>
@@ -825,7 +899,3 @@ export function RecordDetailPage({
     </>
   );
 }
-
-
-
-

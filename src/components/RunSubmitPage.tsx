@@ -1552,11 +1552,11 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
       <main className="min-h-screen bg-white text-[#333333]">
         {embedded ? (
           <div className="border-b border-[#ebebeb] bg-white">
-            <div className="header-font mx-auto flex max-w-[1600px] items-center gap-3 px-4 py-3 md:px-6">
+            <div className="header-font mx-auto flex min-h-[52px] max-w-[1600px] items-center gap-3 px-4 py-2 md:px-6">
               <button
                 type="button"
                 onClick={onBack}
-                className="grid h-10 w-10 place-items-center rounded-full bg-[#f2f2f2] text-black"
+                className="grid h-9 w-9 place-items-center rounded-full bg-[#f2f2f2] text-black"
                 aria-label="記録一覧へ戻る"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -1564,10 +1564,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
                   <path d="M11 6L5 12L11 18" />
                 </svg>
               </button>
-              <div>
-                <div className="text-[20px] font-semibold tracking-tight text-black md:text-[28px]">記録申請</div>
-                <div className="text-[12px] text-[#9999b1] md:text-[13px]">3 step flow</div>
-              </div>
+              <div className="text-[16px] font-semibold tracking-tight text-black md:text-[18px]">記録申請</div>
             </div>
           </div>
         ) : null}

@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+﻿import { type ReactNode, useEffect, useState } from "react";
 
 type ShellRouteName =
   | "home"
@@ -18,29 +18,54 @@ type IconProps = {
   active?: boolean;
 };
 
-type NavItem = {
+type InternalNavItem = {
+  key: string;
+  kind: "route";
   route: "home" | "chat" | "question" | "exchange" | "event";
   label: string;
   icon: (props: IconProps) => ReactNode;
 };
 
-const navSections: NavItem[][] = [
-  [
-    { route: "home", label: "リーダーボード", icon: TrophyIcon },
-    { route: "chat", label: "雑談", icon: MessageIcon },
-    { route: "question", label: "質問", icon: QuestionIcon },
-  ],
-  [
-    { route: "exchange", label: "情報交換", icon: LightbulbIcon },
-    { route: "event", label: "イベント情報", icon: CalendarIcon },
-  ],
+type ExternalNavItem = {
+  key: string;
+  kind: "external";
+  href: string;
+  label: string;
+  icon: (props: IconProps) => ReactNode;
+};
+
+type NavItem = InternalNavItem | ExternalNavItem;
+
+const primaryNavItems: NavItem[] = [
+  { key: "home", kind: "route", route: "home", label: "\u30ea\u30fc\u30c0\u30fc\u30dc\u30fc\u30c9", icon: TrophyIcon },
+  { key: "event", kind: "route", route: "event", label: "\u30a4\u30d9\u30f3\u30c8\u60c5\u5831", icon: CalendarIcon },
+  { key: "exchange", kind: "route", route: "exchange", label: "\u60c5\u5831\u4ea4\u63db", icon: LightbulbIcon },
+  { key: "chat", kind: "route", route: "chat", label: "\u96d1\u8ac7", icon: MessageIcon },
+  { key: "question", kind: "route", route: "question", label: "\u8cea\u554f", icon: QuestionIcon },
+];
+
+const externalToolItems: NavItem[] = [
+  {
+    key: "tsurumi-planner",
+    kind: "external",
+    href: "https://anotokinotori.github.io/Tsurumi-Map-Optimizer/",
+    label: "\u9db4\u898b\u8abf\u6574\u30d7\u30e9\u30f3\u30ca\u30fc",
+    icon: ExternalLinkIcon,
+  },
+  {
+    key: "autosplit",
+    kind: "external",
+    href: "https://github.com/semaruebi/400ee_win_autosplit/releases",
+    label: "AutoSplit",
+    icon: ExternalLinkIcon,
+  },
 ];
 
 function classNames(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
-function isNavActive(routeName: ShellRouteName, itemRoute: NavItem["route"]) {
+function isNavActive(routeName: ShellRouteName, itemRoute: InternalNavItem["route"]) {
   if (itemRoute === "home") {
     return routeName === "home" || routeName === "detail";
   }
@@ -181,6 +206,16 @@ function CalendarIcon({ className, active = false }: IconProps) {
   );
 }
 
+function ExternalLinkIcon({ className }: IconProps) {
+  return (
+    <ShellIcon className={className}>
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </ShellIcon>
+  );
+}
+
 function MenuIcon({ className }: { className?: string }) {
   return (
     <ShellIcon className={className}>
@@ -242,33 +277,44 @@ function DrawerSection({
   items,
   routeName,
   onNavigate,
+  onExternalSelect,
 }: {
   items: NavItem[];
   routeName: ShellRouteName;
   onNavigate: (route: ShellDestination) => void;
+  onExternalSelect: () => void;
 }) {
   return (
     <div className="flex flex-col gap-4 px-4 py-8 sm:px-6">
       {items.map((item) => {
         const Icon = item.icon;
-        const active = isNavActive(routeName, item.route);
+        const active = item.kind === "route" ? isNavActive(routeName, item.route) : false;
+        const itemClassName = "group flex w-full items-center gap-4 rounded-full px-4 py-3 text-left transition-all hover:bg-[#171d28]";
+        const labelClassName = classNames(
+          "whitespace-nowrap text-[20px] transition-colors",
+          active ? "font-bold text-[#d9d9d9]" : "font-normal text-[#d9d9d9] group-hover:text-[#d9d9d9]",
+        );
+
+        if (item.kind === "external") {
+          return (
+            <a
+              key={item.key}
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+              onClick={onExternalSelect}
+              className={itemClassName}
+            >
+              <Icon className="size-6 shrink-0 text-[#8b95a7]" />
+              <span className={labelClassName}>{item.label}</span>
+            </a>
+          );
+        }
 
         return (
-          <button
-            key={item.route}
-            type="button"
-            onClick={() => onNavigate(item.route)}
-            className="group flex w-full items-center gap-4 rounded-full px-4 py-3 text-left transition-all hover:bg-[#171d28]"
-          >
+          <button key={item.key} type="button" onClick={() => onNavigate(item.route)} className={itemClassName}>
             <Icon active={active} className={classNames("size-6 shrink-0", active ? "text-[#d9d9d9]" : "text-[#8b95a7]")} />
-            <span
-              className={classNames(
-                "whitespace-nowrap text-[20px] transition-colors",
-                active ? "font-bold text-[#d9d9d9]" : "font-normal text-[#d9d9d9] group-hover:text-[#d9d9d9]",
-              )}
-            >
-              {item.label}
-            </span>
+            <span className={labelClassName}>{item.label}</span>
           </button>
         );
       })}
@@ -279,35 +325,40 @@ function DrawerSection({
 function DrawerBody({
   routeName,
   onNavigate,
+  onClose,
 }: {
   routeName: ShellRouteName;
   onNavigate: (route: ShellDestination) => void;
+  onClose: () => void;
 }) {
   return (
     <>
       <div className="flex justify-start border-b border-[#2a3140] px-4 py-8 sm:px-6">
-        <div className="flex w-full max-w-[240px] flex-col gap-3 rounded-[24px] p-3 transition-colors hover:bg-[#171d28]">
+        <button
+          type="button"
+          onClick={() => onNavigate("account")}
+          className="flex w-full max-w-[240px] flex-col gap-3 rounded-[24px] p-3 text-left transition-colors hover:bg-[#171d28]"
+        >
           <div className="flex items-center justify-between gap-4">
             <div className="relative flex size-[36px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9]">
               <UserIcon className="size-5 text-gray-500" />
             </div>
-            <button
-              type="button"
-              className="rounded-full p-1 text-[#8b95a7] transition-colors hover:bg-[#222938] hover:text-[#d9d9d9]"
-              aria-label="アカウントメニュー"
-            >
+            <span className="rounded-full p-1 text-[#8b95a7]" aria-hidden="true">
               <MoreIcon className="size-5" />
-            </button>
+            </span>
           </div>
-          <p className="truncate text-[16px] font-bold text-[#d9d9d9]">アカウント名</p>
-        </div>
+          <div className="flex flex-col gap-1">
+            <p className="truncate text-[16px] font-bold text-[#d9d9d9]">{"アカウント名"}</p>
+            <p className="truncate text-[12px] font-normal text-[#8b95a7]">{"いいねをもらった数：０"}</p>
+          </div>
+        </button>
       </div>
 
       <div className="border-b border-[#2a3140]">
-        <DrawerSection items={navSections[0]} routeName={routeName} onNavigate={onNavigate} />
+        <DrawerSection items={primaryNavItems} routeName={routeName} onNavigate={onNavigate} onExternalSelect={onClose} />
       </div>
 
-      <DrawerSection items={navSections[1]} routeName={routeName} onNavigate={onNavigate} />
+      <DrawerSection items={externalToolItems} routeName={routeName} onNavigate={onNavigate} onExternalSelect={onClose} />
     </>
   );
 }
@@ -336,7 +387,7 @@ function GlobalDrawer({
       )}
       aria-hidden={!isOpen}
     >
-      <DrawerBody routeName={routeName} onNavigate={handleNavigate} />
+      <DrawerBody routeName={routeName} onNavigate={handleNavigate} onClose={onClose} />
     </aside>
   );
 }
@@ -347,6 +398,7 @@ function GlobalHeader({
   versionOptions,
   hasUnreadNotifications,
   onMenuClick,
+  onTitleClick,
   onNavigate,
   onRequestSubmit,
   onVersionChange,
@@ -356,6 +408,7 @@ function GlobalHeader({
   versionOptions: string[];
   hasUnreadNotifications: boolean;
   onMenuClick: () => void;
+  onTitleClick: () => void;
   onNavigate: (route: ShellDestination) => void;
   onRequestSubmit: () => void;
   onVersionChange: (version: string) => void;
@@ -367,11 +420,19 @@ function GlobalHeader({
     <header className="sticky top-0 z-30 h-[80px] shrink-0 border-b border-[#2a3140] bg-[#0f141c]">
       <div className="header-font flex h-full items-center justify-between gap-4 px-4 py-4 md:px-6">
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-          <button type="button" className="text-[#d9d9d9] transition-colors hover:text-[#d9d9d9]" onClick={onMenuClick} aria-label="メニューを開く">
+          <button type="button" className="text-[#d9d9d9] transition-colors hover:text-[#d9d9d9]" onClick={onMenuClick} aria-label="\u30e1\u30cb\u30e5\u30fc\u3092\u958b\u304f">
             <MenuIcon className="size-7" />
           </button>
 
-          <h1 className="shrink-0 whitespace-nowrap text-[20px] font-semibold tracking-tight text-[#d9d9d9] md:text-[32px]">精鋭狩りDB</h1>
+          <h1 className="shrink-0">
+            <button
+              type="button"
+              onClick={onTitleClick}
+              className="whitespace-nowrap text-[20px] font-semibold tracking-tight text-[#d9d9d9] transition-opacity hover:opacity-85 md:text-[32px]"
+            >
+              {"\u7cbe\u92ed\u72e9\u308aDB"}
+            </button>
+          </h1>
 
           <div className="relative min-w-0">
             <select
@@ -399,13 +460,13 @@ function GlobalHeader({
             )}
           >
             <PlusIcon className="size-5" />
-            <span className="hidden whitespace-nowrap text-[12px] font-normal sm:block md:text-[16px]">記録申請</span>
+            <span className="hidden whitespace-nowrap text-[12px] font-normal sm:block md:text-[16px]">{"\u8a18\u9332\u7533\u8acb"}</span>
           </button>
 
           <button
             type="button"
             onClick={() => onNavigate("notifications")}
-            aria-label="通知"
+            aria-label="\u901a\u77e5"
             className={classNames(utilityButtonClass, routeName === "notifications" && "bg-[#2a3140] text-[#d9d9d9] hover:bg-[#2a3140]")}
           >
             <BellIcon className="size-6 sm:size-7" />
@@ -415,7 +476,7 @@ function GlobalHeader({
           <button
             type="button"
             onClick={() => onNavigate("account")}
-            aria-label="アカウント"
+            aria-label="\u30a2\u30ab\u30a6\u30f3\u30c8"
             className={classNames(
               "flex size-[32px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9] transition-opacity hover:opacity-80 sm:size-[36px]",
               routeName === "account" && "ring-2 ring-[#657086]",
@@ -435,6 +496,7 @@ export function AppShell({
   versionOptions,
   hasUnreadNotifications,
   onNavigate,
+  onTitleClick,
   onRequestSubmit,
   onVersionChange,
   children,
@@ -444,6 +506,7 @@ export function AppShell({
   versionOptions: string[];
   hasUnreadNotifications: boolean;
   onNavigate: (route: ShellDestination) => void;
+  onTitleClick: () => void;
   onRequestSubmit: () => void;
   onVersionChange: (version: string) => void;
   children: ReactNode;
@@ -471,6 +534,11 @@ export function AppShell({
     };
   }, [isDrawerOpen]);
 
+  const handleTitleClick = () => {
+    setIsDrawerOpen(false);
+    onTitleClick();
+  };
+
   return (
     <div className="relative min-h-screen bg-[#f8f9fb] font-['Noto_Sans_JP',sans-serif] text-[#333333]">
       {isDrawerOpen ? (
@@ -492,6 +560,7 @@ export function AppShell({
             versionOptions={versionOptions}
             hasUnreadNotifications={hasUnreadNotifications}
             onMenuClick={() => setIsDrawerOpen(true)}
+            onTitleClick={handleTitleClick}
             onNavigate={onNavigate}
             onRequestSubmit={onRequestSubmit}
             onVersionChange={onVersionChange}
