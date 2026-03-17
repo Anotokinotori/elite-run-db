@@ -13,10 +13,15 @@ type ShellRouteName =
 
 type ShellDestination = Exclude<ShellRouteName, "detail">;
 
+type IconProps = {
+  className?: string;
+  active?: boolean;
+};
+
 type NavItem = {
   route: "home" | "chat" | "question" | "exchange" | "event";
   label: string;
-  icon: (props: { className?: string }) => ReactNode;
+  icon: (props: IconProps) => ReactNode;
 };
 
 const navSections: NavItem[][] = [
@@ -68,7 +73,17 @@ function ShellIcon({
   );
 }
 
-function TrophyIcon({ className }: { className?: string }) {
+function TrophyIcon({ className, active = false }: IconProps) {
+  if (active) {
+    return (
+      <svg viewBox="0 0 24 24" className={classNames("shrink-0", className)} fill="currentColor" aria-hidden="true">
+        <path d="M7 4a1 1 0 0 0-1 1v2a6 6 0 0 0 5 5.92V15H9.8a1 1 0 0 0-.97.76l-.84 3.24A1 1 0 0 0 8.96 20h6.08a1 1 0 0 0 .97-1.25l-.84-3.24A1 1 0 0 0 14.2 15H13v-2.08A6 6 0 0 0 18 7V5a1 1 0 0 0-1-1H7Z" />
+        <path d="M5 6H4.5A1.5 1.5 0 0 0 3 7.5V8a4 4 0 0 0 4 4h.06A7.96 7.96 0 0 1 5 8V6Z" />
+        <path d="M19 6h.5A1.5 1.5 0 0 1 21 7.5V8a4 4 0 0 1-4 4h-.06A7.96 7.96 0 0 0 19 8V6Z" />
+      </svg>
+    );
+  }
+
   return (
     <ShellIcon className={className}>
       <path d="M8 4h8v3a4 4 0 0 1-8 0V4Z" />
@@ -81,7 +96,15 @@ function TrophyIcon({ className }: { className?: string }) {
   );
 }
 
-function MessageIcon({ className }: { className?: string }) {
+function MessageIcon({ className, active = false }: IconProps) {
+  if (active) {
+    return (
+      <svg viewBox="0 0 24 24" className={classNames("shrink-0", className)} fill="currentColor" aria-hidden="true">
+        <path d="M6.5 4A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H8v4l4.4-4h5.1A2.5 2.5 0 0 0 20 12.5v-6A2.5 2.5 0 0 0 17.5 4h-11Z" />
+      </svg>
+    );
+  }
+
   return (
     <ShellIcon className={className}>
       <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6A2.5 2.5 0 0 1 17.5 15H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 12.5v-6Z" />
@@ -89,7 +112,23 @@ function MessageIcon({ className }: { className?: string }) {
   );
 }
 
-function QuestionIcon({ className }: { className?: string }) {
+function QuestionIcon({ className, active = false }: IconProps) {
+  if (active) {
+    return (
+      <svg viewBox="0 0 24 24" className={classNames("shrink-0", className)} fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" fill="currentColor" />
+        <path
+          d="M9.6 9.3a2.4 2.4 0 1 1 4.2 1.5c-.7.7-1.5 1.1-1.8 2.2"
+          stroke="#0f141c"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M12 16.8h.01" stroke="#0f141c" strokeWidth="2.2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   return (
     <ShellIcon className={className}>
       <circle cx="12" cy="12" r="9" />
@@ -99,7 +138,17 @@ function QuestionIcon({ className }: { className?: string }) {
   );
 }
 
-function LightbulbIcon({ className }: { className?: string }) {
+function LightbulbIcon({ className, active = false }: IconProps) {
+  if (active) {
+    return (
+      <svg viewBox="0 0 24 24" className={classNames("shrink-0", className)} fill="currentColor" aria-hidden="true">
+        <path d="M12 3.5a5.5 5.5 0 0 0-3.85 9.43c.77.73 1.2 1.53 1.37 2.07h5c.17-.54.6-1.34 1.37-2.07A5.5 5.5 0 0 0 12 3.5Z" />
+        <path d="M9 17a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H9Z" />
+        <path d="M10 20a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2h-4Z" />
+      </svg>
+    );
+  }
+
   return (
     <ShellIcon className={className}>
       <path d="M9 17.5h6" />
@@ -109,7 +158,16 @@ function LightbulbIcon({ className }: { className?: string }) {
   );
 }
 
-function CalendarIcon({ className }: { className?: string }) {
+function CalendarIcon({ className, active = false }: IconProps) {
+  if (active) {
+    return (
+      <svg viewBox="0 0 24 24" className={classNames("shrink-0", className)} fill="currentColor" aria-hidden="true">
+        <path d="M8 3a1 1 0 0 1 1 1v1h6V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1Z" />
+        <path d="M6 10.25h12v1.5H6Z" fill="#0f141c" opacity="0.35" />
+      </svg>
+    );
+  }
+
   return (
     <ShellIcon className={className}>
       <rect x="4" y="5" width="16" height="15" rx="2" />
@@ -180,7 +238,7 @@ function PlusIcon({ className }: { className?: string }) {
   );
 }
 
-function SidebarSection({
+function DrawerSection({
   items,
   routeName,
   onNavigate,
@@ -190,26 +248,23 @@ function SidebarSection({
   onNavigate: (route: ShellDestination) => void;
 }) {
   return (
-    <div className="flex flex-col items-start gap-4 px-4 py-8 md:items-center md:px-2 lg:items-start lg:gap-6 lg:px-8">
+    <div className="flex flex-col gap-4 px-4 py-8 sm:px-6">
       {items.map((item) => {
         const Icon = item.icon;
         const active = isNavActive(routeName, item.route);
 
         return (
-            <button
-              key={item.route}
-              type="button"
-              onClick={() => onNavigate(item.route)}
-              className={classNames(
-                "group flex w-full items-center gap-4 rounded-full p-3 text-left transition-all md:w-auto lg:w-full lg:px-4 lg:py-3",
-                active ? "bg-neutral-800" : "hover:bg-neutral-800",
-              )}
-            >
-            <Icon className={classNames("size-6 shrink-0", active ? "text-white" : "text-gray-400")} />
+          <button
+            key={item.route}
+            type="button"
+            onClick={() => onNavigate(item.route)}
+            className="group flex w-full items-center gap-4 rounded-full px-4 py-3 text-left transition-all hover:bg-[#171d28]"
+          >
+            <Icon active={active} className={classNames("size-6 shrink-0", active ? "text-[#d9d9d9]" : "text-[#8b95a7]")} />
             <span
               className={classNames(
-                "block whitespace-nowrap text-[20px] font-normal transition-colors md:hidden lg:block",
-                active ? "text-white" : "text-[#d9d9d9] group-hover:text-white",
+                "whitespace-nowrap text-[20px] transition-colors",
+                active ? "font-bold text-[#d9d9d9]" : "font-normal text-[#d9d9d9] group-hover:text-[#d9d9d9]",
               )}
             >
               {item.label}
@@ -221,7 +276,7 @@ function SidebarSection({
   );
 }
 
-function SidebarBody({
+function DrawerBody({
   routeName,
   onNavigate,
 }: {
@@ -230,42 +285,34 @@ function SidebarBody({
 }) {
   return (
     <>
-      <div className="flex justify-start border-b border-[#333] px-4 py-8 md:justify-center md:px-2 lg:justify-start lg:px-8 lg:pt-16 lg:pb-8">
-        <div className="flex w-full max-w-[240px] items-center justify-between rounded-full p-2 transition-colors hover:bg-neutral-800 lg:p-3">
-          <div className="flex items-center gap-4">
+      <div className="flex justify-start border-b border-[#2a3140] px-4 py-8 sm:px-6">
+        <div className="flex w-full max-w-[240px] flex-col gap-3 rounded-[24px] p-3 transition-colors hover:bg-[#171d28]">
+          <div className="flex items-center justify-between gap-4">
             <div className="relative flex size-[36px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9]">
               <UserIcon className="size-5 text-gray-500" />
             </div>
-            <p className="block whitespace-nowrap text-[16px] font-bold text-[#d9d9d9] md:hidden lg:block">アカウント名</p>
+            <button
+              type="button"
+              className="rounded-full p-1 text-[#8b95a7] transition-colors hover:bg-[#222938] hover:text-[#d9d9d9]"
+              aria-label="アカウントメニュー"
+            >
+              <MoreIcon className="size-5" />
+            </button>
           </div>
-          <MoreIcon className="block size-5 text-gray-500 md:hidden lg:block" />
+          <p className="truncate text-[16px] font-bold text-[#d9d9d9]">アカウント名</p>
         </div>
       </div>
 
-      <div className="border-b border-[#333]">
-        <SidebarSection items={navSections[0]} routeName={routeName} onNavigate={onNavigate} />
+      <div className="border-b border-[#2a3140]">
+        <DrawerSection items={navSections[0]} routeName={routeName} onNavigate={onNavigate} />
       </div>
 
-      <SidebarSection items={navSections[1]} routeName={routeName} onNavigate={onNavigate} />
+      <DrawerSection items={navSections[1]} routeName={routeName} onNavigate={onNavigate} />
     </>
   );
 }
 
-function StaticSidebar({
-  routeName,
-  onNavigate,
-}: {
-  routeName: ShellRouteName;
-  onNavigate: (route: ShellDestination) => void;
-}) {
-  return (
-    <aside className="hidden shrink-0 border-r border-[#333] bg-black text-[#d9d9d9] md:sticky md:top-0 md:flex md:h-screen md:w-[80px] md:flex-col md:overflow-y-auto lg:w-[320px]">
-      <SidebarBody routeName={routeName} onNavigate={onNavigate} />
-    </aside>
-  );
-}
-
-function MobileSidebar({
+function GlobalDrawer({
   isOpen,
   routeName,
   onClose,
@@ -284,11 +331,12 @@ function MobileSidebar({
   return (
     <aside
       className={classNames(
-        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto border-r border-[#333] bg-black text-[#d9d9d9] transition-transform duration-300 ease-in-out md:hidden",
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto border-r border-[#2a3140] bg-[#0f141c] text-[#d9d9d9] transition-transform duration-300 ease-in-out sm:w-[320px]",
         isOpen ? "translate-x-0" : "-translate-x-full",
       )}
+      aria-hidden={!isOpen}
     >
-      <SidebarBody routeName={routeName} onNavigate={handleNavigate} />
+      <DrawerBody routeName={routeName} onNavigate={handleNavigate} />
     </aside>
   );
 }
@@ -313,31 +361,31 @@ function GlobalHeader({
   onVersionChange: (version: string) => void;
 }) {
   const utilityButtonClass =
-    "relative rounded-full p-2 text-[#d9d9d9] transition-colors hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#999]";
+    "relative rounded-full p-2 text-[#d9d9d9] transition-colors hover:bg-[#171d28] hover:text-[#d9d9d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#657086]";
 
   return (
-    <header className="sticky top-0 z-30 h-[80px] shrink-0 border-b border-[#333] bg-black">
+    <header className="sticky top-0 z-30 h-[80px] shrink-0 border-b border-[#2a3140] bg-[#0f141c]">
       <div className="header-font flex h-full items-center justify-between gap-4 px-4 py-4 md:px-6">
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-          <button type="button" className="text-[#d9d9d9] transition-colors hover:text-white md:hidden" onClick={onMenuClick} aria-label="メニューを開く">
+          <button type="button" className="text-[#d9d9d9] transition-colors hover:text-[#d9d9d9]" onClick={onMenuClick} aria-label="メニューを開く">
             <MenuIcon className="size-7" />
           </button>
 
-          <h1 className="shrink-0 whitespace-nowrap text-[18px] font-normal text-[#d9d9d9] sm:text-[20px] md:text-[24px]">精鋭狩りDB</h1>
+          <h1 className="shrink-0 whitespace-nowrap text-[20px] font-semibold tracking-tight text-[#d9d9d9] md:text-[32px]">精鋭狩りDB</h1>
 
           <div className="relative min-w-0">
             <select
               value={version}
               onChange={(event) => onVersionChange(event.target.value)}
-              className="min-w-[104px] appearance-none rounded-full border border-[#4a4a4a] bg-[#1a1a1a] py-2 pl-4 pr-10 text-[16px] font-normal text-[#d9d9d9] outline-none transition-colors hover:border-[#5c5c5c] focus:border-[#7a7a7a] sm:text-[18px] md:text-[20px]"
+              className="min-w-[104px] appearance-none rounded-full border border-[#2f3949] bg-[#171d28] py-2 pl-4 pr-10 text-[12px] font-normal text-[#d9d9d9] outline-none transition-colors hover:border-[#445066] focus:border-[#657086] sm:text-[14px] md:text-[16px]"
             >
               {versionOptions.map((option) => (
-                <option key={option} value={option} className="bg-[#1a1a1a] text-[#d9d9d9]">
+                <option key={option} value={option} className="bg-[#171d28] text-[#d9d9d9]">
                   {option}
                 </option>
               ))}
             </select>
-            <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-[#a8a8a8]" />
+            <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-[#8b95a7]" />
           </div>
         </div>
 
@@ -347,21 +395,21 @@ function GlobalHeader({
             onClick={onRequestSubmit}
             className={classNames(
               "flex items-center gap-2 rounded-full px-3 py-2 transition-colors sm:px-4",
-              routeName === "submit" ? "bg-[#454545] text-white" : "bg-[#333] text-[#d9d9d9] hover:bg-neutral-700",
+              routeName === "submit" ? "bg-white text-[#111111]" : "bg-[#2a3140] text-[#d9d9d9] hover:bg-[#364055]",
             )}
           >
             <PlusIcon className="size-5" />
-            <span className="hidden whitespace-nowrap text-[16px] font-normal sm:block md:text-[20px]">記録申請</span>
+            <span className="hidden whitespace-nowrap text-[12px] font-normal sm:block md:text-[16px]">記録申請</span>
           </button>
 
           <button
             type="button"
             onClick={() => onNavigate("notifications")}
             aria-label="通知"
-            className={classNames(utilityButtonClass, routeName === "notifications" && "bg-[#1d1d1d] text-white")}
+            className={classNames(utilityButtonClass, routeName === "notifications" && "bg-[#2a3140] text-[#d9d9d9] hover:bg-[#2a3140]")}
           >
             <BellIcon className="size-6 sm:size-7" />
-            {hasUnreadNotifications ? <span className="absolute top-1 right-1 block size-2.5 rounded-full border-2 border-black bg-red-500" /> : null}
+            {hasUnreadNotifications ? <span className="absolute top-1 right-1 block size-2.5 rounded-full border-2 border-[#0f141c] bg-red-500" /> : null}
           </button>
 
           <button
@@ -370,7 +418,7 @@ function GlobalHeader({
             aria-label="アカウント"
             className={classNames(
               "flex size-[32px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9] transition-opacity hover:opacity-80 sm:size-[36px]",
-              routeName === "account" && "ring-2 ring-[#7a7a7a]",
+              routeName === "account" && "ring-2 ring-[#657086]",
             )}
           >
             <UserIcon className="size-5 text-gray-600" />
@@ -400,43 +448,50 @@ export function AppShell({
   onVersionChange: (version: string) => void;
   children: ReactNode;
 }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
-    if (!isMobileMenuOpen) {
+    if (!isDrawerOpen) {
       return;
     }
 
     const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsDrawerOpen(false);
+      }
+    };
+
     document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isMobileMenuOpen]);
+  }, [isDrawerOpen]);
 
   return (
-    <div className="relative min-h-screen bg-[#121212] font-['Noto_Sans_JP',sans-serif] text-[#d9d9d9]">
-      {isMobileMenuOpen ? (
-        <div className="fixed inset-0 z-40 bg-[rgba(0,0,0,0.2)] transition-opacity md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
+    <div className="relative min-h-screen bg-[#f8f9fb] font-['Noto_Sans_JP',sans-serif] text-[#333333]">
+      {isDrawerOpen ? (
+        <div className="fixed inset-0 z-40 bg-[rgba(0,0,0,0.5)] transition-opacity" onClick={() => setIsDrawerOpen(false)} />
       ) : null}
 
-      <div className="flex min-h-screen">
-        <MobileSidebar
-          isOpen={isMobileMenuOpen}
-          routeName={routeName}
-          onClose={() => setIsMobileMenuOpen(false)}
-          onNavigate={onNavigate}
-        />
-        <StaticSidebar routeName={routeName} onNavigate={onNavigate} />
+      <GlobalDrawer
+        isOpen={isDrawerOpen}
+        routeName={routeName}
+        onClose={() => setIsDrawerOpen(false)}
+        onNavigate={onNavigate}
+      />
 
-        <div className="flex min-w-0 flex-1 flex-col bg-[#121212]">
+      <div className="flex min-h-screen">
+        <div className="flex min-w-0 flex-1 flex-col bg-[#f8f9fb]">
           <GlobalHeader
             routeName={routeName}
             version={version}
             versionOptions={versionOptions}
             hasUnreadNotifications={hasUnreadNotifications}
-            onMenuClick={() => setIsMobileMenuOpen(true)}
+            onMenuClick={() => setIsDrawerOpen(true)}
             onNavigate={onNavigate}
             onRequestSubmit={onRequestSubmit}
             onVersionChange={onVersionChange}
