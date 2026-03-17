@@ -42,12 +42,18 @@ const OFFMETA_PICKUP_LABEL = "\u958b\u62d3\u8005 \u4f7f\u7528\u73875%\u672a\u6e8
 const NO_RESULTS_LABEL = "\u8a18\u9332\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093";
 const NO_RESULTS_COPY = "\u6761\u4ef6\u3092\u5909\u66f4\u3059\u308b\u304b\u3001\u65b0\u3057\u3044\u8a18\u9332\u306e\u8ffd\u52a0\u3092\u304a\u5f85\u3061\u304f\u3060\u3055\u3044\u3002";
 const OTHER_RULESET_TABS = ["Npui別", "武器別", "マルチPUI", "マルチUI", "マルチUA"];
-const HOME_SECTION_PANEL_CLASS = "bg-white rounded-[20px] border border-black/10 shadow-sm";
-const HOME_SECTION_TITLE_CLASS = "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-black";
+const HOME_SECTION_PANEL_CLASS = "relative overflow-hidden rounded-[20px] bg-[#323232] drop-shadow-xl";
+const HOME_SECTION_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#282828] text-white/90";
+const HOME_SECTION_TITLE_CLASS = "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-white";
+const HOME_SECTION_REFLECTION_TOP_CLASS =
+  "pointer-events-none absolute inset-x-[18px] top-[1px] h-[22px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.05)_42%,rgba(255,255,255,0))] blur-[10px]";
+const HOME_SECTION_REFLECTION_CORNER_CLASS =
+  "pointer-events-none absolute -left-[10%] -top-[24%] h-44 w-72 rounded-full bg-white/52 blur-[60px]";
 const HOME_ICON_BUTTON_CLASS =
-  "flex h-8 w-8 items-center justify-center rounded-full border border-[#dcdfe6] bg-white text-black transition-colors hover:bg-black/5";
+  "flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] text-white/78 transition-colors hover:bg-white/[0.14] hover:text-white";
+const HOME_LIKE_ACTIVE_ICON_CLASS = "text-[#ff8ea1]";
 const HOME_PRIMARY_BUTTON_CLASS =
-  "inline-flex h-10 items-center justify-center rounded-full border border-[#d8dde6] bg-[#f5f6f8] px-4 text-[13px] font-semibold tracking-[0.01em] text-black transition-colors hover:border-[#c8ced8] hover:bg-[#eceff3]";
+  "inline-flex h-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] px-4 text-[13px] font-semibold tracking-[0.01em] text-white transition-colors hover:bg-white/[0.14]";
 
 const AMBR_NAME_MAP: Record<string, string> = {
   amber: "Ambor",
@@ -432,11 +438,12 @@ function TimerIcon({ size = 16, className = "" }: { size?: number; className?: s
   );
 }
 
-function LikeIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+function LikeIcon({ size = 16, className = "", filled = false }: { size?: number; className?: string; filled?: boolean }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
         d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+        fill={filled ? "currentColor" : "none"}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -593,25 +600,29 @@ function TopPlayerCard({
   label,
   run,
   theme,
+  liked,
+  onToggleLike,
   onView,
   onSelect,
 }: {
   label: string;
   run: HomeRun | null;
   theme: { gradient: string };
+  liked: boolean;
+  onToggleLike: () => void;
   onView: () => void;
   onSelect: (runId: string) => void;
 }) {
   if (!run) {
     return (
-      <div className="flex h-full flex-col overflow-hidden rounded-[16px] border border-[#e8eaef] bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <div className="flex h-full flex-col overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#2b2a2b] shadow-[0_12px_24px_rgba(0,0,0,0.28)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.32)]">
         <div className={`relative h-24 w-full bg-gradient-to-r ${theme.gradient}`}>
           <div className="absolute top-4 left-4 z-10 space-y-1">
             <div className="text-[17px] font-bold leading-tight tracking-[0.01em] text-white drop-shadow-md md:text-[18px]">{label}</div>
           </div>
         </div>
-        <div className="relative z-10 flex flex-1 flex-col justify-between gap-4 bg-white p-4">
-          <div className="text-sm text-[#606266]">{LOADING_LABEL}</div>
+        <div className="relative z-10 flex flex-1 flex-col justify-between gap-4 bg-[#323132] p-4 text-white/90">
+          <div className="text-sm text-white/55">{LOADING_LABEL}</div>
           <button type="button" onClick={onView} className={`${HOME_PRIMARY_BUTTON_CLASS} w-full`}>
             {VIEW_RANKING_LABEL}
           </button>
@@ -622,7 +633,7 @@ function TopPlayerCard({
 
   return (
     <div
-      className="flex h-full cursor-pointer flex-col overflow-hidden rounded-[16px] border border-[#e8eaef] bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      className="flex h-full cursor-pointer flex-col overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#2b2a2b] shadow-[0_12px_24px_rgba(0,0,0,0.28)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.32)]"
       onClick={() => onSelect(run.id)}
     >
       <div className={`relative h-24 w-full bg-gradient-to-r ${theme.gradient}`}>
@@ -636,16 +647,23 @@ function TopPlayerCard({
           className="pointer-events-none absolute -right-5 -bottom-5 z-0 h-auto w-44 object-cover opacity-85 drop-shadow-lg"
         />
       </div>
-      <div className="relative z-10 flex flex-1 flex-col gap-4 bg-white p-4">
-        <div className="flex items-center justify-end gap-2 text-black">
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={14} className="text-black" />
+      <div className="relative z-10 flex flex-1 flex-col gap-4 bg-[#323132] p-4 text-white/90">
+        <div className="flex items-center justify-end gap-2 text-white">
+          <button
+            type="button"
+            className={HOME_ICON_BUTTON_CLASS}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleLike();
+            }}
+          >
+            <LikeIcon size={14} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={14} className="text-black" />
+            <CommentIcon size={14} className="text-current" />
           </button>
         </div>
-        <div className="rounded-[12px] border border-[#eceff3] bg-[#f7f8fa] p-3">
+        <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
           <div className="flex items-center justify-between gap-2">
             {run.party.map((member, index) => (
               <CharacterImage
@@ -657,7 +675,7 @@ function TopPlayerCard({
               />
             ))}
           </div>
-          <div className="mt-3 text-center text-[24px] font-semibold leading-none text-black">{run.time}</div>
+          <div className="mt-3 text-center text-[24px] font-semibold leading-none text-white">{run.time}</div>
         </div>
         <button
           type="button"
@@ -677,22 +695,26 @@ function TopPlayerCard({
 function LeaderboardRow({
   run,
   index,
+  liked,
+  onToggleLike,
   onSelect,
 }: {
   run: HomeRun;
   index: number;
+  liked: boolean;
+  onToggleLike: () => void;
   onSelect: (runId: string) => void;
 }) {
   const PlatformIcon = PLATFORM_ICONS[run.platform] ?? PLATFORM_ICONS.PC;
 
   return (
-    <div className="cursor-pointer border-t border-[#ebebeb] py-4" onClick={() => onSelect(run.id)}>
+    <div className="cursor-pointer border-t border-white/10 py-4 text-white/90" onClick={() => onSelect(run.id)}>
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex min-w-0 items-center gap-3 md:gap-5">
-          <div className="flex w-6 items-center justify-center text-black/70">
+          <div className="flex w-6 items-center justify-center text-white/45">
             <RankMoveIcon move={run.rankMove} className="h-5 w-5" />
           </div>
-          <div className="w-9 text-center text-[20px] font-semibold md:w-10 md:text-[22px]">{index + 1}</div>
+          <div className="w-9 text-center text-[20px] font-semibold text-white md:w-10 md:text-[22px]">{index + 1}</div>
           <CharacterImage
             characterId={run.mainAttackerId}
             alt={characterDb[run.mainAttackerId]?.name ?? run.mainAttackerId}
@@ -701,25 +723,32 @@ function LeaderboardRow({
           />
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
-              <div className="truncate text-[17px] font-semibold md:text-[19px]">{run.userName}</div>
-              <div className="hidden rounded-full border border-black/10 bg-black/[0.04] px-2.5 py-1 text-[11px] font-medium md:inline-flex">
+              <div className="truncate text-[17px] font-semibold text-white md:text-[19px]">{run.userName}</div>
+              <div className="hidden rounded-full border border-white/12 bg-white/[0.08] px-2.5 py-1 text-[11px] font-medium text-white/72 md:inline-flex">
                 {getBracketLabel(run.bracket)}
               </div>
             </div>
           </div>
-          <div className="ml-auto text-[20px] font-semibold md:hidden">{run.time}</div>
-          <div className="hidden h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] md:flex">
-            <PlatformIcon className="h-[18px] w-[18px] text-black" />
+          <div className="ml-auto text-[20px] font-semibold text-white md:hidden">{run.time}</div>
+          <div className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] md:flex">
+            <PlatformIcon className="h-[18px] w-[18px] text-white/78" />
           </div>
         </div>
         <div className="hidden items-center gap-3 md:flex">
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={14} className="text-black" />
+          <button
+            type="button"
+            className={HOME_ICON_BUTTON_CLASS}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleLike();
+            }}
+          >
+            <LikeIcon size={14} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={14} className="text-black" />
+            <CommentIcon size={14} className="text-current" />
           </button>
-          <div className="w-20 text-right text-[22px] font-semibold">{run.time}</div>
+          <div className="w-20 text-right text-[22px] font-semibold text-white">{run.time}</div>
           <a
             className={HOME_ICON_BUTTON_CLASS}
             href={run.videoUrl}
@@ -735,17 +764,24 @@ function LeaderboardRow({
       </div>
       <div className="mt-2 flex items-center justify-between gap-3 md:hidden">
         <div className="flex items-center gap-2">
-          <div className="rounded-full border border-black/10 bg-black/[0.04] px-2 py-0.5 text-[11px] font-medium">{getBracketLabel(run.bracket)}</div>
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-black/10 bg-black/[0.04]">
-            <PlatformIcon className="h-3.5 w-3.5 text-black" />
+          <div className="rounded-full border border-white/12 bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-white/72">{getBracketLabel(run.bracket)}</div>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.08]">
+            <PlatformIcon className="h-3.5 w-3.5 text-white/78" />
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={13} className="text-black" />
+          <button
+            type="button"
+            className={HOME_ICON_BUTTON_CLASS}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleLike();
+            }}
+          >
+            <LikeIcon size={13} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={13} className="text-black" />
+            <CommentIcon size={13} className="text-current" />
           </button>
           <a
             className={HOME_ICON_BUTTON_CLASS}
@@ -961,7 +997,7 @@ function FilterModal({
 }
 
 function HomeShell({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen text-[#333333] font-sans pb-20 bg-[#f0f2f5]">{children}</div>;
+  return <div className="min-h-screen bg-[#212121] pb-20 font-sans text-[#333333]">{children}</div>;
 }
 
 export function RunHomePage({
@@ -995,6 +1031,7 @@ export function RunHomePage({
   const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
   const [showTopScrollLeft, setShowTopScrollLeft] = useState(false);
   const [showTopScrollRight, setShowTopScrollRight] = useState(false);
+  const [likedRunState, setLikedRunState] = useState<Record<string, boolean>>({});
   const activeSeason = selectedSeason ?? activeSeasonInternal;
   const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
 
@@ -1058,6 +1095,13 @@ export function RunHomePage({
     onSelectRun(runId);
   };
 
+  const toggleHomeLike = (runId: string) => {
+    setLikedRunState((previous) => ({
+      ...previous,
+      [runId]: !previous[runId],
+    }));
+  };
+
   return (
     <HomeShell>
       {embedded ? null : (
@@ -1110,7 +1154,7 @@ export function RunHomePage({
           style={{ backgroundImage: `url(${HERO_IMAGE_URL})` }}
           aria-label="Hero visual"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#f0f2f5]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#212121]" />
           <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl bg-black/15 backdrop-blur-sm rounded-full border border-white/30 px-4 py-2">
             <div className="flex items-center justify-between text-sm font-medium text-white">
               {[...PRIMARY_RULESET_TABS, OTHER_TAB_LABEL].map((label) => (
@@ -1170,79 +1214,114 @@ export function RunHomePage({
             <div className="relative z-10 -mt-40 md:-mt-72 mb-12">
               <div className="relative">
                 <div ref={topRowRef} className="flex gap-5 overflow-x-auto no-scrollbar" onScroll={updateTopScrollButtons}>
-                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[820px] flex-shrink-0 p-5`}>
-                    <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{TOP_PLAYERS_LABEL}</div>
-                    <div className="grid min-w-[860px] grid-cols-4 gap-5">
-                      {[
-                        { label: "Unlimited 1st", bracket: 4 as Bracket, theme: { gradient: "from-[#274060] to-[#1b2f45]" } },
-                        { label: "High 1st", bracket: 3 as Bracket, theme: { gradient: "from-[#2c3e3d] to-[#1e2c2b]" } },
-                        { label: "Middle 1st", bracket: 2 as Bracket, theme: { gradient: "from-[#3d2a4a] to-[#2b1f35]" } },
-                        { label: "Low 1st", bracket: 1 as Bracket, theme: { gradient: "from-[#4a3528] to-[#2f231c]" } },
-                      ].map((item) => (
-                        <TopPlayerCard
-                          key={item.label}
-                          label={item.label}
-                          run={getBestRun(heroRuns.filter((run) => run.bracket === item.bracket))}
-                          theme={item.theme}
-                          onView={() => {
-                            setFilterBracket(item.bracket);
-                            setLeaderboardView("rta");
-                            scrollToLeaderboard();
-                          }}
-                          onSelect={openRunDetail}
-                        />
-                      ))}
+                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[820px] flex-shrink-0`}>
+                    <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+                    <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
+                    <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5`}>
+                      <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{TOP_PLAYERS_LABEL}</div>
+                      <div className="grid min-w-[860px] grid-cols-4 gap-5">
+                        {[
+                          { label: "Unlimited 1st", bracket: 4 as Bracket, theme: { gradient: "from-[#274060] to-[#1b2f45]" } },
+                          { label: "High 1st", bracket: 3 as Bracket, theme: { gradient: "from-[#2c3e3d] to-[#1e2c2b]" } },
+                          { label: "Middle 1st", bracket: 2 as Bracket, theme: { gradient: "from-[#3d2a4a] to-[#2b1f35]" } },
+                          { label: "Low 1st", bracket: 1 as Bracket, theme: { gradient: "from-[#4a3528] to-[#2f231c]" } },
+                        ].map((item) => {
+                          const topRun = getBestRun(heroRuns.filter((run) => run.bracket === item.bracket));
+
+                          return (
+                            <TopPlayerCard
+                              key={item.label}
+                              label={item.label}
+                              run={topRun}
+                              theme={item.theme}
+                              liked={Boolean(topRun && likedRunState[topRun.id])}
+                              onToggleLike={() => {
+                                if (topRun) {
+                                  toggleHomeLike(topRun.id);
+                                }
+                              }}
+                              onView={() => {
+                                setFilterBracket(item.bracket);
+                                setLeaderboardView("rta");
+                                scrollToLeaderboard();
+                              }}
+                              onSelect={openRunDetail}
+                            />
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
-                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[300px] flex-shrink-0 p-5`}>
-                    <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{FEATURED_PLAYERS_LABEL}</div>
-                    <div className="space-y-3">
-                      {[
-                        { title: FIRST_POST_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("New"))) },
-                        { title: OFFMETA_PICKUP_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("OffMeta"))) },
-                      ].map((item) => (
-                        <div
-                          key={item.title}
-                          className="relative cursor-pointer overflow-hidden rounded-[16px] border border-black/10 bg-[#fcfcfd] p-4 shadow-sm transition-transform hover:-translate-y-0.5 hover:shadow-md"
-                          onClick={() => {
-                            if (item.run) {
-                              openRunDetail(item.run.id);
-                            }
-                          }}
-                        >
-                          <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/5 to-transparent pointer-events-none" />
-                          <div className="pr-8 text-[15px] font-semibold leading-snug text-black">{item.title}</div>
-                          {item.run ? (
-                            <div className="mt-3 space-y-3">
-                              <div className="text-[14px] font-semibold text-black">{item.run.userName}</div>
-                              <div className="space-y-3">
-                                <div className="flex items-center justify-end gap-2 text-black">
-                                  <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-                                    <LikeIcon size={14} className="text-black" />
-                                  </button>
-                                  <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-                                    <CommentIcon size={14} className="text-black" />
-                                  </button>
+                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[300px] flex-shrink-0`}>
+                    <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+                    <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
+                    <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5`}>
+                      <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{FEATURED_PLAYERS_LABEL}</div>
+                      <div className="space-y-3">
+                        {[
+                          { title: FIRST_POST_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("New"))) },
+                          { title: OFFMETA_PICKUP_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("OffMeta"))) },
+                        ].map((item) => {
+                          const featuredRun = item.run;
+
+                          return (
+                            <div
+                              key={item.title}
+                              className="relative cursor-pointer overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#323132] p-4 shadow-[0_12px_24px_rgba(0,0,0,0.24)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.3)]"
+                              onClick={() => {
+                                if (featuredRun) {
+                                  openRunDetail(featuredRun.id);
+                                }
+                              }}
+                            >
+                              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+                              <div className="pr-8 text-[15px] font-semibold leading-snug text-white">{item.title}</div>
+                              {featuredRun ? (
+                                <div className="mt-3 space-y-3">
+                                  <div className="text-[14px] font-semibold text-white/88">{featuredRun.userName}</div>
+                                  <div className="space-y-3">
+                                    <div className="flex items-center justify-end gap-2 text-white">
+                                      <button
+                                        type="button"
+                                        className={HOME_ICON_BUTTON_CLASS}
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          toggleHomeLike(featuredRun.id);
+                                        }}
+                                      >
+                                        <LikeIcon
+                                          size={14}
+                                          filled={Boolean(likedRunState[featuredRun.id])}
+                                          className={likedRunState[featuredRun.id] ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"}
+                                        />
+                                      </button>
+                                      <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
+                                        <CommentIcon size={14} className="text-current" />
+                                      </button>
+                                    </div>
+                                    <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
+                                      <div className="flex items-center gap-2.5">
+                                        {featuredRun.party.map((member, index) => (
+                                          <CharacterImage
+                                            key={`${featuredRun.id}-${member.characterId}-${index}`}
+                                            characterId={member.characterId}
+                                            alt={characterDb[member.characterId]?.name ?? member.characterId}
+                                            variant="circle"
+                                            className="h-9 w-9 rounded-full object-cover"
+                                          />
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2.5">
-                                  {item.run.party.map((member, index) => (
-                                    <CharacterImage
-                                      key={`${item.run?.id}-${member.characterId}-${index}`}
-                                      characterId={member.characterId}
-                                      alt={characterDb[member.characterId]?.name ?? member.characterId}
-                                      variant="circle"
-                                      className="h-9 w-9 rounded-full object-cover"
-                                    />
-                                  ))}
-                                </div>
-                              </div>
+                              ) : (
+                                <div className="mt-2 text-sm text-white/55">{LOADING_LABEL}</div>
+                              )}
                             </div>
-                          ) : (
-                            <div className="mt-2 text-sm text-[#606266]">{LOADING_LABEL}</div>
-                          )}
-                        </div>
-                      ))}
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1281,40 +1360,43 @@ export function RunHomePage({
               </div>
             </div>
 
-            <div ref={leaderboardRef} className={`${HOME_SECTION_PANEL_CLASS} mb-10 p-5 md:p-6`}>
-              <div className="mb-5 text-[18px] font-bold tracking-[0.01em] text-black md:text-[20px]">{LEADERBOARD_LABEL}</div>
-              <div className="mb-5 flex items-center justify-center">
-                <div className="flex items-center border border-[#dcdfe6] rounded-full overflow-hidden w-full max-w-[520px] md:min-w-[520px]">
-                  {[
-                    { key: "rta", label: "RTAランキング", shortLabel: "RTA" },
-                    { key: "char", label: "キャラTOPプレイヤー", shortLabel: "キャラTOP" },
-                    { key: "fes", label: "祭典フェス", shortLabel: "フェス" },
-                  ].map((item) => (
-                    <button
-                      key={item.key}
-                      type="button"
-                      onClick={() => setLeaderboardView(item.key as "rta" | "char" | "fes")}
-                      className={`flex-1 px-4 py-2.5 text-[13px] font-semibold transition-colors md:text-[14px] ${
-                        leaderboardView === item.key ? "bg-black text-white" : "bg-white text-black"
-                      }`}
-                      title={item.label}
-                      aria-label={item.label}
-                    >
-                      <span className="md:hidden">{item.shortLabel}</span>
-                      <span className="hidden md:inline">{item.label}</span>
-                    </button>
-                  ))}
+            <div ref={leaderboardRef} className={`${HOME_SECTION_PANEL_CLASS} mb-10`}>
+              <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+              <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
+              <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5 md:p-6`}>
+                <div className="mb-5 text-[18px] font-bold tracking-[0.01em] text-white md:text-[20px]">{LEADERBOARD_LABEL}</div>
+                <div className="mb-5 flex items-center justify-center">
+                  <div className="flex items-center overflow-hidden rounded-full border border-white/12 bg-[#262526]/70 w-full max-w-[520px] md:min-w-[520px]">
+                    {[
+                      { key: "rta", label: "RTAランキング", shortLabel: "RTA" },
+                      { key: "char", label: "キャラTOPプレイヤー", shortLabel: "キャラTOP" },
+                      { key: "fes", label: "祭典フェス", shortLabel: "フェス" },
+                    ].map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => setLeaderboardView(item.key as "rta" | "char" | "fes")}
+                        className={`flex-1 px-4 py-2.5 text-[13px] font-semibold transition-colors md:text-[14px] ${
+                          leaderboardView === item.key ? "bg-white text-[#1f1f20]" : "bg-transparent text-white/68 hover:bg-white/8 hover:text-white"
+                        }`}
+                        title={item.label}
+                        aria-label={item.label}
+                      >
+                        <span className="md:hidden">{item.shortLabel}</span>
+                        <span className="hidden md:inline">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="mb-4 flex items-center">
-                <button
-                  type="button"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-[#dcdfe6] transition-colors hover:bg-black/5"
-                  onClick={() => setIsFilterOpen(true)}
-                >
-                  <FilterFunnelIcon className="w-5 h-5 text-black" />
-                </button>
-              </div>
+                <div className="mb-4 flex items-center">
+                  <button
+                    type="button"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/12 text-white/78 transition-colors hover:bg-white/10 hover:text-white"
+                    onClick={() => setIsFilterOpen(true)}
+                  >
+                    <FilterFunnelIcon className="w-5 h-5" />
+                  </button>
+                </div>
               <div className="mb-5 flex items-center justify-between text-[13px] font-semibold md:text-[14px]">
                 {[
                   { label: ALL_LABEL, shortLabel: ALL_LABEL, value: null },
@@ -1329,8 +1411,8 @@ export function RunHomePage({
                     onClick={() => setFilterBracket(item.value)}
                     className={`flex-1 border-b-2 pb-3 text-center ${
                       filterBracket === item.value || (item.value === null && filterBracket === null)
-                        ? "border-black text-black"
-                        : "border-transparent text-[#909399] hover:text-black"
+                        ? "border-white text-white"
+                        : "border-transparent text-white/38 hover:text-white/72"
                     }`}
                   >
                     <span className="md:hidden">{item.shortLabel}</span>
@@ -1340,9 +1422,10 @@ export function RunHomePage({
               </div>
               <div>
                 {leaderboardRuns.map((run, index) => (
-                  <LeaderboardRow key={run.id} run={run} index={index} onSelect={openRunDetail} />
+                  <LeaderboardRow key={run.id} run={run} index={index} liked={Boolean(likedRunState[run.id])} onToggleLike={() => toggleHomeLike(run.id)} onSelect={openRunDetail} />
                 ))}
               </div>
+            </div>
             </div>
           </>
         ) : null}
@@ -1368,11 +1451,11 @@ export function RunHomePage({
         ) : null}
       </main>
 
-      <footer className="mt-20 border-t border-[#ebebeb] bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center text-[#909399] text-sm">
-          <div className="flex items-center justify-center gap-2 mb-4 opacity-70">
+      <footer className="mt-20 border-t border-white/10 bg-[#212121] py-12">
+        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-white/52">
+          <div className="mb-4 flex items-center justify-center gap-2 text-white/74">
             <TimerIcon size={20} />
-            <span className="font-bold text-lg">Teyvat EliteDB</span>
+            <span className="text-lg font-bold">Teyvat EliteDB</span>
           </div>
           <p className="mb-2">Community Driven Elite Hunting RTA Database (Prototype)</p>
           <p>Created based on R&apos;s concept &amp; Community Feedback.</p>
