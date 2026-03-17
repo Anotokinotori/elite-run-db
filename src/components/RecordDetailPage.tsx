@@ -506,7 +506,7 @@ function SimilarRunCard({
             <div className="min-w-0 flex-1">
               <div className="truncate text-[15px] font-semibold leading-[1.4] text-white/92 md:text-[16px]">{match.run.title}</div>
               <div className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[4px] text-[12px] text-white/52 md:text-[13px]">
-                <span className="font-medium text-white/78">{match.run.userName}</span>
+                <span className="max-w-full truncate font-medium text-white/78">{match.run.userName}</span>
                 <span>{match.run.postedLabel}</span>
                 <PlatformLabel platform={match.run.platform} iconClassName="h-[13px] w-[13px]" />
               </div>
@@ -527,7 +527,9 @@ function SimilarRunCard({
 
           <div className="mt-[12px] flex flex-wrap gap-[8px]">
             {(visibleReasons.length > 0 ? visibleReasons : ["近い条件"]).map((reason) => (
-              <SimilarityReasonChip key={`${match.run.id}-${reason}`} label={reason} />
+              <div key={`${match.run.id}-${reason}`} className="max-w-full truncate">
+                <SimilarityReasonChip label={reason} />
+              </div>
             ))}
           </div>
         </div>
@@ -866,7 +868,7 @@ export function RecordDetailPage({
             </div>
           </section>
 
-          <aside className={`flex w-full shrink-0 flex-col gap-[18px] ${compareOpen ? "lg:w-full xl:w-full" : "lg:w-[360px] xl:w-[372px]"}`}>
+          <aside className={`flex w-full shrink-0 flex-col gap-[18px] ${compareOpen ? "lg:w-full xl:w-full" : "lg:w-[304px] xl:w-[316px]"}`}>
             <SidebarPanel>
               <div className="flex flex-col gap-[16px]">
                 <SidebarSectionHeader title="使用編成" meta={`${partyLoadout.length}メンバー`} />
