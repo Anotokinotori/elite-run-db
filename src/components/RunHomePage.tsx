@@ -42,8 +42,8 @@ const OFFMETA_PICKUP_LABEL = "\u958b\u62d3\u8005 \u4f7f\u7528\u73875%\u672a\u6e8
 const NO_RESULTS_LABEL = "\u8a18\u9332\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093";
 const NO_RESULTS_COPY = "\u6761\u4ef6\u3092\u5909\u66f4\u3059\u308b\u304b\u3001\u65b0\u3057\u3044\u8a18\u9332\u306e\u8ffd\u52a0\u3092\u304a\u5f85\u3061\u304f\u3060\u3055\u3044\u3002";
 const OTHER_RULESET_TABS = ["Npui別", "武器別", "マルチPUI", "マルチUI", "マルチUA"];
-const HOME_SECTION_PANEL_CLASS = "relative overflow-hidden rounded-[20px] bg-[#3d3c3d] drop-shadow-xl";
-const HOME_SECTION_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#323132] text-white/90";
+const HOME_SECTION_PANEL_CLASS = "relative overflow-hidden rounded-[20px] bg-[#323232] drop-shadow-xl";
+const HOME_SECTION_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#282828] text-white/90";
 const HOME_SECTION_TITLE_CLASS = "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-white";
 const HOME_SECTION_REFLECTION_TOP_CLASS =
   "pointer-events-none absolute inset-x-[18px] top-[1px] h-[22px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.05)_42%,rgba(255,255,255,0))] blur-[10px]";
@@ -719,10 +719,10 @@ function LeaderboardRow({
         </div>
         <div className="hidden items-center gap-3 md:flex">
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={14} className="text-black" />
+            <LikeIcon size={14} className="text-current" />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={14} className="text-black" />
+            <CommentIcon size={14} className="text-current" />
           </button>
           <div className="w-20 text-right text-[22px] font-semibold text-white">{run.time}</div>
           <a
@@ -747,10 +747,10 @@ function LeaderboardRow({
         </div>
         <div className="flex items-center gap-2">
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={13} className="text-black" />
+            <LikeIcon size={13} className="text-current" />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={13} className="text-black" />
+            <CommentIcon size={13} className="text-current" />
           </button>
           <a
             className={HOME_ICON_BUTTON_CLASS}
@@ -966,7 +966,7 @@ function FilterModal({
 }
 
 function HomeShell({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen bg-[#00050D] pb-20 font-sans text-[#333333]">{children}</div>;
+  return <div className="min-h-screen bg-[#212121] pb-20 font-sans text-[#333333]">{children}</div>;
 }
 
 export function RunHomePage({
@@ -1115,7 +1115,7 @@ export function RunHomePage({
           style={{ backgroundImage: `url(${HERO_IMAGE_URL})` }}
           aria-label="Hero visual"
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#00050D]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#212121]" />
           <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl bg-black/15 backdrop-blur-sm rounded-full border border-white/30 px-4 py-2">
             <div className="flex items-center justify-between text-sm font-medium text-white">
               {[...PRIMARY_RULESET_TABS, OTHER_TAB_LABEL].map((label) => (
