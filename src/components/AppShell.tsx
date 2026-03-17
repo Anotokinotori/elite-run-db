@@ -144,12 +144,12 @@ function QuestionIcon({ className, active = false }: IconProps) {
         <circle cx="12" cy="12" r="9" fill="currentColor" />
         <path
           d="M9.6 9.3a2.4 2.4 0 1 1 4.2 1.5c-.7.7-1.5 1.1-1.8 2.2"
-          stroke="#0f141c"
+          stroke="#212121"
           strokeWidth="1.9"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <path d="M12 16.8h.01" stroke="#0f141c" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M12 16.8h.01" stroke="#212121" strokeWidth="2.2" strokeLinecap="round" />
       </svg>
     );
   }
@@ -188,7 +188,7 @@ function CalendarIcon({ className, active = false }: IconProps) {
     return (
       <svg viewBox="0 0 24 24" className={classNames("shrink-0", className)} fill="currentColor" aria-hidden="true">
         <path d="M8 3a1 1 0 0 1 1 1v1h6V4a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1V4a1 1 0 0 1 1-1Z" />
-        <path d="M6 10.25h12v1.5H6Z" fill="#0f141c" opacity="0.35" />
+        <path d="M6 10.25h12v1.5H6Z" fill="#212121" opacity="0.35" />
       </svg>
     );
   }
@@ -289,7 +289,7 @@ function DrawerSection({
       {items.map((item) => {
         const Icon = item.icon;
         const active = item.kind === "route" ? isNavActive(routeName, item.route) : false;
-        const itemClassName = "group flex w-full items-center gap-4 rounded-full px-4 py-3 text-left transition-all hover:bg-[#171d28]";
+        const itemClassName = "group flex w-full items-center gap-4 rounded-full px-4 py-3 text-left transition-all hover:bg-[#272727]";
         const labelClassName = classNames(
           "whitespace-nowrap text-[20px] transition-colors",
           active ? "font-bold text-[#d9d9d9]" : "font-normal text-[#d9d9d9] group-hover:text-[#d9d9d9]",
@@ -333,11 +333,11 @@ function DrawerBody({
 }) {
   return (
     <>
-      <div className="flex justify-start border-b border-[#2a3140] px-4 py-8 sm:px-6">
+      <div className="flex justify-start border-b border-[#343434] px-4 py-8 sm:px-6">
         <button
           type="button"
           onClick={() => onNavigate("account")}
-          className="flex w-full max-w-[240px] flex-col gap-3 rounded-[24px] p-3 text-left transition-colors hover:bg-[#171d28]"
+          className="flex w-full max-w-[240px] flex-col gap-3 rounded-[24px] p-3 text-left transition-colors hover:bg-[#272727]"
         >
           <div className="flex items-center justify-between gap-4">
             <div className="relative flex size-[36px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9]">
@@ -354,7 +354,7 @@ function DrawerBody({
         </button>
       </div>
 
-      <div className="border-b border-[#2a3140]">
+      <div className="border-b border-[#343434]">
         <DrawerSection items={primaryNavItems} routeName={routeName} onNavigate={onNavigate} onExternalSelect={onClose} />
       </div>
 
@@ -382,7 +382,7 @@ function GlobalDrawer({
   return (
     <aside
       className={classNames(
-        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto border-r border-[#2a3140] bg-[#0f141c] text-[#d9d9d9] transition-transform duration-300 ease-in-out sm:w-[320px]",
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto border-r border-[#343434] bg-[#000000] text-[#d9d9d9] transition-transform duration-300 ease-in-out sm:w-[320px]",
         isOpen ? "translate-x-0" : "-translate-x-full",
       )}
       aria-hidden={!isOpen}
@@ -414,10 +414,10 @@ function GlobalHeader({
   onVersionChange: (version: string) => void;
 }) {
   const utilityButtonClass =
-    "relative rounded-full p-2 text-[#d9d9d9] transition-colors hover:bg-[#171d28] hover:text-[#d9d9d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#657086]";
+    "relative rounded-full p-2 text-[#d9d9d9] transition-colors hover:bg-[#272727] hover:text-[#d9d9d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6a6a6a]";
 
   return (
-    <header className="sticky top-0 z-30 h-[80px] shrink-0 border-b border-[#2a3140] bg-[#0f141c]">
+    <header className="sticky top-0 z-30 h-[80px] shrink-0 border-b border-[#343434] bg-[#000000]">
       <div className="header-font flex h-full items-center justify-between gap-4 px-4 py-4 md:px-6">
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
           <button type="button" className="text-[#d9d9d9] transition-colors hover:text-[#d9d9d9]" onClick={onMenuClick} aria-label="\u30e1\u30cb\u30e5\u30fc\u3092\u958b\u304f">
@@ -438,10 +438,10 @@ function GlobalHeader({
             <select
               value={version}
               onChange={(event) => onVersionChange(event.target.value)}
-              className="min-w-[104px] appearance-none rounded-full border border-[#2f3949] bg-[#171d28] py-2 pl-4 pr-10 text-[12px] font-normal text-[#d9d9d9] outline-none transition-colors hover:border-[#445066] focus:border-[#657086] sm:text-[14px] md:text-[16px]"
+              className="min-w-[104px] appearance-none rounded-full border border-[#3a3a3a] bg-[#272727] py-2 pl-4 pr-10 text-[12px] font-normal text-[#d9d9d9] outline-none transition-colors hover:border-[#505050] focus:border-[#6a6a6a] sm:text-[14px] md:text-[16px]"
             >
               {versionOptions.map((option) => (
-                <option key={option} value={option} className="bg-[#171d28] text-[#d9d9d9]">
+                <option key={option} value={option} className="bg-[#272727] text-[#d9d9d9]">
                   {option}
                 </option>
               ))}
@@ -456,7 +456,7 @@ function GlobalHeader({
             onClick={onRequestSubmit}
             className={classNames(
               "flex items-center gap-2 rounded-full px-3 py-2 transition-colors sm:px-4",
-              routeName === "submit" ? "bg-white text-[#111111]" : "bg-[#2a3140] text-[#d9d9d9] hover:bg-[#364055]",
+              routeName === "submit" ? "bg-white text-[#111111]" : "bg-[#272727] text-[#d9d9d9] hover:bg-[#313131]",
             )}
           >
             <PlusIcon className="size-5" />
@@ -467,10 +467,10 @@ function GlobalHeader({
             type="button"
             onClick={() => onNavigate("notifications")}
             aria-label="\u901a\u77e5"
-            className={classNames(utilityButtonClass, routeName === "notifications" && "bg-[#2a3140] text-[#d9d9d9] hover:bg-[#2a3140]")}
+            className={classNames(utilityButtonClass, routeName === "notifications" && "bg-[#272727] text-[#d9d9d9] hover:bg-[#272727]")}
           >
             <BellIcon className="size-6 sm:size-7" />
-            {hasUnreadNotifications ? <span className="absolute top-1 right-1 block size-2.5 rounded-full border-2 border-[#0f141c] bg-red-500" /> : null}
+            {hasUnreadNotifications ? <span className="absolute top-1 right-1 block size-2.5 rounded-full border-2 border-[#000000] bg-red-500" /> : null}
           </button>
 
           <button

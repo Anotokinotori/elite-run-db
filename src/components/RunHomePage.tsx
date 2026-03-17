@@ -45,6 +45,10 @@ const OTHER_RULESET_TABS = ["Npui別", "武器別", "マルチPUI", "マルチUI
 const HOME_SECTION_PANEL_CLASS = "relative overflow-hidden rounded-[20px] bg-[#3d3c3d] drop-shadow-xl";
 const HOME_SECTION_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#323132] text-white/90";
 const HOME_SECTION_TITLE_CLASS = "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-white";
+const HOME_SECTION_REFLECTION_TOP_CLASS =
+  "pointer-events-none absolute inset-x-[18px] top-[1px] h-[22px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.05)_42%,rgba(255,255,255,0))] blur-[10px]";
+const HOME_SECTION_REFLECTION_CORNER_CLASS =
+  "pointer-events-none absolute -left-[10%] -top-[24%] h-44 w-72 rounded-full bg-white/52 blur-[60px]";
 const HOME_ICON_BUTTON_CLASS =
   "flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] text-white/78 transition-colors hover:bg-white/[0.14] hover:text-white";
 const HOME_PRIMARY_BUTTON_CLASS =
@@ -1172,7 +1176,8 @@ export function RunHomePage({
               <div className="relative">
                 <div ref={topRowRef} className="flex gap-5 overflow-x-auto no-scrollbar" onScroll={updateTopScrollButtons}>
                   <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[820px] flex-shrink-0`}>
-                    <div className="pointer-events-none absolute h-48 w-56 -left-1/2 -top-1/2 bg-white blur-[50px]" />
+                    <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+                    <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
                     <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5`}>
                       <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{TOP_PLAYERS_LABEL}</div>
                       <div className="grid min-w-[860px] grid-cols-4 gap-5">
@@ -1200,7 +1205,8 @@ export function RunHomePage({
                   </div>
 
                   <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[300px] flex-shrink-0`}>
-                    <div className="pointer-events-none absolute h-48 w-56 -left-1/2 -top-1/2 bg-white blur-[50px]" />
+                    <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+                    <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
                     <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5`}>
                       <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{FEATURED_PLAYERS_LABEL}</div>
                       <div className="space-y-3">
@@ -1291,7 +1297,8 @@ export function RunHomePage({
             </div>
 
             <div ref={leaderboardRef} className={`${HOME_SECTION_PANEL_CLASS} mb-10`}>
-              <div className="pointer-events-none absolute h-48 w-56 -left-1/2 -top-1/2 bg-white blur-[50px]" />
+              <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+              <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
               <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5 md:p-6`}>
                 <div className="mb-5 text-[18px] font-bold tracking-[0.01em] text-white md:text-[20px]">{LEADERBOARD_LABEL}</div>
                 <div className="mb-5 flex items-center justify-center">
