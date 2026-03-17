@@ -51,6 +51,7 @@ const HOME_SECTION_REFLECTION_CORNER_CLASS =
   "pointer-events-none absolute -left-[10%] -top-[24%] h-44 w-72 rounded-full bg-white/52 blur-[60px]";
 const HOME_ICON_BUTTON_CLASS =
   "flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] text-white/78 transition-colors hover:bg-white/[0.14] hover:text-white";
+const HOME_LIKE_ACTIVE_ICON_CLASS = "text-[#ff8ea1]";
 const HOME_PRIMARY_BUTTON_CLASS =
   "inline-flex h-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] px-4 text-[13px] font-semibold tracking-[0.01em] text-white transition-colors hover:bg-white/[0.14]";
 
@@ -437,11 +438,12 @@ function TimerIcon({ size = 16, className = "" }: { size?: number; className?: s
   );
 }
 
-function LikeIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+function LikeIcon({ size = 16, className = "", filled = false }: { size?: number; className?: string; filled?: boolean }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
       <path
         d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+        fill={filled ? "currentColor" : "none"}
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
@@ -598,12 +600,16 @@ function TopPlayerCard({
   label,
   run,
   theme,
+  liked,
+  onToggleLike,
   onView,
   onSelect,
 }: {
   label: string;
   run: HomeRun | null;
   theme: { gradient: string };
+  liked: boolean;
+  onToggleLike: () => void;
   onView: () => void;
   onSelect: (runId: string) => void;
 }) {
@@ -643,8 +649,15 @@ function TopPlayerCard({
       </div>
       <div className="relative z-10 flex flex-1 flex-col gap-4 bg-[#323132] p-4 text-white/90">
         <div className="flex items-center justify-end gap-2 text-white">
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={14} className="text-current" />
+          <button
+            type="button"
+            className={HOME_ICON_BUTTON_CLASS}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleLike();
+            }}
+          >
+            <LikeIcon size={14} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
             <CommentIcon size={14} className="text-current" />
@@ -682,10 +695,14 @@ function TopPlayerCard({
 function LeaderboardRow({
   run,
   index,
+  liked,
+  onToggleLike,
   onSelect,
 }: {
   run: HomeRun;
   index: number;
+  liked: boolean;
+  onToggleLike: () => void;
   onSelect: (runId: string) => void;
 }) {
   const PlatformIcon = PLATFORM_ICONS[run.platform] ?? PLATFORM_ICONS.PC;
@@ -718,8 +735,15 @@ function LeaderboardRow({
           </div>
         </div>
         <div className="hidden items-center gap-3 md:flex">
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={14} className="text-current" />
+          <button
+            type="button"
+            className={HOME_ICON_BUTTON_CLASS}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleLike();
+            }}
+          >
+            <LikeIcon size={14} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
             <CommentIcon size={14} className="text-current" />
@@ -746,8 +770,15 @@ function LeaderboardRow({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <LikeIcon size={13} className="text-current" />
+          <button
+            type="button"
+            className={HOME_ICON_BUTTON_CLASS}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleLike();
+            }}
+          >
+            <LikeIcon size={13} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
           </button>
           <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
             <CommentIcon size={13} className="text-current" />
@@ -1000,6 +1031,7 @@ export function RunHomePage({
   const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
   const [showTopScrollLeft, setShowTopScrollLeft] = useState(false);
   const [showTopScrollRight, setShowTopScrollRight] = useState(false);
+  const [likedRunState, setLikedRunState] = useState<Record<string, boolean>>({});
   const activeSeason = selectedSeason ?? activeSeasonInternal;
   const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
 
@@ -1061,6 +1093,13 @@ export function RunHomePage({
 
   const openRunDetail = (runId: string) => {
     onSelectRun(runId);
+  };
+
+  const toggleHomeLike = (runId: string) => {
+    setLikedRunState((previous) => ({
+      ...previous,
+      [runId]: !previous[runId],
+    }));
   };
 
   return (
@@ -1186,20 +1225,30 @@ export function RunHomePage({
                           { label: "High 1st", bracket: 3 as Bracket, theme: { gradient: "from-[#2c3e3d] to-[#1e2c2b]" } },
                           { label: "Middle 1st", bracket: 2 as Bracket, theme: { gradient: "from-[#3d2a4a] to-[#2b1f35]" } },
                           { label: "Low 1st", bracket: 1 as Bracket, theme: { gradient: "from-[#4a3528] to-[#2f231c]" } },
-                        ].map((item) => (
-                          <TopPlayerCard
-                            key={item.label}
-                            label={item.label}
-                            run={getBestRun(heroRuns.filter((run) => run.bracket === item.bracket))}
-                            theme={item.theme}
-                            onView={() => {
-                              setFilterBracket(item.bracket);
-                              setLeaderboardView("rta");
-                              scrollToLeaderboard();
-                            }}
-                            onSelect={openRunDetail}
-                          />
-                        ))}
+                        ].map((item) => {
+                          const topRun = getBestRun(heroRuns.filter((run) => run.bracket === item.bracket));
+
+                          return (
+                            <TopPlayerCard
+                              key={item.label}
+                              label={item.label}
+                              run={topRun}
+                              theme={item.theme}
+                              liked={Boolean(topRun && likedRunState[topRun.id])}
+                              onToggleLike={() => {
+                                if (topRun) {
+                                  toggleHomeLike(topRun.id);
+                                }
+                              }}
+                              onView={() => {
+                                setFilterBracket(item.bracket);
+                                setLeaderboardView("rta");
+                                scrollToLeaderboard();
+                              }}
+                              onSelect={openRunDetail}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -1213,50 +1262,65 @@ export function RunHomePage({
                         {[
                           { title: FIRST_POST_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("New"))) },
                           { title: OFFMETA_PICKUP_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("OffMeta"))) },
-                        ].map((item) => (
-                          <div
-                            key={item.title}
-                            className="relative cursor-pointer overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#323132] p-4 shadow-[0_12px_24px_rgba(0,0,0,0.24)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.3)]"
-                            onClick={() => {
-                              if (item.run) {
-                                openRunDetail(item.run.id);
-                              }
-                            }}
-                          >
-                            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-                            <div className="pr-8 text-[15px] font-semibold leading-snug text-white">{item.title}</div>
-                            {item.run ? (
-                              <div className="mt-3 space-y-3">
-                                <div className="text-[14px] font-semibold text-white/88">{item.run.userName}</div>
-                                <div className="space-y-3">
-                                  <div className="flex items-center justify-end gap-2 text-white">
-                                    <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-                                      <LikeIcon size={14} className="text-current" />
-                                    </button>
-                                    <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-                                      <CommentIcon size={14} className="text-current" />
-                                    </button>
-                                  </div>
-                                  <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
-                                    <div className="flex items-center gap-2.5">
-                                      {item.run.party.map((member, index) => (
-                                        <CharacterImage
-                                          key={`${item.run?.id}-${member.characterId}-${index}`}
-                                          characterId={member.characterId}
-                                          alt={characterDb[member.characterId]?.name ?? member.characterId}
-                                          variant="circle"
-                                          className="h-9 w-9 rounded-full object-cover"
+                        ].map((item) => {
+                          const featuredRun = item.run;
+
+                          return (
+                            <div
+                              key={item.title}
+                              className="relative cursor-pointer overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#323132] p-4 shadow-[0_12px_24px_rgba(0,0,0,0.24)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.3)]"
+                              onClick={() => {
+                                if (featuredRun) {
+                                  openRunDetail(featuredRun.id);
+                                }
+                              }}
+                            >
+                              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+                              <div className="pr-8 text-[15px] font-semibold leading-snug text-white">{item.title}</div>
+                              {featuredRun ? (
+                                <div className="mt-3 space-y-3">
+                                  <div className="text-[14px] font-semibold text-white/88">{featuredRun.userName}</div>
+                                  <div className="space-y-3">
+                                    <div className="flex items-center justify-end gap-2 text-white">
+                                      <button
+                                        type="button"
+                                        className={HOME_ICON_BUTTON_CLASS}
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          toggleHomeLike(featuredRun.id);
+                                        }}
+                                      >
+                                        <LikeIcon
+                                          size={14}
+                                          filled={Boolean(likedRunState[featuredRun.id])}
+                                          className={likedRunState[featuredRun.id] ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"}
                                         />
-                                      ))}
+                                      </button>
+                                      <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
+                                        <CommentIcon size={14} className="text-current" />
+                                      </button>
+                                    </div>
+                                    <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
+                                      <div className="flex items-center gap-2.5">
+                                        {featuredRun.party.map((member, index) => (
+                                          <CharacterImage
+                                            key={`${featuredRun.id}-${member.characterId}-${index}`}
+                                            characterId={member.characterId}
+                                            alt={characterDb[member.characterId]?.name ?? member.characterId}
+                                            variant="circle"
+                                            className="h-9 w-9 rounded-full object-cover"
+                                          />
+                                        ))}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <div className="mt-2 text-sm text-white/55">{LOADING_LABEL}</div>
-                            )}
-                          </div>
-                        ))}
+                              ) : (
+                                <div className="mt-2 text-sm text-white/55">{LOADING_LABEL}</div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
@@ -1358,7 +1422,7 @@ export function RunHomePage({
               </div>
               <div>
                 {leaderboardRuns.map((run, index) => (
-                  <LeaderboardRow key={run.id} run={run} index={index} onSelect={openRunDetail} />
+                  <LeaderboardRow key={run.id} run={run} index={index} liked={Boolean(likedRunState[run.id])} onToggleLike={() => toggleHomeLike(run.id)} onSelect={openRunDetail} />
                 ))}
               </div>
             </div>
@@ -1387,11 +1451,11 @@ export function RunHomePage({
         ) : null}
       </main>
 
-      <footer className="mt-20 border-t border-[#ebebeb] bg-white py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center text-[#909399] text-sm">
-          <div className="flex items-center justify-center gap-2 mb-4 opacity-70">
+      <footer className="mt-20 border-t border-white/10 bg-[#212121] py-12">
+        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-white/52">
+          <div className="mb-4 flex items-center justify-center gap-2 text-white/74">
             <TimerIcon size={20} />
-            <span className="font-bold text-lg">Teyvat EliteDB</span>
+            <span className="text-lg font-bold">Teyvat EliteDB</span>
           </div>
           <p className="mb-2">Community Driven Elite Hunting RTA Database (Prototype)</p>
           <p>Created based on R&apos;s concept &amp; Community Feedback.</p>

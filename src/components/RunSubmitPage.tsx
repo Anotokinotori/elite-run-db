@@ -1636,8 +1636,8 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
 
                 <label className="block">
                   <FieldTitle quiet>タイム</FieldTitle>
-                  <div className="mt-2 flex items-center gap-2 md:gap-3">
-                    <MockFieldBox className="w-[84px] md:w-[96px]">
+                  <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 md:gap-3 md:px-8">
+                    <MockFieldBox className="min-w-0">
                       <input
                         value={timeInput.hours}
                         onChange={(event) => updateTimeInput("hours", event.target.value.replace(/[^\d]/g, "").slice(0, 2))}
@@ -1648,7 +1648,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
                       />
                     </MockFieldBox>
                     <span className="text-[24px] font-bold text-[#9999b1] md:text-[28px]">:</span>
-                    <MockFieldBox className="w-[108px] md:w-[128px]">
+                    <MockFieldBox className="min-w-0">
                       <input
                         value={timeInput.minutes}
                         onChange={(event) => updateTimeInput("minutes", event.target.value.replace(/[^\d]/g, "").slice(0, 2))}
@@ -1659,7 +1659,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
                       />
                     </MockFieldBox>
                     <span className="text-[24px] font-bold text-[#9999b1] md:text-[28px]">:</span>
-                    <MockFieldBox className="w-[108px] md:w-[128px]">
+                    <MockFieldBox className="min-w-0">
                       <input
                         value={timeInput.seconds}
                         onChange={(event) => updateTimeInput("seconds", event.target.value.replace(/[^\d]/g, "").slice(0, 2))}

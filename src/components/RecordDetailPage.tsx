@@ -33,6 +33,7 @@ const DETAIL_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#323
 const DETAIL_MUTED_SURFACE_CLASS = "rounded-[16px] border border-white/10 bg-[#272727]";
 const DETAIL_ICON_BUTTON_CLASS =
   "grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-[#272727] text-white/82 transition hover:bg-white/[0.12] hover:text-white";
+const DETAIL_LIKE_ACTIVE_ICON_CLASS = "text-[#ff8ea1]";
 
 function postYouTubeCommand(iframe: HTMLIFrameElement | null, command: "playVideo" | "pauseVideo") {
   iframe?.contentWindow?.postMessage(
@@ -449,7 +450,7 @@ function SimilarActionMenu({
             className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-white/90 hover:bg-white/[0.08]"
             onClick={() => onAction("like")}
           >
-            <LikeIcon className="h-4 w-4" />
+            <LikeIcon filled={liked} className={`h-4 w-4 ${liked ? DETAIL_LIKE_ACTIVE_ICON_CLASS : ""}`} />
             <span>{liked ? "いいね解除" : "いいね"}</span>
           </button>
           <button
@@ -552,6 +553,7 @@ export function RecordDetailPage({
   const [shared, setShared] = useState(false);
   const [commentDraft, setCommentDraft] = useState("");
   const [comments, setComments] = useState(currentRun?.comments ?? []);
+  const [commentLikeState, setCommentLikeState] = useState<Record<string, boolean>>({});
   const [openMenuRunId, setOpenMenuRunId] = useState<string | null>(null);
   const [compareQueuedRunId, setCompareQueuedRunId] = useState<string | null>(null);
   const [syncPlaying, setSyncPlaying] = useState(false);
@@ -593,6 +595,7 @@ export function RecordDetailPage({
     setShared(false);
     setCommentDraft("");
     setComments(currentRun.comments);
+    setCommentLikeState({});
     setOpenMenuRunId(null);
     setCompareQueuedRunId(null);
     setSyncPlaying(false);
@@ -681,6 +684,13 @@ export function RecordDetailPage({
     });
   };
 
+  const toggleCommentLike = (commentId: string) => {
+    setCommentLikeState((previousState) => ({
+      ...previousState,
+      [commentId]: !previousState[commentId],
+    }));
+  };
+
   return (
     <>
       <main className={`bg-[#212121] text-white/90 transition-[width] duration-300 ${mainSurfaceClass}`}>
@@ -766,8 +776,12 @@ export function RecordDetailPage({
                     <div className="truncate text-[16px] font-bold leading-none text-white md:text-[18px]">{currentRun.userName}</div>
                   </div>
                   <div className={`flex gap-[12px] md:gap-[12px] ${compareOpen ? "w-full shrink min-w-0 flex-wrap" : "shrink-0 flex-nowrap"}`}>
-                    <PillButton active={liked} onClick={() => setLiked((previous) => !previous)} className="min-h-[36px] min-w-[92px]">
-                      <LikeIcon className="h-4 w-4" />
+                    <PillButton
+                      active={liked}
+                      onClick={() => setLiked((previous) => !previous)}
+                      className={`min-h-[36px] min-w-[92px] ${liked ? "border border-white/10 bg-[#272727] text-white/90 hover:bg-[#303030]" : ""}`}
+                    >
+                      <LikeIcon filled={liked} className={`h-4 w-4 ${liked ? DETAIL_LIKE_ACTIVE_ICON_CLASS : ""}`} />
                       <span>いいね</span>
                     </PillButton>
                     <PillButton active={shared} onClick={() => setShared((previous) => !previous)} className="min-h-[36px] min-w-[92px]">
@@ -839,8 +853,8 @@ export function RecordDetailPage({
                       </div>
                       <div className={`leading-[1.75] text-white/74 ${forceMobileLayout ? "text-[14px]" : "text-[14px] md:text-[15px]"}`}>{comment.body}</div>
                       <div className={`flex gap-[12px] md:gap-[12px] ${compareOpen ? "w-full shrink min-w-0 flex-wrap" : "shrink-0 flex-nowrap"}`}>
-                        <PillButton className="px-[8px] py-[4px] text-[11px] md:text-[12px]">
-                          <LikeIcon className="h-3 w-3" />
+                        <PillButton className="px-[8px] py-[4px] text-[11px] md:text-[12px]" onClick={() => toggleCommentLike(comment.id)}>
+                          <LikeIcon filled={Boolean(commentLikeState[comment.id])} className={`h-3 w-3 ${commentLikeState[comment.id] ? DETAIL_LIKE_ACTIVE_ICON_CLASS : ""}`} />
                           <span>いいね</span>
                         </PillButton>
                         <PillButton className="px-[8px] py-[4px] text-[11px] md:text-[12px]">返信</PillButton>
