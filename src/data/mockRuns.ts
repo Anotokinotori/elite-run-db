@@ -58,6 +58,7 @@ export type RunRecordRaw = {
   likeCount: number;
   shareCount: number;
   mainAttackerId: string;
+  declaredMainAttackerIds: string[];
   party: PartyMember[];
   weapons: WeaponLoadout[];
   comments: RunComment[];
@@ -412,6 +413,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 68,
     shareCount: 9,
     mainAttackerId: "mav",
+    declaredMainAttackerIds: ["mav", "furina"],
     party: [
       { characterId: "mav", cons: 2 },
       { characterId: "bennett", cons: 6 },
@@ -461,6 +463,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 41,
     shareCount: 5,
     mainAttackerId: "mav",
+    declaredMainAttackerIds: ["mav"],
     party: [
       { characterId: "mav", cons: 2 },
       { characterId: "bennett", cons: 6 },
@@ -495,6 +498,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 24,
     shareCount: 3,
     mainAttackerId: "amber",
+    declaredMainAttackerIds: ["amber"],
     party: [
       { characterId: "amber", cons: 0 },
       { characterId: "collei", cons: 6 },
@@ -529,6 +533,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 36,
     shareCount: 4,
     mainAttackerId: "mav",
+    declaredMainAttackerIds: ["mav"],
     party: [
       { characterId: "mav", cons: 2 },
       { characterId: "xilonen", cons: 0 },
@@ -563,6 +568,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 19,
     shareCount: 2,
     mainAttackerId: "keqing",
+    declaredMainAttackerIds: ["keqing"],
     party: [
       { characterId: "keqing", cons: 0 },
       { characterId: "zhongli", cons: 0 },
@@ -597,6 +603,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 14,
     shareCount: 2,
     mainAttackerId: "amber",
+    declaredMainAttackerIds: ["amber"],
     party: [
       { characterId: "amber", cons: 0 },
       { characterId: "collei", cons: 6 },
@@ -631,6 +638,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 11,
     shareCount: 1,
     mainAttackerId: "dehya",
+    declaredMainAttackerIds: ["dehya"],
     party: [
       { characterId: "dehya", cons: 0 },
       { characterId: "xianyun", cons: 0 },
@@ -665,6 +673,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 8,
     shareCount: 1,
     mainAttackerId: "sayu",
+    declaredMainAttackerIds: ["sayu"],
     party: [
       { characterId: "sayu", cons: 6 },
       { characterId: "amber", cons: 0 },
@@ -699,6 +708,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 17,
     shareCount: 2,
     mainAttackerId: "yelan",
+    declaredMainAttackerIds: ["yelan", "furina"],
     party: [
       { characterId: "yelan", cons: 0 },
       { characterId: "furina", cons: 0 },
@@ -733,6 +743,7 @@ const rawRuns: RunRecordRaw[] = [
     likeCount: 12,
     shareCount: 1,
     mainAttackerId: "mav",
+    declaredMainAttackerIds: ["mav"],
     party: [
       { characterId: "mav", cons: 0 },
       { characterId: "bennett", cons: 6 },
