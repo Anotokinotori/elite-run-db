@@ -33,12 +33,16 @@ const FILTER_CANCEL_LABEL = "\u30ad\u30e3\u30f3\u30bb\u30eb";
 const FILTER_APPLY_LABEL = "\u9069\u7528";
 const LOADING_LABEL = "\u96c6\u8a08\u4e2d...";
 const VIEW_RANKING_LABEL = "\u30e9\u30f3\u30ad\u30f3\u30b0\u3092\u898b\u308b";
+const ENGAGE_RECORD_LABEL = "\u3044\u3044\u306d\u30fb\u30b3\u30e1\u30f3\u30c8\u3059\u308b";
 const TOP_PLAYERS_LABEL = "TOP\u30d7\u30ec\u30a4\u30e4\u30fc";
 const FEATURED_PLAYERS_LABEL = "\u6ce8\u76ee\u30d7\u30ec\u30a4\u30e4\u30fc";
 const LEADERBOARD_LABEL = "\u30ea\u30fc\u30c0\u30fc\u30dc\u30fc\u30c9";
 const ALL_LABEL = "\u5168\u3066";
 const FIRST_POST_LABEL = "\u521d\u6295\u7a3f";
 const OFFMETA_PICKUP_LABEL = "\u958b\u62d3\u8005";
+const TOP_PANEL_AUTOSCROLL_MS = 20000;
+const FEATURED_PANEL_AUTOSCROLL_MS = 10000;
+const TOP_PANEL_SCROLL_DURATION_MS = 900;
 const NO_RESULTS_LABEL = "\u8a18\u9332\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093";
 const NO_RESULTS_COPY = "\u6761\u4ef6\u3092\u5909\u66f4\u3059\u308b\u304b\u3001\u65b0\u3057\u3044\u8a18\u9332\u306e\u8ffd\u52a0\u3092\u304a\u5f85\u3061\u304f\u3060\u3055\u3044\u3002";
 const OTHER_RULESET_TABS = ["Npui別", "武器別", "マルチPUI", "マルチUI", "マルチUA"];
@@ -572,12 +576,16 @@ function TopPlayerCard({
   theme,
   onView,
   onSelect,
+  actionLabel = VIEW_RANKING_LABEL,
+  onAction,
 }: {
   label: string;
   run: HomeRun | null;
   theme: { gradient: string };
   onView: () => void;
   onSelect: (runId: string) => void;
+  actionLabel?: string;
+  onAction?: () => void;
 }) {
   if (!run) {
     return (
@@ -589,8 +597,8 @@ function TopPlayerCard({
         </div>
         <div className="relative z-10 flex flex-1 flex-col justify-between gap-4 bg-[#323132] p-4 text-white/90">
           <div className="text-sm text-white/55">{LOADING_LABEL}</div>
-          <button type="button" onClick={onView} className={`${HOME_PRIMARY_BUTTON_CLASS} w-full`}>
-            {VIEW_RANKING_LABEL}
+          <button type="button" onClick={onAction ?? onView} className={`${HOME_PRIMARY_BUTTON_CLASS} w-full`}>
+            {actionLabel}
           </button>
         </div>
       </div>
@@ -632,11 +640,11 @@ function TopPlayerCard({
           type="button"
           onClick={(event) => {
             event.stopPropagation();
-            onView();
+            (onAction ?? onView)();
           }}
           className={`${HOME_PRIMARY_BUTTON_CLASS} w-full`}
         >
-          {VIEW_RANKING_LABEL}
+          {actionLabel}
         </button>
       </div>
     </div>
@@ -921,6 +929,8 @@ export function RunHomePage({
 }) {
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
   const topRowRef = useRef<HTMLDivElement | null>(null);
+  const topCarouselMeasureFrameRef = useRef<number | null>(null);
+  const topAutoScrollTimerRef = useRef<number | null>(null);
   const [runs] = useState<HomeRun[]>(() => applyWRTag(mockRuns.map(normalizeHomeRun)));
   const [activeSeasonInternal, setActiveSeasonInternal] = useState(getDefaultSeason(SEASONS));
   const [activeTab] = useState<"main" | "festival">("main");
@@ -935,8 +945,9 @@ export function RunHomePage({
   const [subHeaderTab, setSubHeaderTab] = useState<string>("NPUI");
   const [leaderboardView, setLeaderboardView] = useState<"rta" | "char" | "fes">("rta");
   const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
-  const [showTopScrollLeft, setShowTopScrollLeft] = useState(false);
-  const [showTopScrollRight, setShowTopScrollRight] = useState(false);
+  const [topCarouselOffsets, setTopCarouselOffsets] = useState<number[]>([]);
+  const [topCarouselIndex, setTopCarouselIndex] = useState(0);
+  const [topCarouselTransitionEnabled, setTopCarouselTransitionEnabled] = useState(false);
   const activeSeason = selectedSeason ?? activeSeasonInternal;
   const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
 
@@ -974,23 +985,117 @@ export function RunHomePage({
   }, [rLogicApplied]);
   const leaderboardRuns = leaderboardView === "char" ? charTopRuns : filteredRuns;
   const heroRuns = useMemo(() => runs.filter((run) => seasonGte(run.season, activeSeason) && !run.isFestival), [activeSeason, runs]);
+  const featuredCards = useMemo(() => {
+    const firstPostRun = getBestRun(heroRuns.filter((run) => run.tags.includes("New")));
+    const seasonalOffmetaRuns = sortRuns(
+      heroRuns.filter((run) => run.tags.includes("OffMeta")),
+      "time",
+    );
+    const allOffmetaRuns = sortRuns(
+      runs.filter((run) => !run.isFestival && run.tags.includes("OffMeta")),
+      "time",
+    );
+    const offmetaRuns = [...seasonalOffmetaRuns];
 
-  const updateTopScrollButtons = () => {
+    allOffmetaRuns.forEach((run) => {
+      if (offmetaRuns.length >= 3 || offmetaRuns.some((entry) => entry.id === run.id)) {
+        return;
+      }
+
+      offmetaRuns.push(run);
+    });
+
+    const offmetaTheme = { gradient: "from-[#314857] to-[#1f2f38]" };
+
+    return [
+      {
+        key: "first-post",
+        title: FIRST_POST_LABEL,
+        run: firstPostRun,
+        theme: { gradient: "from-[#6d3c2f] to-[#3c2520]" },
+        actionLabel: ENGAGE_RECORD_LABEL,
+        action: "detail" as const,
+      },
+      ...Array.from({ length: 3 }, (_, index) => ({
+        key: `offmeta-${index}`,
+        title: OFFMETA_PICKUP_LABEL,
+        run: offmetaRuns[index] ?? null,
+        theme: offmetaTheme,
+        actionLabel: VIEW_RANKING_LABEL,
+        action: "leaderboard" as const,
+      })),
+    ];
+  }, [heroRuns]);
+
+  const clearTopAutoScrollTimers = () => {
+    if (topAutoScrollTimerRef.current !== null) {
+      window.clearTimeout(topAutoScrollTimerRef.current);
+      topAutoScrollTimerRef.current = null;
+    }
+  };
+
+  const getTopPanels = () => {
     if (!topRowRef.current) {
-      return;
+      return [] as HTMLElement[];
     }
 
-    const { scrollLeft, scrollWidth, clientWidth } = topRowRef.current;
-    setShowTopScrollLeft(scrollLeft > 10);
-    setShowTopScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+    return Array.from(topRowRef.current.querySelectorAll<HTMLElement>("[data-top-panel]"));
+  };
+
+  const updateTopCarouselOffsets = () => {
+    const panels = getTopPanels();
+    setTopCarouselOffsets(panels.map((panel) => panel.offsetLeft));
   };
 
   useEffect(() => {
-    updateTopScrollButtons();
-    window.addEventListener("resize", updateTopScrollButtons);
+    if (activeTab !== "main" || !topRowRef.current) {
+      return;
+    }
 
-    return () => window.removeEventListener("resize", updateTopScrollButtons);
-  }, [activeTab, heroRuns.length]);
+    clearTopAutoScrollTimers();
+    setTopCarouselTransitionEnabled(false);
+    setTopCarouselIndex(0);
+
+    if (topCarouselMeasureFrameRef.current !== null) {
+      window.cancelAnimationFrame(topCarouselMeasureFrameRef.current);
+    }
+
+    topCarouselMeasureFrameRef.current = window.requestAnimationFrame(() => {
+      updateTopCarouselOffsets();
+    });
+
+    const observer = new ResizeObserver(() => {
+      updateTopCarouselOffsets();
+    });
+
+    observer.observe(topRowRef.current);
+    getTopPanels().forEach((panel) => observer.observe(panel));
+
+    return () => {
+      clearTopAutoScrollTimers();
+      observer.disconnect();
+      if (topCarouselMeasureFrameRef.current !== null) {
+        window.cancelAnimationFrame(topCarouselMeasureFrameRef.current);
+        topCarouselMeasureFrameRef.current = null;
+      }
+    };
+  }, [activeTab, activeSeason, featuredCards.length, heroRuns.length]);
+
+  useEffect(() => {
+    if (activeTab !== "main" || topCarouselOffsets.length < 3 || topCarouselIndex === 2) {
+      return;
+    }
+
+    clearTopAutoScrollTimers();
+
+    const waitMs = topCarouselIndex === 0 ? TOP_PANEL_AUTOSCROLL_MS : FEATURED_PANEL_AUTOSCROLL_MS;
+    topAutoScrollTimerRef.current = window.setTimeout(() => {
+      setTopCarouselTransitionEnabled(true);
+      setTopCarouselIndex(topCarouselIndex === 0 ? 1 : 2);
+    }, waitMs);
+
+    return clearTopAutoScrollTimers;
+  }, [activeTab, topCarouselIndex, topCarouselOffsets]);
 
   const scrollToLeaderboard = () => {
     leaderboardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -999,6 +1104,98 @@ export function RunHomePage({
   const openRunDetail = (runId: string) => {
     onSelectRun(runId);
   };
+
+  const jumpTopCarouselTo = (nextIndex: 0 | 1) => {
+    clearTopAutoScrollTimers();
+    setTopCarouselTransitionEnabled(true);
+    setTopCarouselIndex(nextIndex);
+  };
+
+  const handleTopCarouselTransitionEnd = () => {
+    if (topCarouselIndex !== 2) {
+      return;
+    }
+
+    setTopCarouselTransitionEnabled(false);
+    setTopCarouselIndex(0);
+  };
+
+  const renderTopPlayersPanel = (key: string) => (
+    <div key={key} data-top-panel className={`${HOME_SECTION_PANEL_CLASS} min-w-[820px] flex-shrink-0`}>
+      <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+      <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
+      <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5`}>
+        <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{TOP_PLAYERS_LABEL}</div>
+        <div className="grid min-w-[860px] grid-cols-4 gap-5">
+          {[
+            { label: "Unlimited 1st", bracket: 4 as Bracket, theme: { gradient: "from-[#274060] to-[#1b2f45]" } },
+            { label: "High 1st", bracket: 3 as Bracket, theme: { gradient: "from-[#2c3e3d] to-[#1e2c2b]" } },
+            { label: "Middle 1st", bracket: 2 as Bracket, theme: { gradient: "from-[#3d2a4a] to-[#2b1f35]" } },
+            { label: "Low 1st", bracket: 1 as Bracket, theme: { gradient: "from-[#4a3528] to-[#2f231c]" } },
+          ].map((item) => {
+            const topRun = getBestRun(heroRuns.filter((run) => run.bracket === item.bracket));
+
+            return (
+              <TopPlayerCard
+                key={item.label}
+                label={item.label}
+                run={topRun}
+                theme={item.theme}
+                onView={() => {
+                  setFilterBracket(item.bracket);
+                  setLeaderboardView("rta");
+                  scrollToLeaderboard();
+                }}
+                onSelect={openRunDetail}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFeaturedPlayersPanel = (key: string) => (
+    <div key={key} data-top-panel className={`${HOME_SECTION_PANEL_CLASS} min-w-[860px] flex-shrink-0 self-stretch`}>
+      <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
+      <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
+      <div className={`${HOME_SECTION_PANEL_INNER_CLASS} flex h-full flex-col p-5`}>
+        <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{FEATURED_PLAYERS_LABEL}</div>
+        <div className="grid flex-1 min-w-[820px] grid-cols-4 gap-4">
+          {featuredCards.map((item) => {
+            const featuredRun = item.run;
+
+            return (
+              <TopPlayerCard
+                key={item.key}
+                label={item.title}
+                run={featuredRun}
+                theme={item.theme}
+                onView={() => {
+                  if (!featuredRun) {
+                    return;
+                  }
+
+                  setFilterBracket(featuredRun.bracket);
+                  setLeaderboardView("rta");
+                  scrollToLeaderboard();
+                }}
+                onSelect={openRunDetail}
+                actionLabel={item.actionLabel}
+                onAction={
+                  item.action === "detail" && featuredRun
+                    ? () => {
+                        openRunDetail(featuredRun.id);
+                      }
+                    : undefined
+                }
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <HomeShell>
@@ -1109,127 +1306,51 @@ export function RunHomePage({
       <main className="max-w-7xl mx-auto px-5 py-8 sm:px-6 lg:px-8">
         {activeTab === "main" ? (
           <>
-            <div className="relative z-10 -mt-40 md:-mt-72 mb-12">
+            <div className="relative left-1/2 right-1/2 z-10 -mt-40 mb-12 w-screen -translate-x-1/2 px-5 md:-mt-72 sm:px-6 lg:px-8">
               <div className="relative">
-                <div ref={topRowRef} className="flex gap-5 overflow-x-auto no-scrollbar" onScroll={updateTopScrollButtons}>
-                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[820px] flex-shrink-0`}>
-                    <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
-                    <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
-                    <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5`}>
-                      <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{TOP_PLAYERS_LABEL}</div>
-                      <div className="grid min-w-[860px] grid-cols-4 gap-5">
-                        {[
-                          { label: "Unlimited 1st", bracket: 4 as Bracket, theme: { gradient: "from-[#274060] to-[#1b2f45]" } },
-                          { label: "High 1st", bracket: 3 as Bracket, theme: { gradient: "from-[#2c3e3d] to-[#1e2c2b]" } },
-                          { label: "Middle 1st", bracket: 2 as Bracket, theme: { gradient: "from-[#3d2a4a] to-[#2b1f35]" } },
-                          { label: "Low 1st", bracket: 1 as Bracket, theme: { gradient: "from-[#4a3528] to-[#2f231c]" } },
-                        ].map((item) => {
-                          const topRun = getBestRun(heroRuns.filter((run) => run.bracket === item.bracket));
-
-                          return (
-                            <TopPlayerCard
-                              key={item.label}
-                              label={item.label}
-                              run={topRun}
-                              theme={item.theme}
-                              onView={() => {
-                                setFilterBracket(item.bracket);
-                                setLeaderboardView("rta");
-                                scrollToLeaderboard();
-                              }}
-                              onSelect={openRunDetail}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[200px] max-w-[320px] flex-shrink-0 self-stretch`}>
-                    <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
-                    <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
-                    <div className={`${HOME_SECTION_PANEL_INNER_CLASS} flex h-full flex-col p-5`}>
-                      <div className={`${HOME_SECTION_TITLE_CLASS} mb-3`}>{FEATURED_PLAYERS_LABEL}</div>
-                      <div className="grid flex-1 grid-rows-2 gap-4">
-                        {[
-                          { title: FIRST_POST_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("New"))) },
-                          { title: OFFMETA_PICKUP_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("OffMeta"))) },
-                        ].map((item) => {
-                          const featuredRun = item.run;
-
-                          return (
-                            <div
-                              key={item.title}
-                              className="relative flex h-full cursor-pointer flex-col overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#323132] px-4 py-3 shadow-[0_12px_24px_rgba(0,0,0,0.24)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.3)]"
-                              onClick={() => {
-                                if (featuredRun) {
-                                  openRunDetail(featuredRun.id);
-                                }
-                              }}
-                            >
-                              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-                              <div className="flex items-center gap-3">
-                                <div className="shrink-0 text-[15px] font-semibold leading-snug text-white">{item.title}</div>
-                                {featuredRun ? <div className="min-w-0 flex-1 truncate text-right text-[13px] font-medium text-white/74">{featuredRun.userName}</div> : null}
-                              </div>
-                              {featuredRun ? (
-                                <div className="mt-3">
-                                  <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
-                                    <div className="flex items-center gap-2.5">
-                                      {featuredRun.party.map((member, index) => (
-                                        <CharacterImage
-                                          key={`${featuredRun.id}-${member.characterId}-${index}`}
-                                          characterId={member.characterId}
-                                          alt={characterDb[member.characterId]?.name ?? member.characterId}
-                                          variant="circle"
-                                          className="h-9 w-9 rounded-full object-cover"
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="mt-2 text-sm text-white/55">{LOADING_LABEL}</div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                <div className="overflow-hidden">
+                  <div
+                    ref={topRowRef}
+                    className="flex gap-5 will-change-transform"
+                    style={{
+                      transform: `translateX(-${topCarouselOffsets[topCarouselIndex] ?? 0}px)`,
+                      transitionProperty: "transform",
+                      transitionDuration: topCarouselTransitionEnabled ? `${TOP_PANEL_SCROLL_DURATION_MS}ms` : "0ms",
+                      transitionTimingFunction: "ease-in-out",
+                    }}
+                    onTransitionEnd={handleTopCarouselTransitionEnd}
+                  >
+                    {renderTopPlayersPanel("top-primary")}
+                    {renderFeaturedPlayersPanel("featured-primary")}
+                    {renderTopPlayersPanel("top-loop")}
                   </div>
                 </div>
 
-                {showTopScrollLeft ? (
-                  <button
-                    type="button"
-                    className="flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 border border-[#dcdfe6] rounded-full w-8 h-8 items-center justify-center z-20 shadow-sm"
-                    aria-label="Scroll left"
-                    onClick={() => {
-                      topRowRef.current?.scrollBy({ left: -320, behavior: "smooth" });
-                      window.setTimeout(updateTopScrollButtons, 350);
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M15 6l-6 6 6 6" />
-                    </svg>
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  className="flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 border border-[#dcdfe6] rounded-full w-8 h-8 items-center justify-center z-20 shadow-sm"
+                  aria-label="Scroll left"
+                  onClick={() => {
+                    jumpTopCarouselTo(0);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M15 6l-6 6 6 6" />
+                  </svg>
+                </button>
 
-                {showTopScrollRight ? (
-                  <button
-                    type="button"
-                    className="flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 border border-[#dcdfe6] rounded-full w-8 h-8 items-center justify-center z-20 shadow-sm"
-                    aria-label="Scroll right"
-                    onClick={() => {
-                      topRowRef.current?.scrollBy({ left: 320, behavior: "smooth" });
-                      window.setTimeout(updateTopScrollButtons, 350);
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M9 6l6 6-6 6" />
-                    </svg>
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  className="flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 border border-[#dcdfe6] rounded-full w-8 h-8 items-center justify-center z-20 shadow-sm"
+                  aria-label="Scroll right"
+                  onClick={() => {
+                    jumpTopCarouselTo(1);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </button>
               </div>
             </div>
 
