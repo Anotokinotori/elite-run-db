@@ -48,6 +48,8 @@ const NO_RESULTS_COPY = "\u6761\u4ef6\u3092\u5909\u66f4\u3059\u308b\u304b\u3001\
 const OTHER_RULESET_TABS = ["Npui別", "武器別", "マルチPUI", "マルチUI", "マルチUA"];
 const HOME_SECTION_PANEL_CLASS = "relative overflow-hidden rounded-[20px] bg-[#323232] drop-shadow-xl";
 const HOME_SECTION_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#282828] text-white/90";
+const FEATURED_SECTION_PANEL_CLASS = "relative overflow-hidden rounded-[20px] bg-[#3a3a3a] drop-shadow-xl";
+const FEATURED_SECTION_PANEL_INNER_CLASS = "relative z-[1] m-[2px] rounded-[18px] bg-[#2f2f2f] text-white/90";
 const HOME_SECTION_TITLE_CLASS = "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-white";
 const HOME_SECTION_REFLECTION_TOP_CLASS =
   "pointer-events-none absolute inset-x-[18px] top-[1px] h-[22px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.05)_42%,rgba(255,255,255,0))] blur-[10px]";
@@ -1156,10 +1158,10 @@ export function RunHomePage({
   );
 
   const renderFeaturedPlayersPanel = (key: string) => (
-    <div key={key} data-top-panel className={`${HOME_SECTION_PANEL_CLASS} min-w-[860px] flex-shrink-0 self-stretch`}>
+    <div key={key} data-top-panel className={`${FEATURED_SECTION_PANEL_CLASS} min-w-[860px] flex-shrink-0 self-stretch`}>
       <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
       <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
-      <div className={`${HOME_SECTION_PANEL_INNER_CLASS} flex h-full flex-col p-5`}>
+      <div className={`${FEATURED_SECTION_PANEL_INNER_CLASS} flex h-full flex-col p-5`}>
         <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{FEATURED_PLAYERS_LABEL}</div>
         <div className="grid flex-1 min-w-[820px] grid-cols-4 gap-4">
           {featuredCards.map((item) => {
