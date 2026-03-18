@@ -37,8 +37,8 @@ const TOP_PLAYERS_LABEL = "TOP\u30d7\u30ec\u30a4\u30e4\u30fc";
 const FEATURED_PLAYERS_LABEL = "\u6ce8\u76ee\u30d7\u30ec\u30a4\u30e4\u30fc";
 const LEADERBOARD_LABEL = "\u30ea\u30fc\u30c0\u30fc\u30dc\u30fc\u30c9";
 const ALL_LABEL = "\u5168\u3066";
-const FIRST_POST_LABEL = "\u521d\u6295\u7a3f \u65b0\u3057\u3044\u72e9\u308a\u4ef2\u9593\uff01";
-const OFFMETA_PICKUP_LABEL = "\u958b\u62d3\u8005 \u4f7f\u7528\u73875%\u672a\u6e80\u7de8\u6210";
+const FIRST_POST_LABEL = "\u521d\u6295\u7a3f";
+const OFFMETA_PICKUP_LABEL = "\u958b\u62d3\u8005";
 const NO_RESULTS_LABEL = "\u8a18\u9332\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093";
 const NO_RESULTS_COPY = "\u6761\u4ef6\u3092\u5909\u66f4\u3059\u308b\u304b\u3001\u65b0\u3057\u3044\u8a18\u9332\u306e\u8ffd\u52a0\u3092\u304a\u5f85\u3061\u304f\u3060\u3055\u3044\u3002";
 const OTHER_RULESET_TABS = ["Npui別", "武器別", "マルチPUI", "マルチUI", "マルチUA"];
@@ -51,7 +51,6 @@ const HOME_SECTION_REFLECTION_CORNER_CLASS =
   "pointer-events-none absolute -left-[10%] -top-[24%] h-44 w-72 rounded-full bg-white/52 blur-[60px]";
 const HOME_ICON_BUTTON_CLASS =
   "flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] text-white/78 transition-colors hover:bg-white/[0.14] hover:text-white";
-const HOME_LIKE_ACTIVE_ICON_CLASS = "text-[#ff8ea1]";
 const HOME_PRIMARY_BUTTON_CLASS =
   "inline-flex h-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] px-4 text-[13px] font-semibold tracking-[0.01em] text-white transition-colors hover:bg-white/[0.14]";
 
@@ -438,35 +437,6 @@ function TimerIcon({ size = 16, className = "" }: { size?: number; className?: s
   );
 }
 
-function LikeIcon({ size = 16, className = "", filled = false }: { size?: number; className?: string; filled?: boolean }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
-        fill={filled ? "currentColor" : "none"}
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function CommentIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function FilterFunnelIcon({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -600,16 +570,12 @@ function TopPlayerCard({
   label,
   run,
   theme,
-  liked,
-  onToggleLike,
   onView,
   onSelect,
 }: {
   label: string;
   run: HomeRun | null;
   theme: { gradient: string };
-  liked: boolean;
-  onToggleLike: () => void;
   onView: () => void;
   onSelect: (runId: string) => void;
 }) {
@@ -648,21 +614,6 @@ function TopPlayerCard({
         />
       </div>
       <div className="relative z-10 flex flex-1 flex-col gap-4 bg-[#323132] p-4 text-white/90">
-        <div className="flex items-center justify-end gap-2 text-white">
-          <button
-            type="button"
-            className={HOME_ICON_BUTTON_CLASS}
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleLike();
-            }}
-          >
-            <LikeIcon size={14} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
-          </button>
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={14} className="text-current" />
-          </button>
-        </div>
         <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
           <div className="flex items-center justify-between gap-2">
             {run.party.map((member, index) => (
@@ -695,14 +646,10 @@ function TopPlayerCard({
 function LeaderboardRow({
   run,
   index,
-  liked,
-  onToggleLike,
   onSelect,
 }: {
   run: HomeRun;
   index: number;
-  liked: boolean;
-  onToggleLike: () => void;
   onSelect: (runId: string) => void;
 }) {
   const PlatformIcon = PLATFORM_ICONS[run.platform] ?? PLATFORM_ICONS.PC;
@@ -735,65 +682,15 @@ function LeaderboardRow({
           </div>
         </div>
         <div className="hidden items-center gap-3 md:flex">
-          <button
-            type="button"
-            className={HOME_ICON_BUTTON_CLASS}
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleLike();
-            }}
-          >
-            <LikeIcon size={14} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
-          </button>
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={14} className="text-current" />
-          </button>
           <div className="w-20 text-right text-[22px] font-semibold text-white">{run.time}</div>
-          <a
-            className={HOME_ICON_BUTTON_CLASS}
-            href={run.videoUrl}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M8 5l11 7-11 7V5z" />
-            </svg>
-          </a>
         </div>
       </div>
-      <div className="mt-2 flex items-center justify-between gap-3 md:hidden">
+      <div className="mt-2 flex items-center gap-2 md:hidden">
         <div className="flex items-center gap-2">
           <div className="rounded-full border border-white/12 bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-white/72">{getBracketLabel(run.bracket)}</div>
           <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.08]">
             <PlatformIcon className="h-3.5 w-3.5 text-white/78" />
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className={HOME_ICON_BUTTON_CLASS}
-            onClick={(event) => {
-              event.stopPropagation();
-              onToggleLike();
-            }}
-          >
-            <LikeIcon size={13} filled={liked} className={liked ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"} />
-          </button>
-          <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-            <CommentIcon size={13} className="text-current" />
-          </button>
-          <a
-            className={HOME_ICON_BUTTON_CLASS}
-            href={run.videoUrl}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M8 5l11 7-11 7V5z" />
-            </svg>
-          </a>
         </div>
       </div>
     </div>
@@ -1040,7 +937,6 @@ export function RunHomePage({
   const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
   const [showTopScrollLeft, setShowTopScrollLeft] = useState(false);
   const [showTopScrollRight, setShowTopScrollRight] = useState(false);
-  const [likedRunState, setLikedRunState] = useState<Record<string, boolean>>({});
   const activeSeason = selectedSeason ?? activeSeasonInternal;
   const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
 
@@ -1102,13 +998,6 @@ export function RunHomePage({
 
   const openRunDetail = (runId: string) => {
     onSelectRun(runId);
-  };
-
-  const toggleHomeLike = (runId: string) => {
-    setLikedRunState((previous) => ({
-      ...previous,
-      [runId]: !previous[runId],
-    }));
   };
 
   return (
@@ -1243,12 +1132,6 @@ export function RunHomePage({
                               label={item.label}
                               run={topRun}
                               theme={item.theme}
-                              liked={Boolean(topRun && likedRunState[topRun.id])}
-                              onToggleLike={() => {
-                                if (topRun) {
-                                  toggleHomeLike(topRun.id);
-                                }
-                              }}
                               onView={() => {
                                 setFilterBracket(item.bracket);
                                 setLeaderboardView("rta");
@@ -1262,12 +1145,12 @@ export function RunHomePage({
                     </div>
                   </div>
 
-                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[300px] flex-shrink-0`}>
+                  <div className={`${HOME_SECTION_PANEL_CLASS} min-w-[200px] max-w-[320px] flex-shrink-0 self-stretch`}>
                     <div className={HOME_SECTION_REFLECTION_TOP_CLASS} />
                     <div className={HOME_SECTION_REFLECTION_CORNER_CLASS} />
-                    <div className={`${HOME_SECTION_PANEL_INNER_CLASS} p-5`}>
-                      <div className={`${HOME_SECTION_TITLE_CLASS} mb-4`}>{FEATURED_PLAYERS_LABEL}</div>
-                      <div className="space-y-3">
+                    <div className={`${HOME_SECTION_PANEL_INNER_CLASS} flex h-full flex-col p-5`}>
+                      <div className={`${HOME_SECTION_TITLE_CLASS} mb-3`}>{FEATURED_PLAYERS_LABEL}</div>
+                      <div className="grid flex-1 grid-rows-2 gap-4">
                         {[
                           { title: FIRST_POST_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("New"))) },
                           { title: OFFMETA_PICKUP_LABEL, run: getBestRun(heroRuns.filter((run) => run.tags.includes("OffMeta"))) },
@@ -1277,7 +1160,7 @@ export function RunHomePage({
                           return (
                             <div
                               key={item.title}
-                              className="relative cursor-pointer overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#323132] p-4 shadow-[0_12px_24px_rgba(0,0,0,0.24)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.3)]"
+                              className="relative flex h-full cursor-pointer flex-col overflow-hidden rounded-[16px] border border-[#4a494b] bg-[#323132] px-4 py-3 shadow-[0_12px_24px_rgba(0,0,0,0.24)] transition-transform hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(0,0,0,0.3)]"
                               onClick={() => {
                                 if (featuredRun) {
                                   openRunDetail(featuredRun.id);
@@ -1285,42 +1168,23 @@ export function RunHomePage({
                               }}
                             >
                               <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-                              <div className="pr-8 text-[15px] font-semibold leading-snug text-white">{item.title}</div>
+                              <div className="flex items-center gap-3">
+                                <div className="shrink-0 text-[15px] font-semibold leading-snug text-white">{item.title}</div>
+                                {featuredRun ? <div className="min-w-0 flex-1 truncate text-right text-[13px] font-medium text-white/74">{featuredRun.userName}</div> : null}
+                              </div>
                               {featuredRun ? (
-                                <div className="mt-3 space-y-3">
-                                  <div className="text-[14px] font-semibold text-white/88">{featuredRun.userName}</div>
-                                  <div className="space-y-3">
-                                    <div className="flex items-center justify-end gap-2 text-white">
-                                      <button
-                                        type="button"
-                                        className={HOME_ICON_BUTTON_CLASS}
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-                                          toggleHomeLike(featuredRun.id);
-                                        }}
-                                      >
-                                        <LikeIcon
-                                          size={14}
-                                          filled={Boolean(likedRunState[featuredRun.id])}
-                                          className={likedRunState[featuredRun.id] ? HOME_LIKE_ACTIVE_ICON_CLASS : "text-current"}
+                                <div className="mt-3">
+                                  <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
+                                    <div className="flex items-center gap-2.5">
+                                      {featuredRun.party.map((member, index) => (
+                                        <CharacterImage
+                                          key={`${featuredRun.id}-${member.characterId}-${index}`}
+                                          characterId={member.characterId}
+                                          alt={characterDb[member.characterId]?.name ?? member.characterId}
+                                          variant="circle"
+                                          className="h-9 w-9 rounded-full object-cover"
                                         />
-                                      </button>
-                                      <button type="button" className={HOME_ICON_BUTTON_CLASS} onClick={(event) => event.stopPropagation()}>
-                                        <CommentIcon size={14} className="text-current" />
-                                      </button>
-                                    </div>
-                                    <div className="rounded-[12px] border border-white/10 bg-white/[0.08] p-3">
-                                      <div className="flex items-center gap-2.5">
-                                        {featuredRun.party.map((member, index) => (
-                                          <CharacterImage
-                                            key={`${featuredRun.id}-${member.characterId}-${index}`}
-                                            characterId={member.characterId}
-                                            alt={characterDb[member.characterId]?.name ?? member.characterId}
-                                            variant="circle"
-                                            className="h-9 w-9 rounded-full object-cover"
-                                          />
-                                        ))}
-                                      </div>
+                                      ))}
                                     </div>
                                   </div>
                                 </div>
@@ -1431,7 +1295,7 @@ export function RunHomePage({
               </div>
               <div>
                 {leaderboardRuns.map((run, index) => (
-                  <LeaderboardRow key={run.id} run={run} index={index} liked={Boolean(likedRunState[run.id])} onToggleLike={() => toggleHomeLike(run.id)} onSelect={openRunDetail} />
+                  <LeaderboardRow key={run.id} run={run} index={index} onSelect={openRunDetail} />
                 ))}
               </div>
             </div>
