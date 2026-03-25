@@ -1,10 +1,38 @@
-﻿import { useEffect, useId, useMemo, useState } from "react";
+﻿import { useEffect, useId } from "react";
 
-import { characterDb, type Character, type Element } from "../../data/mockRuns";
-import { CharacterImage } from "./CharacterImage";
-import { SearchIcon } from "./homeIcons";
-import { cloneHomeFilterState, createEmptyHomeFilterState, updateSelectionGroup } from "./homeLogic";
-import type { CharacterAssistFilters, CharacterFilterTabKey, FilterTabKey, HomeFilterState, SelectionGroupState, SelectionTarget, TagGroup } from "./types";
+import type { Character } from "../../data/mockRuns";
+import { cloneHomeFilterState } from "./homeLogic";
+import { FilterDrawerCharacterTab } from "./filterDrawer/FilterDrawerCharacterTab";
+import { FilterDrawerTagTab } from "./filterDrawer/FilterDrawerTagTab";
+import { useFilterDrawerState } from "./filterDrawer/useFilterDrawerState";
+import type {
+  CharacterFilterTabKey,
+  ElementFilterOption,
+  FilterTabOption,
+  HomeFilterState,
+  SelectionTargetOption,
+  SelectionTarget,
+  TagGroup,
+} from "./types";
+
+type FilterDrawerProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onApply: (filters: HomeFilterState) => void;
+  initialFilters: HomeFilterState;
+  characters: Character[];
+  tagGroups: TagGroup[];
+  title: string;
+  resetLabel: string;
+  applyLabel: string;
+  filterTabs: FilterTabOption[];
+  filterTargetOptions: SelectionTargetOption[];
+  elementFilterOptions: ElementFilterOption[];
+  characterSearchPlaceholder: string;
+  tagSearchPlaceholder: string;
+  emptyCharacterResultLabel: string;
+  emptyTagResultLabel: string;
+};
 
 export function FilterDrawer({
   isOpen,
@@ -23,74 +51,32 @@ export function FilterDrawer({
   tagSearchPlaceholder,
   emptyCharacterResultLabel,
   emptyTagResultLabel,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onApply: (filters: HomeFilterState) => void;
-  initialFilters: HomeFilterState;
-  characters: Character[];
-  tagGroups: TagGroup[];
-  title: string;
-  resetLabel: string;
-  applyLabel: string;
-  filterTabs: Array<{ key: FilterTabKey; label: string }>;
-  filterTargetOptions: Array<{ key: SelectionTarget; label: string }>;
-  elementFilterOptions: Array<{ key: Element; label: string }>;
-  characterSearchPlaceholder: string;
-  tagSearchPlaceholder: string;
-  emptyCharacterResultLabel: string;
-  emptyTagResultLabel: string;
-}) {
-  const [draftFilters, setDraftFilters] = useState<HomeFilterState>(() => createEmptyHomeFilterState());
-  const [activeTab, setActiveTab] = useState<FilterTabKey>("partyCharacters");
-  const [selectionTargets, setSelectionTargets] = useState<Record<FilterTabKey, SelectionTarget>>({
-    partyCharacters: "include",
-    mainAttackers: "include",
-    tags: "include",
-  });
-  const [characterSearch, setCharacterSearch] = useState<Record<CharacterFilterTabKey, string>>({
-    partyCharacters: "",
-    mainAttackers: "",
-  });
-  const [tagSearch, setTagSearch] = useState("");
-  const [characterAssistFilters, setCharacterAssistFilters] = useState<Record<CharacterFilterTabKey, CharacterAssistFilters>>({
-    partyCharacters: { element: null },
-    mainAttackers: { element: null },
-  });
-  const sortedCharacters = useMemo(() => [...characters].sort((left, right) => left.name.localeCompare(right.name)), [characters]);
+}: FilterDrawerProps) {
   const includeModeSwitchId = useId();
-
-  const resetLocalUi = () => {
-    setActiveTab("partyCharacters");
-    setSelectionTargets({
-      partyCharacters: "include",
-      mainAttackers: "include",
-      tags: "include",
-    });
-    setCharacterSearch({
-      partyCharacters: "",
-      mainAttackers: "",
-    });
-    setTagSearch("");
-    setCharacterAssistFilters({
-      partyCharacters: { element: null },
-      mainAttackers: { element: null },
-    });
-  };
-
-  const resetDraft = () => {
-    setDraftFilters(createEmptyHomeFilterState());
-    resetLocalUi();
-  };
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    setDraftFilters(cloneHomeFilterState(initialFilters));
-    resetLocalUi();
-  }, [initialFilters, isOpen]);
+  const {
+    activeTab,
+    characterAssistFilters,
+    characterSearch,
+    draftFilters,
+    isAndMode,
+    selectionTargets,
+    tagSearch,
+    visibleTagGroups,
+    getVisibleCharacters,
+    resetDraft,
+    setActiveTab,
+    setCharacterAssistFilters,
+    setCharacterSearch,
+    setGroupState,
+    setSelectionTargets,
+    setTagSearch,
+    toggleGroupValue,
+  } = useFilterDrawerState({
+    isOpen,
+    initialFilters,
+    characters,
+    tagGroups,
+  });
 
   useEffect(() => {
     if (!isOpen) {
@@ -113,39 +99,8 @@ export function FilterDrawer({
     return null;
   }
 
-  const setGroupState = (groupKey: FilterTabKey, updater: (group: SelectionGroupState) => SelectionGroupState) => {
-    setDraftFilters((current) => ({
-      ...current,
-      [groupKey]: updater(current[groupKey]),
-    }));
-  };
-
-  const toggleGroupValue = (groupKey: FilterTabKey, value: string) => {
-    setGroupState(groupKey, (group) => updateSelectionGroup(group, selectionTargets[groupKey], value));
-  };
-
-  const getVisibleCharacters = (groupKey: CharacterFilterTabKey) => {
-    const query = characterSearch[groupKey].trim().toLowerCase();
-    const assistFilters = characterAssistFilters[groupKey];
-
-    return sortedCharacters.filter((character) => {
-      const matchesQuery = query.length === 0 || character.name.toLowerCase().includes(query);
-      const matchesElement = !assistFilters.element || character.element === assistFilters.element;
-
-      return matchesQuery && matchesElement;
-    });
-  };
-
-  const visibleTagGroups = tagGroups
-    .map((group) => ({
-      ...group,
-      tags: group.tags.filter((tag) => tagSearch.trim().length === 0 || tag.toLowerCase().includes(tagSearch.trim().toLowerCase())),
-    }))
-    .filter((group) => group.tags.length > 0);
-
-  const filterButtonTone = (active: boolean, activeClass: string) =>
-    active ? activeClass : "border-white/12 bg-white/[0.05] text-white/70 hover:bg-white/10 hover:text-white";
-  const isAndMode = draftFilters[activeTab].includeMode === "and";
+  const selectionTarget = selectionTargets[activeTab];
+  const visibleCharacters = activeTab === "tags" ? [] : getVisibleCharacters(activeTab);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-[2px]" onClick={onClose}>
@@ -197,11 +152,14 @@ export function FilterDrawer({
                       key={`${activeTab}-target-${option.key}`}
                       type="button"
                       className={`flex-1 px-5 py-2 text-[13px] font-semibold transition-colors sm:px-7 ${
-                        selectionTargets[activeTab] === option.key
-                          ? "bg-white text-[#1f1f20]"
-                          : "bg-transparent text-white/68 hover:bg-white/8 hover:text-white"
+                        selectionTarget === option.key ? "bg-white text-[#1f1f20]" : "bg-transparent text-white/68 hover:bg-white/8 hover:text-white"
                       }`}
-                      onClick={() => setSelectionTargets((current) => ({ ...current, [activeTab]: option.key }))}
+                      onClick={() =>
+                        setSelectionTargets((current) => ({
+                          ...current,
+                          [activeTab]: option.key as SelectionTarget,
+                        }))
+                      }
                     >
                       {option.label}
                     </button>
@@ -242,147 +200,42 @@ export function FilterDrawer({
             </section>
 
             {activeTab === "tags" ? (
-              <>
-                <section className="space-y-2 [&>div:first-child]:hidden">
-                  <div className="text-[12px] font-medium text-white/48">讀懃ｴ｢</div>
-                  <label className="relative block">
-                    <SearchIcon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/36" />
-                    <input
-                      type="text"
-                      value={tagSearch}
-                      onChange={(event) => setTagSearch(event.target.value)}
-                      placeholder={tagSearchPlaceholder}
-                      className="h-11 w-full rounded-[14px] border border-white/10 bg-white/[0.04] pl-11 pr-4 text-[14px] text-white placeholder:text-white/28 outline-none transition-colors focus:border-white/24"
-                    />
-                  </label>
-                </section>
-
-                <section className="space-y-4">
-                  {visibleTagGroups.length > 0 ? (
-                    visibleTagGroups.map((group) => (
-                      <div key={group.key} className="space-y-2">
-                        <div className="text-[12px] font-medium text-white/42">{group.label}</div>
-                        <div className="flex flex-wrap gap-2">
-                          {group.tags.map((tag) => {
-                            const isInclude = draftFilters.tags.includeIds.includes(tag);
-                            const isExclude = draftFilters.tags.excludeIds.includes(tag);
-
-                            return (
-                              <button
-                                key={`${group.key}-${tag}`}
-                                type="button"
-                                className={`inline-flex min-h-9 items-center rounded-full border px-3 py-2 text-[12px] font-medium transition-colors ${
-                                  isExclude
-                                    ? "border-[#8d575d] bg-[#43292d] text-white"
-                                    : isInclude
-                                      ? "border-transparent bg-white text-[#151515]"
-                                      : "border-white/12 bg-white/[0.04] text-white/72 hover:bg-white/10 hover:text-white"
-                                }`}
-                                onClick={() => toggleGroupValue("tags", tag)}
-                              >
-                                {tag}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-[16px] border border-dashed border-white/10 bg-white/[0.02] px-4 py-8 text-center text-[13px] text-white/42">
-                      {emptyTagResultLabel}
-                    </div>
-                  )}
-                </section>
-              </>
+              <FilterDrawerTagTab
+                draftFilters={draftFilters}
+                tagSearch={tagSearch}
+                visibleTagGroups={visibleTagGroups}
+                tagSearchPlaceholder={tagSearchPlaceholder}
+                emptyTagResultLabel={emptyTagResultLabel}
+                onTagSearchChange={setTagSearch}
+                onToggleTag={(tag) => toggleGroupValue("tags", tag)}
+              />
             ) : (
-              <>
-                <section className="space-y-2 [&>div:first-child]:hidden">
-                  <div className="text-[12px] font-medium text-white/48">讀懃ｴ｢</div>
-                  <label className="relative block">
-                    <SearchIcon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/36" />
-                    <input
-                      type="text"
-                      value={characterSearch[activeTab]}
-                      onChange={(event) => setCharacterSearch((current) => ({ ...current, [activeTab]: event.target.value }))}
-                      placeholder={characterSearchPlaceholder}
-                      className="h-11 w-full rounded-[14px] border border-white/10 bg-white/[0.04] pl-11 pr-4 text-[14px] text-white placeholder:text-white/28 outline-none transition-colors focus:border-white/24"
-                    />
-                  </label>
-                </section>
-
-                <section className="space-y-3 [&>div:first-child]:hidden">
-                  <div className="text-[12px] font-medium text-white/48">邨櫁ｾｼ陬懷勧</div>
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap gap-2">
-                      {elementFilterOptions.map((option) => (
-                        <button
-                          key={`${activeTab}-element-${option.key}`}
-                          type="button"
-                          className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${filterButtonTone(
-                            characterAssistFilters[activeTab].element === option.key,
-                            "border-transparent bg-white text-[#151515]",
-                          )}`}
-                          onClick={() =>
-                            setCharacterAssistFilters((current) => ({
-                              ...current,
-                              [activeTab]: {
-                                ...current[activeTab],
-                                element: current[activeTab].element === option.key ? null : option.key,
-                              },
-                            }))
-                          }
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </section>
-
-                <section className="space-y-3 [&>div:first-child]:hidden">
-                  <div className="text-[12px] font-medium text-white/48">繧ｭ繝｣繝ｩ荳隕ｧ</div>
-                  <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
-                    {getVisibleCharacters(activeTab).map((character) => {
-                      const isInclude = draftFilters[activeTab].includeIds.includes(character.id);
-                      const isExclude = draftFilters[activeTab].excludeIds.includes(character.id);
-
-                      return (
-                        <button
-                          key={`${activeTab}-${character.id}`}
-                          type="button"
-                          className={`relative rounded-[16px] border p-2 text-center transition-all ${
-                            isExclude
-                              ? "border-[#8d575d] bg-[#43292d]/70"
-                              : isInclude
-                                ? "border-cyan-300 bg-cyan-400/12"
-                                : "border-white/10 bg-white/[0.04] hover:border-white/20"
-                          }`}
-                          onClick={() => toggleGroupValue(activeTab, character.id)}
-                        >
-                          {isInclude || isExclude ? (
-                            <div
-                              className={`absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                                isExclude ? "bg-[#b96b74] text-white" : "bg-cyan-300 text-[#141414]"
-                              }`}
-                            >
-                              {isExclude ? "-" : "+"}
-                            </div>
-                          ) : null}
-                          <div className="flex flex-col items-center">
-                            <CharacterImage characterId={character.id} variant="circle" alt={character.name} className="h-14 w-14 rounded-full object-cover" />
-                            <div className="mt-2 truncate text-[11px] font-medium text-white/76">{character.name}</div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {getVisibleCharacters(activeTab).length === 0 ? (
-                    <div className="rounded-[16px] border border-dashed border-white/10 bg-white/[0.02] px-4 py-8 text-center text-[13px] text-white/42">
-                      {emptyCharacterResultLabel}
-                    </div>
-                  ) : null}
-                </section>
-              </>
+              <FilterDrawerCharacterTab
+                activeTab={activeTab as CharacterFilterTabKey}
+                draftFilters={draftFilters}
+                visibleCharacters={visibleCharacters}
+                elementFilterOptions={elementFilterOptions}
+                characterSearchValue={characterSearch[activeTab as CharacterFilterTabKey]}
+                selectedElement={characterAssistFilters[activeTab as CharacterFilterTabKey].element}
+                characterSearchPlaceholder={characterSearchPlaceholder}
+                emptyCharacterResultLabel={emptyCharacterResultLabel}
+                onCharacterSearchChange={(value) =>
+                  setCharacterSearch((current) => ({
+                    ...current,
+                    [activeTab]: value,
+                  }))
+                }
+                onToggleElementFilter={(element) =>
+                  setCharacterAssistFilters((current) => ({
+                    ...current,
+                    [activeTab]: {
+                      ...current[activeTab as CharacterFilterTabKey],
+                      element: current[activeTab as CharacterFilterTabKey].element === element ? null : element,
+                    },
+                  }))
+                }
+                onToggleCharacter={(characterId) => toggleGroupValue(activeTab, characterId)}
+              />
             )}
           </div>
         </div>
@@ -411,6 +264,3 @@ export function FilterDrawer({
     </div>
   );
 }
-
-
-

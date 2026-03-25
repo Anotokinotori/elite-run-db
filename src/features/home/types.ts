@@ -47,6 +47,17 @@ export type ActiveFilterChip = {
   isExclude: boolean;
 };
 
+export type ActiveFilterChipDefinition = {
+  group: FilterTabKey;
+  prefix: string;
+  excludePrefix: string;
+  resolveLabel: (value: string) => string;
+};
+
+export type ActiveFilterDisplayChip = ActiveFilterChip & {
+  displayLabel: string;
+};
+
 export type TagGroup = {
   key: string;
   label: string;
@@ -55,4 +66,30 @@ export type TagGroup = {
 
 export type CharacterAssistFilters = {
   element: Element | null;
+};
+
+export type FilterTabOption = {
+  key: FilterTabKey;
+  label: string;
+};
+
+export type SelectionTargetOption = {
+  key: SelectionTarget;
+  label: string;
+};
+
+export type ElementFilterOption = {
+  key: Element;
+  label: string;
+};
+
+export type HomeFeaturedCardAction = "detail" | "leaderboard";
+
+export type HomeFeaturedCard = {
+  key: string;
+  title: string;
+  run: HomeRun | null;
+  theme: { gradient: string };
+  actionLabel: string;
+  action: HomeFeaturedCardAction;
 };
