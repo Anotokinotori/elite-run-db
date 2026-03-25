@@ -1,8 +1,8 @@
-﻿import type { SimilarRunMatch } from "../../lib/getSimilarRuns";
+﻿import type { SimilarRunMatch } from "../../../lib/getSimilarRuns";
 
-import { LoadoutEntryCard, SidebarPanel, SidebarSectionHeader } from "./recordDetailUi";
+import { LoadoutEntryCard, SidebarPanel, SidebarSectionHeader } from "../ui/recordDetailUi";
 import { SimilarRunCard } from "./SimilarRunCard";
-import type { PartyLoadoutEntry, SimilarActionState } from "./types";
+import type { PartyLoadoutEntry, SimilarActionState } from "../types";
 
 export function RecordDetailSidebar({
   compareOpen,

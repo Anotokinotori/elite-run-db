@@ -1,10 +1,10 @@
-﻿import type { SimilarRunMatch } from "../../lib/getSimilarRuns";
-import { characterDb } from "../../data/mockRuns";
-import { CharacterIcon } from "../../components/CharacterIcon";
-import { CompareViewIcon, LikeIcon, ShareIcon } from "../../components/UiIcons";
+﻿import type { SimilarRunMatch } from "../../../lib/getSimilarRuns";
+import { characterDb } from "../../../data/mockRuns";
+import { CharacterIcon } from "../../../components/CharacterIcon";
+import { CompareViewIcon, LikeIcon, ShareIcon } from "../../../components/UiIcons";
 
-import { DETAIL_ICON_BUTTON_CLASS, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "./recordDetailConfig";
-import { PlatformLabel, SimilarityReasonChip } from "./recordDetailUi";
+import { DETAIL_ICON_BUTTON_CLASS, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../recordDetailConfig";
+import { PlatformLabel, SimilarityReasonChip } from "../ui/recordDetailUi";
 
 function SimilarActionMenu({
   isOpen,

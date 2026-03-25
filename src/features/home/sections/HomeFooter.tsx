@@ -1,4 +1,4 @@
-﻿import { TimerIcon } from "../homeIcons";
+﻿import { TimerIcon } from "../ui/homeIcons";
 
 export function HomeFooter() {
   return (

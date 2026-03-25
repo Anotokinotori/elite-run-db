@@ -1,5 +1,5 @@
-﻿import type { LoadInitialDraftStateResult, SubmitDraft } from "./types";
-import { DEFAULT_DRAFT, SUBMIT_DRAFT_KEY, createEmptyPartySlot } from "./submitConfig";
+﻿import type { LoadInitialDraftStateResult, SubmitDraft } from "../types";
+import { DEFAULT_DRAFT, SUBMIT_DRAFT_KEY, createEmptyPartySlot } from "../submitConfig";
 
 export function cloneDefaultDraft(): SubmitDraft {
   return {

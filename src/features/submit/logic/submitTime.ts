@@ -1,4 +1,4 @@
-﻿import type { TimeInputParts } from "./types";
+﻿import type { TimeInputParts } from "../types";
 
 export function parseTimeToSeconds(value: string) {
   const trimmed = value.trim();

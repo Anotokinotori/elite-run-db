@@ -1,10 +1,10 @@
 ﻿import { useEffect, useRef } from "react";
 
-import type { RunRecord } from "../../data/mockRuns";
-import { PlatformIcon, PauseIcon, PlayIcon } from "../../components/UiIcons";
+import type { RunRecord } from "../../../data/mockRuns";
+import { PlatformIcon, PauseIcon, PlayIcon } from "../../../components/UiIcons";
 
-import { DETAIL_ICON_BUTTON_CLASS, DETAIL_MUTED_SURFACE_CLASS } from "./recordDetailConfig";
-import { getPartyLoadout, postYouTubeCommand } from "./recordDetailHelpers";
+import { DETAIL_ICON_BUTTON_CLASS, DETAIL_MUTED_SURFACE_CLASS } from "../recordDetailConfig";
+import { getPartyLoadout, postYouTubeCommand } from "../recordDetailLogic";
 import {
   CircleAvatar,
   LoadoutEntryCard,
@@ -13,7 +13,7 @@ import {
   SidebarSectionHeader,
   TagChip,
   VideoFrame,
-} from "./recordDetailUi";
+} from "../ui/recordDetailUi";
 
 function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.RefObject<HTMLIFrameElement | null> }) {
   const partyLoadout = getPartyLoadout(run);

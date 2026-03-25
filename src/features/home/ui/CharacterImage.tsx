@@ -1,7 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 
-import { characterDb } from "../../data/mockRuns";
-import { getCharacterImageCandidates, type CharacterImageVariant } from "./homeMedia";
+import { characterDb } from "../../../data/mockRuns";
+import { getCharacterImageCandidates, type CharacterImageVariant } from "../homeMedia";
 
 export function CharacterImage({
   characterId,

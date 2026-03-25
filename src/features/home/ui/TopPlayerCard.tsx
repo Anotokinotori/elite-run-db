@@ -1,6 +1,6 @@
-﻿import { characterDb } from "../../data/mockRuns";
+﻿import { characterDb } from "../../../data/mockRuns";
 import { CharacterImage } from "./CharacterImage";
-import type { HomeRun } from "./types";
+import type { HomeRun } from "../types";
 
 export function TopPlayerCard({
   label,

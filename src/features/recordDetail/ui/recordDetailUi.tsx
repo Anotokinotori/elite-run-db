@@ -1,13 +1,13 @@
 ﻿import type { ReactNode } from "react";
 
-import type { RunRecord } from "../../data/mockRuns";
-import { CharacterIcon } from "../../components/CharacterIcon";
-import { PlatformIcon } from "../../components/UiIcons";
-import { getYouTubeEmbedUrl } from "../../lib/youtube";
+import type { RunRecord } from "../../../data/mockRuns";
+import { CharacterIcon } from "../../../components/CharacterIcon";
+import { PlatformIcon } from "../../../components/UiIcons";
+import { getYouTubeEmbedUrl } from "../../../lib/youtube";
 
-import { DETAIL_MUTED_SURFACE_CLASS, DETAIL_PANEL_INNER_CLASS, DETAIL_PANEL_SHELL_CLASS } from "./recordDetailConfig";
-import { getInitials, parsePlatformTag } from "./recordDetailHelpers";
-import type { PartyLoadoutEntry } from "./types";
+import { DETAIL_MUTED_SURFACE_CLASS, DETAIL_PANEL_INNER_CLASS, DETAIL_PANEL_SHELL_CLASS } from "../recordDetailConfig";
+import { getInitials, parsePlatformTag } from "../recordDetailLogic";
+import type { PartyLoadoutEntry } from "../types";
 
 export function CircleAvatar({
   label,

@@ -1,6 +1,6 @@
 ﻿import type { Element } from "../../../data/mockRuns";
-import { CharacterImage } from "../CharacterImage";
-import { SearchIcon } from "../homeIcons";
+import { CharacterImage } from "../ui/CharacterImage";
+import { SearchIcon } from "../ui/homeIcons";
 import type { CharacterFilterTabKey, ElementFilterOption, HomeFilterState } from "../types";
 
 const SEARCH_LABEL = "検索";

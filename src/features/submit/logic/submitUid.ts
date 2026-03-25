@@ -1,7 +1,7 @@
-﻿import type { EnkaProfile, EnkaProfileCharacter } from "../../lib/enkaNetwork";
-import { createEmptyPartySlot } from "./submitConfig";
+﻿import type { EnkaProfile, EnkaProfileCharacter } from "../../../lib/enkaNetwork";
+import { createEmptyPartySlot } from "../submitConfig";
 import { getDefaultWeaponId, isWeaponCompatible } from "./submitParty";
-import type { SubmitPartySlot } from "./types";
+import type { SubmitPartySlot } from "../types";
 
 export function getInitialUidSelectedCharacterIds(party: SubmitPartySlot[]) {
   return party

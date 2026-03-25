@@ -1,7 +1,7 @@
 ﻿import type { ReactNode } from "react";
 
-import type { Platform } from "../../data/mockRuns";
-import type { RankMove } from "./types";
+import type { Platform } from "../../../data/mockRuns";
+import type { RankMove } from "../types";
 
 export function SearchIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (

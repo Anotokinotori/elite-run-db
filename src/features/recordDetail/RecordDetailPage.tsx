@@ -3,11 +3,11 @@
 import { defaultRunId, getRunById, mockRuns } from "../../data/mockRuns";
 import { getSimilarRuns } from "../../lib/getSimilarRuns";
 
-import { CompareDrawer } from "./CompareDrawer";
-import { RecordDetailHeader } from "./RecordDetailHeader";
-import { RecordDetailMainColumn } from "./RecordDetailMainColumn";
-import { RecordDetailSidebar } from "./RecordDetailSidebar";
-import { getPartyLoadout } from "./recordDetailHelpers";
+import { CompareDrawer } from "./sections/CompareDrawer";
+import { RecordDetailHeader } from "./sections/RecordDetailHeader";
+import { RecordDetailMainColumn } from "./sections/RecordDetailMainColumn";
+import { RecordDetailSidebar } from "./sections/RecordDetailSidebar";
+import { getPartyLoadout } from "./recordDetailLogic";
 import type { SimilarActionState } from "./types";
 
 export function RecordDetailPage({

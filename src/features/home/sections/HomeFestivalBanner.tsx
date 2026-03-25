@@ -1,4 +1,4 @@
-﻿import { CalendarIcon } from "../homeIcons";
+﻿import { CalendarIcon } from "../ui/homeIcons";
 
 export function HomeFestivalBanner() {
   return (

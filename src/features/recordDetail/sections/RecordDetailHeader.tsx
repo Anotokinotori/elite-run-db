@@ -1,5 +1,5 @@
-﻿import { DETAIL_ICON_BUTTON_CLASS } from "./recordDetailConfig";
-import { CircleAvatar } from "./recordDetailUi";
+﻿import { DETAIL_ICON_BUTTON_CLASS } from "../recordDetailConfig";
+import { CircleAvatar } from "../ui/recordDetailUi";
 
 export function RecordDetailHeader({
   embedded,

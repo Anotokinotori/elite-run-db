@@ -1,7 +1,7 @@
 ﻿import { useMemo, useRef, useState } from "react";
 
 import { characterDb, mockRuns, type Bracket } from "../../data/mockRuns";
-import { FilterDrawer } from "./FilterDrawer";
+import { FilterDrawer } from "./ui/FilterDrawer";
 import {
   FESTIVAL_RULESET,
   HERO_IMAGE_URL,

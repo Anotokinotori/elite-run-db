@@ -1,10 +1,10 @@
 ﻿import type { FormEvent } from "react";
 
-import type { RunRecord } from "../../data/mockRuns";
-import { LikeIcon, ShareIcon } from "../../components/UiIcons";
+import type { RunRecord } from "../../../data/mockRuns";
+import { LikeIcon, ShareIcon } from "../../../components/UiIcons";
 
-import { collapsedCopyStyle, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "./recordDetailConfig";
-import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PillButton, PlatformLabel, SectionTitle, TagChip, VideoFrame } from "./recordDetailUi";
+import { collapsedCopyStyle, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../recordDetailConfig";
+import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PillButton, PlatformLabel, SectionTitle, TagChip, VideoFrame } from "../ui/recordDetailUi";
 
 export function RecordDetailMainColumn({
   currentRun,

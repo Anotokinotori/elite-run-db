@@ -1,8 +1,8 @@
-﻿import { characterDb, type Bracket } from "../../data/mockRuns";
+﻿import { characterDb, type Bracket } from "../../../data/mockRuns";
 import { CharacterImage } from "./CharacterImage";
 import { PLATFORM_ICONS, RankMoveIcon } from "./homeIcons";
-import { getBracketLabel } from "./homeLogic";
-import type { HomeRun, HomeRunWithBucket, LeaderboardView } from "./types";
+import { getBracketLabel } from "../homeLogic";
+import type { HomeRun, HomeRunWithBucket, LeaderboardView } from "../types";
 
 export function LeaderboardRow({
   run,

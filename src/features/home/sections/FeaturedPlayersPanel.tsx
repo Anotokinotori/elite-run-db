@@ -1,6 +1,6 @@
 ﻿import type { Bracket } from "../../../data/mockRuns";
 import { HOME_BUTTON_CLASSES, HOME_LABELS, HOME_PANEL_CLASSES } from "../homeConfig";
-import { TopPlayerCard } from "../TopPlayerCard";
+import { TopPlayerCard } from "../ui/TopPlayerCard";
 import type { HomeFeaturedCard } from "../types";
 
 type FeaturedPlayersPanelProps = {

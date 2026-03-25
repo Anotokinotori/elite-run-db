@@ -1,4 +1,4 @@
-﻿import { SearchIcon } from "../homeIcons";
+﻿import { SearchIcon } from "../ui/homeIcons";
 import type { HomeFilterState, TagGroup } from "../types";
 
 const SEARCH_LABEL = "検索";

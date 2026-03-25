@@ -1,7 +1,7 @@
-import { isYouTubeUrl } from "../../lib/youtube";
+import { isYouTubeUrl } from "../../../lib/youtube";
 import { isWeaponCompatible } from "./submitParty";
 import { parseTimeToSeconds } from "./submitTime";
-import type { FieldErrors, SubmitDraft } from "./types";
+import type { FieldErrors, SubmitDraft } from "../types";
 
 export function validateStep1(draft: SubmitDraft): FieldErrors {
   const errors: FieldErrors = {};

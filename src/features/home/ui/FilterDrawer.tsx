@@ -1,10 +1,10 @@
 ﻿import { useEffect, useId } from "react";
 
-import type { Character } from "../../data/mockRuns";
-import { cloneHomeFilterState } from "./homeLogic";
-import { FilterDrawerCharacterTab } from "./filterDrawer/FilterDrawerCharacterTab";
-import { FilterDrawerTagTab } from "./filterDrawer/FilterDrawerTagTab";
-import { useFilterDrawerState } from "./filterDrawer/useFilterDrawerState";
+import type { Character } from "../../../data/mockRuns";
+import { cloneHomeFilterState } from "../homeLogic";
+import { FilterDrawerCharacterTab } from "../filterDrawer/FilterDrawerCharacterTab";
+import { FilterDrawerTagTab } from "../filterDrawer/FilterDrawerTagTab";
+import { useFilterDrawerState } from "../filterDrawer/useFilterDrawerState";
 import type {
   CharacterFilterTabKey,
   ElementFilterOption,
@@ -13,7 +13,7 @@ import type {
   SelectionTargetOption,
   SelectionTarget,
   TagGroup,
-} from "./types";
+} from "../types";
 
 type FilterDrawerProps = {
   isOpen: boolean;

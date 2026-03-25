@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
-import type { EnkaProfile, EnkaProfileCharacter } from "../../lib/enkaNetwork";
-import { CharacterIcon } from "../../components/CharacterIcon";
-import { CHARACTER_OPTIONS, ELEMENT_FILTER_OPTIONS, WEAPON_OPTIONS } from "./submitConfig";
-import { EmptyCharacterBadge, FieldError, SectionTitle } from "./submitUi";
+import type { EnkaProfile, EnkaProfileCharacter } from "../../../lib/enkaNetwork";
+import { CharacterIcon } from "../../../components/CharacterIcon";
+import { CHARACTER_OPTIONS, ELEMENT_FILTER_OPTIONS, WEAPON_OPTIONS } from "../submitConfig";
+import { EmptyCharacterBadge, FieldError, SectionTitle } from "../ui/submitUi";
 
 export function CharacterPickerModal({
   isOpen,

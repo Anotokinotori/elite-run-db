@@ -2,8 +2,8 @@
 
 import type { Bracket } from "../../../data/mockRuns";
 import { HOME_BRACKET_FILTER_OPTIONS, HOME_LABELS, HOME_LAYOUT_CLASSES, HOME_LEADERBOARD_VIEW_OPTIONS } from "../homeConfig";
-import { FilterFunnelIcon, SearchIcon } from "../homeIcons";
-import { LeaderboardRow } from "../LeaderboardRow";
+import { FilterFunnelIcon, SearchIcon } from "../ui/homeIcons";
+import { LeaderboardRow } from "../ui/LeaderboardRow";
 import type { ActiveFilterDisplayChip, HomeRun, HomeRunWithBucket, LeaderboardView } from "../types";
 import { HomeActiveFilterChipStrip } from "./HomeActiveFilterChipStrip";
 

@@ -1,7 +1,7 @@
-﻿import type { RunRecord } from "../../data/mockRuns";
-import { characterDb, weaponDb } from "../../data/mockRuns";
+﻿import type { RunRecord } from "../../../data/mockRuns";
+import { characterDb, weaponDb } from "../../../data/mockRuns";
 
-import type { PartyLoadoutEntry } from "./types";
+import type { PartyLoadoutEntry } from "../types";
 
 export function postYouTubeCommand(iframe: HTMLIFrameElement | null, command: "playVideo" | "pauseVideo") {
   iframe?.contentWindow?.postMessage(
