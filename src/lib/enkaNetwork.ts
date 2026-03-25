@@ -1,4 +1,5 @@
 import { characterDb, weaponDb } from "../data/mockRuns";
+import { WEAPON_ID_BY_ENKA_ITEM_ID } from "./weaponCatalog";
 
 const ENKA_CACHE_KEY_PREFIX = "elite-run-db.enkaProfile.";
 const DEFAULT_ENKA_TTL_SECONDS = 300;
@@ -18,19 +19,6 @@ const CHARACTER_ID_BY_ENKA_AVATAR_ID: Record<number, string> = {
   10000087: "neuvillette",
   10000089: "furina",
   10000093: "xianyun",
-};
-
-const WEAPON_ID_BY_ENKA_ITEM_ID: Record<number, string> = {
-  11408: "sacrificialSword",
-  11501: "skywardBlade",
-  12504: "serpentSpine",
-  13415: "theCatch",
-  13501: "homa",
-  14407: "sacrificialFragments",
-  14502: "starcaller",
-  15402: "favoniusWarbow",
-  15403: "stringless",
-  15512: "aquaSimulacra",
 };
 
 type JsonRecord = Record<string, unknown>;

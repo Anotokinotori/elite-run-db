@@ -1,6 +1,7 @@
 import type { Bracket } from "../../../data/mockRuns";
 import { characterDb } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
+import { WeaponIcon } from "../../../components/WeaponIcon";
 
 import { BRACKET_META } from "../submitConfig";
 import type { FieldErrors, SubmitDraft, SubmitPartySlot } from "../types";
@@ -11,7 +12,7 @@ type SubmitStepPartyProps = {
   activeCharacterCost: number;
   activePartySlot: SubmitPartySlot;
   activeSlot: number;
-  activeWeapon: { name: string; shortLabel: string } | undefined;
+  activeWeapon: { name: string; shortLabel: string; imageUrl: string } | undefined;
   activeWeaponCost: number;
   draft: SubmitDraft;
   errors: FieldErrors;
@@ -188,7 +189,13 @@ export function SubmitStepParty(props: SubmitStepPartyProps) {
                               className="flex h-[154px] w-[154px] items-center justify-center rounded-[4px] bg-white disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               {activeWeapon ? (
-                                <div className="text-[40px] font-bold text-[#9999b1]">{activeWeapon.shortLabel}</div>
+                                <WeaponIcon
+                                  imageUrl={activeWeapon.imageUrl}
+                                  alt={activeWeapon.name}
+                                  fallbackLabel={activeWeapon.shortLabel}
+                                  size={120}
+                                  className="rounded-[12px] p-2"
+                                />
                               ) : (
                                 <div className="text-[128px] leading-none text-[#c2c2c2]">+</div>
                               )}

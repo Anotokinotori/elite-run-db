@@ -3,6 +3,8 @@ import {
   type Platform,
   type WeaponClass,
   characterDb,
+  selectableCharacters,
+  selectableWeapons,
   weaponDb,
 } from "../../data/mockRuns";
 import type { SubmitDraft, SubmitPartySlot } from "./types";
@@ -10,8 +12,8 @@ import type { SubmitDraft, SubmitPartySlot } from "./types";
 export const SUBMIT_DRAFT_KEY = "elite-run-db.submitDraft.v1";
 export const AUTO_SAVE_DELAY_MS = 500;
 export const SUBMIT_SURFACE_SCALE = 0.6;
-export const CHARACTER_OPTIONS = Object.values(characterDb);
-export const WEAPON_OPTIONS = Object.values(weaponDb);
+export const CHARACTER_OPTIONS = selectableCharacters;
+export const WEAPON_OPTIONS = selectableWeapons;
 export const RULESET_OPTIONS = ["NPUI", "PUI", "PUA", "Npui飯", "淵下宮", "マルチNpui", "マルチPui", "マルチPUA"];
 export const PLATFORM_OPTIONS: Platform[] = ["PC", "PS5", "Mobile"];
 export const SEARCH_TAG_OPTIONS = [

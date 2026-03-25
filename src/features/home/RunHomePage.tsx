@@ -1,6 +1,6 @@
-﻿import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
-import { characterDb, mockRuns, type Bracket } from "../../data/mockRuns";
+import { mockRuns, selectableCharacters, type Bracket } from "../../data/mockRuns";
 import { FilterDrawer } from "./ui/FilterDrawer";
 import {
   FESTIVAL_RULESET,
@@ -74,7 +74,7 @@ export function RunHomePage({
   const activeSeason = selectedSeason ?? activeSeasonInternal;
   const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
 
-  const characters = useMemo(() => Object.values(characterDb), []);
+  const characters = useMemo(() => selectableCharacters, []);
   const tagGroups = useMemo(() => getTagGroups(runs, HOME_FILTER_TAG_GROUP_DEFINITIONS, "その他"), [runs]);
   const activeFilterChips = useMemo(() => buildActiveFilterDisplayChips(homeFilters), [homeFilters]);
 
