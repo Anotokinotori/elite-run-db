@@ -1,25 +1,9 @@
 import { characterDb, weaponDb } from "../data/mockRuns";
+import { resolveEnkaCharacterId } from "./enkaAvatarCatalog";
 import { WEAPON_ID_BY_ENKA_ITEM_ID } from "./weaponCatalog";
 
 const ENKA_CACHE_KEY_PREFIX = "elite-run-db.enkaProfile.";
 const DEFAULT_ENKA_TTL_SECONDS = 300;
-
-const CHARACTER_ID_BY_ENKA_AVATAR_ID: Record<number, string> = {
-  10000021: "amber",
-  10000023: "xiangling",
-  10000025: "xingqiu",
-  10000030: "zhongli",
-  10000032: "bennett",
-  10000042: "keqing",
-  10000053: "sayu",
-  10000060: "yelan",
-  10000067: "collei",
-  10000075: "wanderer",
-  10000079: "dehya",
-  10000087: "neuvillette",
-  10000089: "furina",
-  10000093: "xianyun",
-};
 
 type JsonRecord = Record<string, unknown>;
 
@@ -102,7 +86,7 @@ function normalizeAvatar(avatar: JsonRecord): EnkaProfileCharacter | null {
     return null;
   }
 
-  const characterId = CHARACTER_ID_BY_ENKA_AVATAR_ID[avatarId] ?? null;
+  const characterId = resolveEnkaCharacterId(avatarId);
   const equipList = Array.isArray(avatar.equipList) ? avatar.equipList : [];
   const weapon = equipList
     .map(asRecord)
@@ -135,7 +119,7 @@ function normalizeShowcaseAvatar(avatar: JsonRecord): EnkaProfileCharacter | nul
     return null;
   }
 
-  const characterId = CHARACTER_ID_BY_ENKA_AVATAR_ID[avatarId] ?? null;
+  const characterId = resolveEnkaCharacterId(avatarId);
 
   return {
     avatarId,
