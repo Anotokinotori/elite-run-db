@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { characterDb, weaponDb } from "../../data/mockRuns";
 import { fetchEnkaProfile, isValidEnkaUid, type EnkaProfile, type EnkaProfileCharacter } from "../../lib/enkaNetwork";
@@ -53,13 +53,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
   const timeInput = splitTimeInputValue(draft.basicInfo.time);
   const activeCharacterCost = getCharacterCostForSlot(activePartySlot);
   const activeWeaponCost = getWeaponCostForSlot(activePartySlot);
-  const compatibleWeapons = useMemo(() => {
-    if (!activeCharacter) {
-      return WEAPON_OPTIONS;
-    }
-
-    return WEAPON_OPTIONS.filter((weapon) => weapon.weaponClass === activeCharacter.weaponClass);
-  }, [activeCharacter]);
+  const compatibleWeaponClass = activeCharacter?.weaponClass ?? null;
   const availablePartyCharacters = useMemo(
     () =>
       draft.party
@@ -442,7 +436,8 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
       <WeaponPickerModal
         isOpen={showWeaponPicker}
         activeWeaponId={activePartySlot.weaponId}
-        options={compatibleWeapons}
+        options={WEAPON_OPTIONS}
+        compatibleWeaponClass={compatibleWeaponClass}
         onClose={() => setShowWeaponPicker(false)}
         onSelect={(weaponId) => {
           updatePartySlot(activeSlot, { weaponId, refine: 1 });

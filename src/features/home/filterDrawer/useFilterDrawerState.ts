@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { Character } from "../../../data/mockRuns";
 import { cloneHomeFilterState, createEmptyHomeFilterState, updateSelectionGroup } from "../homeLogic";
@@ -88,7 +88,7 @@ export function useFilterDrawerState({ isOpen, initialFilters, characters, tagGr
     const assistFilters = characterAssistFilters[groupKey];
 
     return sortedCharacters.filter((character) => {
-      const matchesQuery = query.length === 0 || character.name.toLowerCase().includes(query);
+      const matchesQuery = query.length === 0 || character.name.toLowerCase().includes(query) || character.id.toLowerCase().includes(query);
       const matchesElement = !assistFilters.element || character.element === assistFilters.element;
 
       return matchesQuery && matchesElement;

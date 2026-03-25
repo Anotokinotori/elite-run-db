@@ -1,8 +1,11 @@
 ﻿export type Element = "pyro" | "hydro" | "cryo" | "electro" | "anemo" | "geo" | "dendro";
 export type CharacterType = "limited" | "standard" | "four_star";
-export type WeaponTier = "five_star" | "four_star";
-export type WeaponClass = "sword" | "claymore" | "polearm" | "bow" | "catalyst";
+export type WeaponTier = WeaponCatalogTier;
+export type WeaponClass = WeaponCatalogClass;
 export type Platform = "PC" | "Mobile" | "PS5";
+
+import { CHARACTER_ASSET_PRESETS, PRESET_ORDER, toEnkaUiUrl, type CharacterPresetKey } from "../lib/characterAssets";
+import { WEAPON_CATALOG, type WeaponCatalogClass, type WeaponCatalogTier } from "../lib/weaponCatalog";
 
 export type Character = {
   id: string;
@@ -19,6 +22,7 @@ export type Weapon = {
   shortLabel: string;
   tier: WeaponTier;
   weaponClass: WeaponClass;
+  imageUrl: string;
 };
 
 export type PartyMember = {
@@ -80,261 +84,155 @@ export const bracketLabels: Record<Bracket, string> = {
   4: "Bracket 4",
 };
 
+const ELEMENT_BY_TAG = {
+  Fire: "pyro",
+  Water: "hydro",
+  Ice: "cryo",
+  Electric: "electro",
+  Wind: "anemo",
+  Rock: "geo",
+  Grass: "dendro",
+} as const satisfies Record<(typeof CHARACTER_ASSET_PRESETS)[CharacterPresetKey]["elementTag"], Element>;
+
+const WEAPON_CLASS_BY_TAG = {
+  Sword: "sword",
+  Claymore: "claymore",
+  Pole: "polearm",
+  Bow: "bow",
+  Catalyst: "catalyst",
+} as const satisfies Record<(typeof CHARACTER_ASSET_PRESETS)[CharacterPresetKey]["weaponTag"], WeaponClass>;
+
+const STANDARD_CHARACTER_IDS = new Set<CharacterPresetKey>(["diluc", "jean", "keqing", "mona", "qiqi", "tighnari", "dehya"]);
+
+const FOUR_STAR_CHARACTER_IDS = new Set<CharacterPresetKey>([
+  "amber",
+  "kaeya",
+  "lisa",
+  "barbara",
+  "beidou",
+  "bennett",
+  "chongyun",
+  "fischl",
+  "ningguang",
+  "noelle",
+  "razor",
+  "sucrose",
+  "xiangling",
+  "xingqiu",
+  "diona",
+  "xinyan",
+  "rosaria",
+  "yanfei",
+  "sayu",
+  "kujousara",
+  "thoma",
+  "gorou",
+  "yunjin",
+  "kukishinobu",
+  "shikanoinheizou",
+  "collei",
+  "dori",
+  "candace",
+  "layla",
+  "faruzan",
+  "yaoyao",
+  "mika",
+  "kaveh",
+  "kirara",
+  "lynette",
+  "freminet",
+  "charlotte",
+  "chevreuse",
+  "gaming",
+  "sethos",
+  "kachina",
+  "ororon",
+  "lanyan",
+  "iansan",
+  "ifa",
+  "dahlia",
+]);
+
+function getCharacterType(characterId: CharacterPresetKey): CharacterType {
+  if (STANDARD_CHARACTER_IDS.has(characterId)) {
+    return "standard";
+  }
+
+  if (FOUR_STAR_CHARACTER_IDS.has(characterId)) {
+    return "four_star";
+  }
+
+  return "limited";
+}
+
+function getCharacterShortLabel(displayName: string) {
+  const words = displayName
+    .replace(/[^A-Za-z\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length >= 2) {
+    return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  }
+
+  const compactName = (words[0] ?? displayName.replace(/\s+/g, "")).slice(0, 2);
+  return compactName.toUpperCase();
+}
+
+function getWeaponShortLabel(name: string) {
+  const words = name
+    .replace(/[^A-Za-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length >= 2) {
+    return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  }
+
+  const compactName = (words[0] ?? name.replace(/\s+/g, "")).slice(0, 3);
+  return compactName.toUpperCase();
+}
+
+const baseCharacterDb = Object.fromEntries(
+  PRESET_ORDER.map((characterId) => {
+    const preset = CHARACTER_ASSET_PRESETS[characterId];
+
+    return [
+      characterId,
+      {
+        id: characterId,
+        name: preset.displayName,
+        shortLabel: getCharacterShortLabel(preset.displayName),
+        element: ELEMENT_BY_TAG[preset.elementTag],
+        weaponClass: WEAPON_CLASS_BY_TAG[preset.weaponTag],
+        type: getCharacterType(characterId),
+      } satisfies Character,
+    ];
+  }),
+) as Record<CharacterPresetKey, Character>;
+
 export const characterDb: Record<string, Character> = {
+  ...baseCharacterDb,
   mav: {
+    ...baseCharacterDb.mavuika,
     id: "mav",
-    name: "Mavuika",
-    shortLabel: "Mv",
-    element: "pyro",
-    weaponClass: "claymore",
-    type: "limited",
-  },
-  furina: {
-    id: "furina",
-    name: "Furina",
-    shortLabel: "Fu",
-    element: "hydro",
-    weaponClass: "sword",
-    type: "limited",
-  },
-  bennett: {
-    id: "bennett",
-    name: "Bennett",
-    shortLabel: "Bn",
-    element: "pyro",
-    weaponClass: "sword",
-    type: "four_star",
-  },
-  xiangling: {
-    id: "xiangling",
-    name: "Xiangling",
-    shortLabel: "Xl",
-    element: "pyro",
-    weaponClass: "polearm",
-    type: "four_star",
-  },
-  citlali: {
-    id: "citlali",
-    name: "Citlali",
-    shortLabel: "Ct",
-    element: "cryo",
-    weaponClass: "catalyst",
-    type: "limited",
-  },
-  xilonen: {
-    id: "xilonen",
-    name: "Xilonen",
-    shortLabel: "Xi",
-    element: "geo",
-    weaponClass: "sword",
-    type: "limited",
-  },
-  amber: {
-    id: "amber",
-    name: "Amber",
-    shortLabel: "Am",
-    element: "pyro",
-    weaponClass: "bow",
-    type: "four_star",
-  },
-  xingqiu: {
-    id: "xingqiu",
-    name: "Xingqiu",
-    shortLabel: "Xq",
-    element: "hydro",
-    weaponClass: "sword",
-    type: "four_star",
-  },
-  collei: {
-    id: "collei",
-    name: "Collei",
-    shortLabel: "Co",
-    element: "dendro",
-    weaponClass: "bow",
-    type: "four_star",
-  },
-  keqing: {
-    id: "keqing",
-    name: "Keqing",
-    shortLabel: "Kq",
-    element: "electro",
-    weaponClass: "sword",
-    type: "standard",
-  },
-  zhongli: {
-    id: "zhongli",
-    name: "Zhongli",
-    shortLabel: "Zl",
-    element: "geo",
-    weaponClass: "polearm",
-    type: "limited",
-  },
-  yelan: {
-    id: "yelan",
-    name: "Yelan",
-    shortLabel: "Ye",
-    element: "hydro",
-    weaponClass: "bow",
-    type: "limited",
-  },
-  dehya: {
-    id: "dehya",
-    name: "Dehya",
-    shortLabel: "Dh",
-    element: "pyro",
-    weaponClass: "claymore",
-    type: "standard",
-  },
-  chiori: {
-    id: "chiori",
-    name: "Chiori",
-    shortLabel: "Ch",
-    element: "geo",
-    weaponClass: "sword",
-    type: "limited",
-  },
-  xianyun: {
-    id: "xianyun",
-    name: "Xianyun",
-    shortLabel: "Xy",
-    element: "anemo",
-    weaponClass: "catalyst",
-    type: "limited",
-  },
-  wanderer: {
-    id: "wanderer",
-    name: "Wanderer",
-    shortLabel: "Wa",
-    element: "anemo",
-    weaponClass: "catalyst",
-    type: "limited",
-  },
-  sayu: {
-    id: "sayu",
-    name: "Sayu",
-    shortLabel: "Sa",
-    element: "anemo",
-    weaponClass: "claymore",
-    type: "four_star",
-  },
-  neuvillette: {
-    id: "neuvillette",
-    name: "Neuvillette",
-    shortLabel: "Ne",
-    element: "hydro",
-    weaponClass: "catalyst",
-    type: "limited",
-  },
-  chasca: {
-    id: "chasca",
-    name: "Chasca",
-    shortLabel: "Cs",
-    element: "anemo",
-    weaponClass: "bow",
-    type: "limited",
   },
 };
 
-export const weaponDb: Record<string, Weapon> = {
-  blazingSun: {
-    id: "blazingSun",
-    name: "A Thousand Blazing Suns",
-    shortLabel: "ABS",
-    tier: "five_star",
-    weaponClass: "claymore",
-  },
-  splendor: {
-    id: "splendor",
-    name: "Splendor of Tranquil Waters",
-    shortLabel: "SoT",
-    tier: "five_star",
-    weaponClass: "sword",
-  },
-  skywardBlade: {
-    id: "skywardBlade",
-    name: "Skyward Blade",
-    shortLabel: "SB",
-    tier: "five_star",
-    weaponClass: "sword",
-  },
-  theCatch: {
-    id: "theCatch",
-    name: "The Catch",
-    shortLabel: "TC",
-    tier: "four_star",
-    weaponClass: "polearm",
-  },
-  starcaller: {
-    id: "starcaller",
-    name: "Starcaller Watch",
-    shortLabel: "SW",
-    tier: "five_star",
-    weaponClass: "catalyst",
-  },
-  peakPatrol: {
-    id: "peakPatrol",
-    name: "Peak Patrol Song",
-    shortLabel: "PP",
-    tier: "five_star",
-    weaponClass: "sword",
-  },
-  stringless: {
-    id: "stringless",
-    name: "The Stringless",
-    shortLabel: "TS",
-    tier: "four_star",
-    weaponClass: "bow",
-  },
-  sacrificialSword: {
-    id: "sacrificialSword",
-    name: "Sacrificial Sword",
-    shortLabel: "SS",
-    tier: "four_star",
-    weaponClass: "sword",
-  },
-  haran: {
-    id: "haran",
-    name: "Haran Geppaku Futsu",
-    shortLabel: "HG",
-    tier: "five_star",
-    weaponClass: "sword",
-  },
-  homa: {
-    id: "homa",
-    name: "Staff of Homa",
-    shortLabel: "Ho",
-    tier: "five_star",
-    weaponClass: "polearm",
-  },
-  serpentSpine: {
-    id: "serpentSpine",
-    name: "Serpent Spine",
-    shortLabel: "SS",
-    tier: "four_star",
-    weaponClass: "claymore",
-  },
-  sacrificialFragments: {
-    id: "sacrificialFragments",
-    name: "Sacrificial Fragments",
-    shortLabel: "SF",
-    tier: "four_star",
-    weaponClass: "catalyst",
-  },
-  favoniusWarbow: {
-    id: "favoniusWarbow",
-    name: "Favonius Warbow",
-    shortLabel: "FW",
-    tier: "four_star",
-    weaponClass: "bow",
-  },
-  aquaSimulacra: {
-    id: "aquaSimulacra",
-    name: "Aqua Simulacra",
-    shortLabel: "AQ",
-    tier: "five_star",
-    weaponClass: "bow",
-  },
-};
+export const selectableCharacters: Character[] = PRESET_ORDER.map((characterId) => characterDb[characterId]);
+
+export const selectableWeapons: Weapon[] = WEAPON_CATALOG.map((weapon) => ({
+  id: weapon.id,
+  name: weapon.name,
+  shortLabel: getWeaponShortLabel(weapon.name),
+  tier: weapon.tier,
+  weaponClass: weapon.weaponClass,
+  imageUrl: toEnkaUiUrl(weapon.iconAssetName),
+}));
+
+export const weaponDb: Record<string, Weapon> = Object.fromEntries(
+  selectableWeapons.map((weapon) => [weapon.id, weapon]),
+);
 
 export const elementStyles: Record<Element, { ring: string; bg: string; text: string }> = {
   pyro: { ring: "ring-[#f97352]", bg: "bg-[#fff1eb]", text: "text-[#8f2d14]" },
@@ -395,191 +293,176 @@ export function calcBracket(charCost: number, weaponCost: number): Bracket {
 const rawRuns: RunRecordRaw[] = [
   {
     id: "run-npui-high",
-    title: "【Npui】27:49 (high)",
-    userName: "らんだむ",
-    userHandle: "@luna3",
+    title: "No Mavuika 27:49",
+    userName: "R",
+    userHandle: "@radicial",
     postedLabel: "3日前",
     date: "2026-03-11",
-    season: "5.3",
-    versionLabel: "Luna3",
+    season: "6.1",
+    versionLabel: "6.1",
     ruleset: "高難度",
     platform: "PC",
     region: "Asia",
     time: "27:49",
     videoUrl: "https://www.youtube.com/watch?v=cUkSP9YgeRA",
     summary:
-      "Natlan 側の密集を先に崩してから Npui 側へ戻る、短期決戦寄りの高難度ルートです。\n\n炎付着を切らさないことと、Furina の burst を最後まで温存しすぎないことが今回の安定ポイントでした。細かいルート取りはまだ詰め切れていないので、更新余地はあります。",
-    tags: ["高難度", "Natlan", "Mavuika", "Furina", "高速処理", "炎共鳴", "短期決戦", "PC"],
+      "動画概要欄のキャラ情報に合わせた No Mavuika / ver 6.1 のオフメタ編成です。煙緋・ディシア・ヴァレサ・チャスカで 27:49 を出している動画に寄せています。",
+    tags: ["高難度", "OffMeta", "No Mavuika", "Varesa", "Chasca", "Yanfei", "Dehya", "PC"],
     likeCount: 68,
     shareCount: 9,
-    mainAttackerId: "mav",
-    declaredMainAttackerIds: ["mav", "furina"],
+    mainAttackerId: "varesa",
+    declaredMainAttackerIds: ["varesa", "chasca"],
     party: [
-      { characterId: "mav", cons: 2 },
-      { characterId: "bennett", cons: 6 },
-      { characterId: "furina", cons: 1 },
-      { characterId: "xiangling", cons: 6 },
+      { characterId: "yanfei", cons: 0 },
+      { characterId: "dehya", cons: 0 },
+      { characterId: "varesa", cons: 6 },
+      { characterId: "chasca", cons: 6 },
     ],
     weapons: [
-      { weaponId: "blazingSun", refine: 2 },
-      { weaponId: "skywardBlade", refine: 1 },
-      { weaponId: "splendor", refine: 1 },
-      { weaponId: "theCatch", refine: 5 },
+      { weaponId: "wanderingEvenstar", refine: 5 },
+      { weaponId: "makhairaAquamarine", refine: 5 },
+      { weaponId: "vividNotions", refine: 5 },
+      { weaponId: "astralVulture", refine: 5 },
     ],
-    comments: [
-      {
-        id: "c1",
-        userName: "R",
-        userHandle: "@route_lab",
-        postedLabel: "2日前",
-        body: "炎主人公入りよりも、この並びの方が雑魚処理のばらつきが少なく見えました。",
-      },
-      {
-        id: "c2",
-        userName: "Bird",
-        userHandle: "@amber_main",
-        postedLabel: "2日前",
-        body: "後半の Furina burst タイミングがかなり参考になります。ルート更新あればまた見たいです。",
-      },
-    ],
+    comments: [],
   },
   {
     id: "run-npui-balance",
-    title: "【Npui】28:14 (stable)",
-    userName: "Luna",
-    userHandle: "@luna_route",
+    title: "Chasca/Mavuika 28:52",
+    userName: "ねこした",
+    userHandle: "@nekoshita_g",
     postedLabel: "5日前",
     date: "2026-03-09",
-    season: "5.3",
-    versionLabel: "Luna3",
+    season: "5.6",
+    versionLabel: "5.6",
     ruleset: "高難度",
     platform: "PC",
     region: "Asia",
-    time: "28:14",
+    time: "28:52",
     videoUrl: "https://www.youtube.com/watch?v=8yGn2O9yVi4",
     summary:
-      "Citlali を入れて事故率を下げた安定寄りの編成。終盤の移動を少し長めに取っている代わりに、被弾リカバリーがしやすいです。",
-    tags: ["高難度", "安定寄り", "Mavuika", "Citlali", "PC+PC"],
+      "動画説明欄の編成情報に合わせて、チャスカ / マーヴィカ / シトラリ / 早柚 の 28:52 記録へ更新したデモデータです。",
+    tags: ["高難度", "NPuI", "Chasca", "Mavuika", "Citlali", "Sayu", "PC"],
     likeCount: 41,
     shareCount: 5,
-    mainAttackerId: "mav",
-    declaredMainAttackerIds: ["mav"],
+    mainAttackerId: "chasca",
+    declaredMainAttackerIds: ["chasca", "mav"],
     party: [
-      { characterId: "mav", cons: 2 },
-      { characterId: "bennett", cons: 6 },
-      { characterId: "citlali", cons: 0 },
-      { characterId: "furina", cons: 1 },
+      { characterId: "chasca", cons: 6 },
+      { characterId: "mav", cons: 6 },
+      { characterId: "citlali", cons: 6 },
+      { characterId: "sayu", cons: 6 },
     ],
     weapons: [
-      { weaponId: "blazingSun", refine: 2 },
-      { weaponId: "skywardBlade", refine: 1 },
-      { weaponId: "starcaller", refine: 1 },
-      { weaponId: "splendor", refine: 1 },
+      { weaponId: "astralVulture", refine: 5 },
+      { weaponId: "blazingSun", refine: 5 },
+      { weaponId: "starcaller", refine: 5 },
+      { weaponId: "makhairaAquamarine", refine: 3 },
     ],
     comments: [],
   },
   {
     id: "run-budget-bow",
-    title: "Amber route 32:10",
-    userName: "Bird",
-    userHandle: "@amber_main",
+    title: "Chasca/Mavuika 29:45",
+    userName: "ねこした",
+    userHandle: "@nekoshita_g",
     postedLabel: "4日前",
     date: "2026-03-10",
-    season: "5.3",
-    versionLabel: "Luna3",
+    season: "5.6",
+    versionLabel: "5.6",
     ruleset: "高難度",
-    platform: "Mobile",
+    platform: "PC",
     region: "Asia",
-    time: "32:10",
+    time: "29:45",
     videoUrl: "https://www.youtube.com/watch?v=4ZguwblpL6Q",
     summary:
-      "Amber 主軸の低コスト寄りルート。ベースは違いますが、炎キャラ軸での雑魚散らし方が近いです。",
-    tags: ["高難度", "Budget", "Amber", "Mobile"],
+      "動画説明欄の編成情報に合わせて、チャスカ / マーヴィカ / シトラリ / 早柚 の 29:45 記録へ更新したデモデータです。",
+    tags: ["高難度", "NPuI", "Chasca", "Mavuika", "Citlali", "Sayu", "PC"],
     likeCount: 24,
     shareCount: 3,
-    mainAttackerId: "amber",
-    declaredMainAttackerIds: ["amber"],
+    mainAttackerId: "chasca",
+    declaredMainAttackerIds: ["chasca", "mav"],
     party: [
-      { characterId: "amber", cons: 0 },
-      { characterId: "collei", cons: 6 },
-      { characterId: "bennett", cons: 6 },
-      { characterId: "xingqiu", cons: 6 },
+      { characterId: "chasca", cons: 6 },
+      { characterId: "mav", cons: 6 },
+      { characterId: "citlali", cons: 6 },
+      { characterId: "sayu", cons: 6 },
     ],
     weapons: [
-      { weaponId: "stringless", refine: 5 },
-      { weaponId: "stringless", refine: 5 },
-      { weaponId: "skywardBlade", refine: 1 },
-      { weaponId: "sacrificialSword", refine: 5 },
+      { weaponId: "astralVulture", refine: 5 },
+      { weaponId: "blazingSun", refine: 5 },
+      { weaponId: "starcaller", refine: 5 },
+      { weaponId: "makhairaAquamarine", refine: 3 },
     ],
     comments: [],
   },
   {
     id: "run-npui-burst",
-    title: "Mavuika burst 27:58",
-    userName: "RouteLab",
-    userHandle: "@route_lab",
+    title: "Chasca/Mavuika 29:11",
+    userName: "ねこした",
+    userHandle: "@nekoshita_g",
     postedLabel: "6日前",
     date: "2026-03-08",
-    season: "5.3",
-    versionLabel: "Luna3",
+    season: "5.6",
+    versionLabel: "5.6",
     ruleset: "高難度",
-    platform: "PS5",
+    platform: "PC",
     region: "Asia",
-    time: "27:58",
+    time: "29:11",
     videoUrl: "https://www.youtube.com/watch?v=UDh_JVpcvns",
     summary:
-      "Xilonen 採用で前半の burst 密度を上げた編成。操作難度は上がりますが、Mavuika の回転はかなり近いです。",
-    tags: ["高難度", "Mavuika", "Xilonen", "PS5"],
+      "動画説明欄の編成情報に合わせて、チャスカ / マーヴィカ / シトラリ / 早柚 の 29:11 記録へ更新したデモデータです。",
+    tags: ["高難度", "NPuI", "Chasca", "Mavuika", "Citlali", "Sayu", "PC"],
     likeCount: 36,
     shareCount: 4,
-    mainAttackerId: "mav",
-    declaredMainAttackerIds: ["mav"],
+    mainAttackerId: "chasca",
+    declaredMainAttackerIds: ["chasca", "mav"],
     party: [
-      { characterId: "mav", cons: 2 },
-      { characterId: "xilonen", cons: 0 },
-      { characterId: "bennett", cons: 6 },
-      { characterId: "furina", cons: 1 },
+      { characterId: "chasca", cons: 6 },
+      { characterId: "mav", cons: 6 },
+      { characterId: "citlali", cons: 6 },
+      { characterId: "sayu", cons: 6 },
     ],
     weapons: [
-      { weaponId: "blazingSun", refine: 2 },
-      { weaponId: "peakPatrol", refine: 1 },
-      { weaponId: "skywardBlade", refine: 1 },
-      { weaponId: "splendor", refine: 1 },
+      { weaponId: "astralVulture", refine: 5 },
+      { weaponId: "blazingSun", refine: 5 },
+      { weaponId: "starcaller", refine: 5 },
+      { weaponId: "makhairaAquamarine", refine: 3 },
     ],
     comments: [],
   },
   {
     id: "run-keqing-tech",
-    title: "Keqing tech 30:42",
-    userName: "Random",
-    userHandle: "@random_tech",
+    title: "Chasca/Wanderer 35:04",
+    userName: "ねこした",
+    userHandle: "@nekoshita_g",
     postedLabel: "1週間前",
     date: "2026-03-05",
     season: "5.3",
-    versionLabel: "Luna3",
+    versionLabel: "5.3",
     ruleset: "高難度",
     platform: "PC",
     region: "Asia",
-    time: "30:42",
+    time: "35:04",
     videoUrl: "https://www.youtube.com/watch?v=2pMYLhjdMVw",
     summary:
-      "メインアタッカーは違いますが、Bennett と Xiangling を中心にした湧き処理の組み立てが近いオフメタ案です。",
-    tags: ["高難度", "OffMeta", "Keqing", "PC"],
+      "動画説明欄の編成情報に合わせて、チャスカ / マーヴィカ / シトラリ / 放浪者 の ver 5.3 35:04 記録へ更新したデモデータです。",
+    tags: ["高難度", "NPuI", "Chasca", "Mavuika", "Citlali", "Wanderer", "PC"],
     likeCount: 19,
     shareCount: 2,
-    mainAttackerId: "keqing",
-    declaredMainAttackerIds: ["keqing"],
+    mainAttackerId: "chasca",
+    declaredMainAttackerIds: ["chasca", "wanderer"],
     party: [
-      { characterId: "keqing", cons: 0 },
-      { characterId: "zhongli", cons: 0 },
-      { characterId: "bennett", cons: 6 },
-      { characterId: "xiangling", cons: 6 },
+      { characterId: "chasca", cons: 6 },
+      { characterId: "mav", cons: 6 },
+      { characterId: "citlali", cons: 6 },
+      { characterId: "wanderer", cons: 0 },
     ],
     weapons: [
-      { weaponId: "haran", refine: 1 },
-      { weaponId: "homa", refine: 1 },
-      { weaponId: "skywardBlade", refine: 1 },
-      { weaponId: "theCatch", refine: 5 },
+      { weaponId: "astralVulture", refine: 5 },
+      { weaponId: "blazingSun", refine: 5 },
+      { weaponId: "starcaller", refine: 5 },
+      { weaponId: "lostPrayer", refine: 2 },
     ],
     comments: [],
   },

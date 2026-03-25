@@ -1,62 +1,8 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-const AMBR_NAME_MAP: Record<string, string> = {
-  amber: "Ambor",
-  bennett: "Bennett",
-  citlali: "Citlali",
-  collei: "Collei",
-  chasca: "Chasca",
-  chiori: "Chiori",
-  dehya: "Dehya",
-  furina: "Furina",
-  keqing: "Keqing",
-  mav: "Mavuika",
-  neuvillette: "Neuvillette",
-  sayu: "Sayu",
-  wanderer: "Wanderer",
-  xianyun: "Xianyun",
-  xiangling: "Xiangling",
-  xilonen: "Xilonen",
-  xingqiu: "Xingqiu",
-  yelan: "Yelan",
-  zhongli: "Zhongli",
-};
+import { getCharacterImageCandidates, type CharacterImageVariant } from "../lib/characterAssets";
 
-const UI_MIRRORS = [
-  "https://api.ambr.top/assets/UI/",
-  "https://enka.network/ui/",
-  "http://file.microgg.cn/ui/",
-] as const;
-
-const IMAGE_PATTERNS = {
-  circle: (name: string) => `UI_AvatarIcon_${name}_Circle.png`,
-  icon: (name: string) => `UI_AvatarIcon_${name}.png`,
-};
-
-const VARIANT_FALLBACKS = {
-  circle: ["circle", "icon"],
-  icon: ["icon"],
-} as const;
-
-type CharacterIconVariant = keyof typeof VARIANT_FALLBACKS;
-
-function getAmbrName(characterId: string) {
-  return AMBR_NAME_MAP[characterId] ?? "Traveler";
-}
-
-function getCharacterImageCandidates(characterId: string, variant: CharacterIconVariant) {
-  const ambrName = getAmbrName(characterId);
-  const urls: string[] = [];
-
-  VARIANT_FALLBACKS[variant].forEach((currentVariant) => {
-    const pattern = IMAGE_PATTERNS[currentVariant];
-    UI_MIRRORS.forEach((base) => {
-      urls.push(`${base}${pattern(ambrName)}`);
-    });
-  });
-
-  return urls;
-}
+type CharacterIconVariant = Extract<CharacterImageVariant, "circle" | "icon">;
 
 export function CharacterIcon({
   alt,
