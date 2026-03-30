@@ -1,8 +1,8 @@
-﻿import { characterDb, type Bracket } from "../../../data/mockRuns";
+import { characterDb, type Bracket } from "../../../data/mockRuns";
 import { CharacterImage } from "./CharacterImage";
-import { PLATFORM_ICONS, RankMoveIcon } from "./homeIcons";
-import { getBracketLabel } from "../homeLogic";
-import type { HomeRun, HomeRunWithBucket, LeaderboardView } from "../types";
+import { PLATFORM_ICONS, RankMoveIcon } from "./icons";
+import { getBracketLabel } from "../logic";
+import type { HomeRun, HomeRunWithGroup, LeaderboardView } from "../types";
 
 export function LeaderboardRow({
   run,
@@ -10,17 +10,17 @@ export function LeaderboardRow({
   onSelect,
   view,
 }: {
-  run: HomeRun | HomeRunWithBucket;
+  run: HomeRun | HomeRunWithGroup;
   index: number;
   onSelect: (runId: string) => void;
   view: LeaderboardView;
 }) {
   const PlatformIcon = PLATFORM_ICONS[run.platform] ?? PLATFORM_ICONS.PC;
-  const displayBucket = view === "char" && "displayBucket" in run ? run.displayBucket : null;
-  const highlightedIds = new Set(displayBucket?.ids ?? []);
+  const displayGroup = view === "char" && "displayGroup" in run ? run.displayGroup : null;
+  const highlightedIds = new Set(displayGroup?.ids ?? []);
   const getPartyIconClass = (characterId: string, size: "mobile" | "desktop") => {
     const baseClass = size === "mobile" ? "h-8 w-8 rounded-full object-cover" : "h-9 w-9 rounded-full object-cover";
-    if (!displayBucket || !highlightedIds.has(characterId)) {
+    if (!displayGroup || !highlightedIds.has(characterId)) {
       return baseClass;
     }
 
@@ -60,9 +60,9 @@ export function LeaderboardRow({
           <div className="hidden min-w-0 flex-1 md:block">
             <div className="flex min-w-0 items-center gap-2">
               <div className="truncate text-[17px] font-semibold text-white md:text-[19px]">{run.userName}</div>
-              {displayBucket ? (
+              {displayGroup ? (
                 <div className="hidden max-w-[180px] truncate rounded-full border border-white/14 bg-white/[0.08] px-2.5 py-1 text-[11px] font-medium text-white/82 md:inline-flex">
-                  {displayBucket.label}
+                  {displayGroup.label}
                 </div>
               ) : null}
               <div className="hidden rounded-full border border-white/12 bg-white/[0.08] px-2.5 py-1 text-[11px] font-medium text-white/72 md:inline-flex">
@@ -84,9 +84,9 @@ export function LeaderboardRow({
         <div className="w-9 shrink-0" aria-hidden="true" />
         <div className="min-w-0 flex-1 truncate text-[15px] font-semibold text-white">{run.userName}</div>
         <div className="flex items-center gap-2">
-          {displayBucket ? (
+          {displayGroup ? (
             <div className="max-w-[120px] truncate rounded-full border border-white/14 bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-white/82">
-              {displayBucket.label}
+              {displayGroup.label}
             </div>
           ) : null}
           <div className="rounded-full border border-white/12 bg-white/[0.08] px-2 py-0.5 text-[11px] font-medium text-white/72">{getBracketLabel(run.bracket as Bracket)}</div>

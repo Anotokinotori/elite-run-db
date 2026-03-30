@@ -1,10 +1,10 @@
-﻿import { useEffect, useId } from "react";
+import { useEffect, useId } from "react";
 
 import type { Character } from "../../../data/mockRuns";
-import { cloneHomeFilterState } from "../homeLogic";
-import { FilterDrawerCharacterTab } from "../filterDrawer/FilterDrawerCharacterTab";
-import { FilterDrawerTagTab } from "../filterDrawer/FilterDrawerTagTab";
-import { useFilterDrawerState } from "../filterDrawer/useFilterDrawerState";
+import { cloneHomeFilterState } from "../logic";
+import { CharacterTab } from "../filterDrawer/CharacterTab";
+import { TagTab } from "../filterDrawer/TagTab";
+import { useDrawerState } from "../filterDrawer/useDrawerState";
 import type {
   CharacterFilterTabKey,
   ElementFilterOption,
@@ -71,7 +71,7 @@ export function FilterDrawer({
     setSelectionTargets,
     setTagSearch,
     toggleGroupValue,
-  } = useFilterDrawerState({
+  } = useDrawerState({
     isOpen,
     initialFilters,
     characters,
@@ -200,7 +200,7 @@ export function FilterDrawer({
             </section>
 
             {activeTab === "tags" ? (
-              <FilterDrawerTagTab
+              <TagTab
                 draftFilters={draftFilters}
                 tagSearch={tagSearch}
                 visibleTagGroups={visibleTagGroups}
@@ -210,7 +210,7 @@ export function FilterDrawer({
                 onToggleTag={(tag) => toggleGroupValue("tags", tag)}
               />
             ) : (
-              <FilterDrawerCharacterTab
+              <CharacterTab
                 activeTab={activeTab as CharacterFilterTabKey}
                 draftFilters={draftFilters}
                 visibleCharacters={visibleCharacters}

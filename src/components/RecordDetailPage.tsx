@@ -1,1 +1,1 @@
-﻿export { RecordDetailPage } from "../features/recordDetail/RecordDetailPage";
+export { RecordDetailPage } from "../features/recordDetail/Page";

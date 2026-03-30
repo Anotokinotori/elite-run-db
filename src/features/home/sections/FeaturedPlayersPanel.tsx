@@ -1,5 +1,5 @@
-﻿import type { Bracket } from "../../../data/mockRuns";
-import { HOME_BUTTON_CLASSES, HOME_LABELS, HOME_PANEL_CLASSES } from "../homeConfig";
+import type { Bracket } from "../../../data/mockRuns";
+import { HOME_BUTTON_CLASSES, HOME_LABELS, HOME_PANEL_CLASSES } from "../config";
 import { TopPlayerCard } from "../ui/TopPlayerCard";
 import type { HomeFeaturedCard } from "../types";
 

@@ -107,7 +107,10 @@ const ENKA_AVATAR_IDS_BY_CHARACTER_ID = {
   nefer: [10000122],
   durin: [10000123],
   jahoda: [10000124],
-  columbina: [10000904],
+  columbina: [10000125, 10000904],
+  zibai: [10000126],
+  illuga: [10000127],
+  varka: [10000128],
 } as const satisfies Partial<Record<CharacterPresetKey, readonly number[]>>;
 
 export const ENKA_UNMAPPED_SELECTABLE_CHARACTER_IDS = PRESET_ORDER.filter(

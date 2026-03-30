@@ -3,8 +3,8 @@ import { characterDb } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { CompareViewIcon, LikeIcon, ShareIcon } from "../../../components/UiIcons";
 
-import { DETAIL_ICON_BUTTON_CLASS, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../recordDetailConfig";
-import { PlatformLabel, SimilarityReasonChip } from "../ui/recordDetailUi";
+import { DETAIL_ICON_BUTTON_CLASS, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../config";
+import { PlatformLabel, SimilarityReasonChip } from "../ui";
 
 function SimilarActionMenu({
   isOpen,
@@ -70,7 +70,7 @@ export function SimilarRunCard({
   liked,
   shared,
   isMenuOpen,
-  isCompareQueued,
+  isCompareSelected,
   onToggleMenu,
   onAction,
 }: {
@@ -78,7 +78,7 @@ export function SimilarRunCard({
   liked: boolean;
   shared: boolean;
   isMenuOpen: boolean;
-  isCompareQueued: boolean;
+  isCompareSelected: boolean;
   onToggleMenu: () => void;
   onAction: (action: "like" | "share" | "compare") => void;
 }) {
@@ -87,7 +87,7 @@ export function SimilarRunCard({
   return (
     <article
       className={`rounded-[16px] border p-[14px] transition-colors ${
-        isCompareQueued ? "border-white/20 bg-[#3b3a3b]" : "border-white/10 bg-[#323132] hover:bg-[#353435]"
+        isCompareSelected ? "border-white/20 bg-[#3b3a3b]" : "border-white/10 bg-[#323132] hover:bg-[#353435]"
       }`}
     >
       <div className="flex items-start gap-[10px]">
