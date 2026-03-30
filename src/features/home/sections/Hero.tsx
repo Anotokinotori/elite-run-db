@@ -1,4 +1,4 @@
-﻿type HomeHeroProps = {
+type HeroProps = {
   heroImageUrl: string;
   subHeaderTab: string;
   isOtherMenuOpen: boolean;
@@ -10,7 +10,7 @@
   onCloseOtherMenu: () => void;
 };
 
-export function HomeHero({
+export function Hero({
   heroImageUrl,
   subHeaderTab,
   isOtherMenuOpen,
@@ -20,7 +20,7 @@ export function HomeHero({
   onSelectTab,
   onToggleOtherMenu,
   onCloseOtherMenu,
-}: HomeHeroProps) {
+}: HeroProps) {
   return (
     <div
       className="relative w-full h-[320px] md:h-[560px] overflow-hidden mb-8 bg-center bg-cover"

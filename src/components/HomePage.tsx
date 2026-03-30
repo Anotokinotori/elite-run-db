@@ -1,1 +1,1 @@
-export { RunHomePage } from "../features/home/RunHomePage";
+export { HomePage } from "../features/home/Page";

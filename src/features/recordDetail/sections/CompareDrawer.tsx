@@ -3,20 +3,20 @@
 import type { RunRecord } from "../../../data/mockRuns";
 import { PlatformIcon, PauseIcon, PlayIcon } from "../../../components/UiIcons";
 
-import { DETAIL_ICON_BUTTON_CLASS, DETAIL_MUTED_SURFACE_CLASS } from "../recordDetailConfig";
-import { getPartyLoadout, postYouTubeCommand } from "../recordDetailLogic";
+import { DETAIL_ICON_BUTTON_CLASS, DETAIL_MUTED_SURFACE_CLASS } from "../config";
+import { getPartyBuildItems, postYouTubeCommand } from "../logic";
 import {
   CircleAvatar,
-  LoadoutEntryCard,
+  PartyBuildItemCard,
   PlatformLabel,
   SidebarPanel,
   SidebarSectionHeader,
   TagChip,
   VideoFrame,
-} from "../ui/recordDetailUi";
+} from "../ui";
 
 function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.RefObject<HTMLIFrameElement | null> }) {
-  const partyLoadout = getPartyLoadout(run);
+  const partyBuildItems = getPartyBuildItems(run);
 
   return (
     <div className="flex min-h-full flex-col gap-[16px] bg-[#212121] px-3 py-3 text-white/90">
@@ -56,10 +56,10 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
 
       <SidebarPanel>
         <div className="flex flex-col gap-[16px]">
-          <SidebarSectionHeader title="使用編成" meta={`${partyLoadout.length}メンバー`} />
+          <SidebarSectionHeader title="使用編成" meta={`${partyBuildItems.length}メンバー`} />
           <div className="flex flex-col gap-[12px]">
-            {partyLoadout.map((entry) => (
-              <LoadoutEntryCard key={`${run.id}-${entry.characterName}-${entry.slot}`} entry={entry} />
+            {partyBuildItems.map((entry) => (
+              <PartyBuildItemCard key={`${run.id}-${entry.characterName}-${entry.slot}`} entry={entry} />
             ))}
           </div>
         </div>

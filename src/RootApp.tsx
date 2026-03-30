@@ -3,8 +3,8 @@
 import { AppShell } from "./components/AppShell";
 import { PlaceholderPage } from "./components/PlaceholderPage";
 import { RecordDetailPage } from "./components/RecordDetailPage";
-import { RunHomePage } from "./components/RunHomePage";
-import { RunSubmitPage } from "./components/RunSubmitPage";
+import { HomePage } from "./components/HomePage";
+import { SubmitPage } from "./components/SubmitPage";
 import { defaultRunId, getRunById, mockRuns } from "./data/mockRuns";
 
 type AppRoute =
@@ -110,7 +110,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
   if (routeName === "chat") {
     return (
       <PlaceholderPage
-        eyebrow="Chat"
+        label="Chat"
         title="雑談"
         description="精鋭狩りの軽い相談、雑談、日々の試走メモを溜めるための入口です。後続 issue でスレッド一覧や投稿 UI を差し替えやすいよう、まずは route と受け皿だけを繋いでいます。"
       >
@@ -125,7 +125,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
   if (routeName === "question") {
     return (
       <PlaceholderPage
-        eyebrow="Questions"
+        label="Questions"
         title="質問"
         description="編成、ルート、装備、申請方法など、記録閲覧と地続きの質問を独立ページとして置きます。情報交換に埋もれないよう専用 route で扱います。"
       >
@@ -140,7 +140,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
   if (routeName === "exchange") {
     return (
       <PlaceholderPage
-        eyebrow="Exchange"
+        label="Exchange"
         title="情報交換"
         description="ルート知見、キャラ運用、季節更新の差分などを静的でも蓄積できるハブです。コミュニティの付加価値を無理なくサイト内に残すための土台にします。"
       >
@@ -156,7 +156,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
   if (routeName === "event") {
     return (
       <PlaceholderPage
-        eyebrow="Events"
+        label="Events"
         title="イベント情報"
         description="大会告知やシーズン切替、提出締切などの告知をまとめるページです。公開導線のひとつとして global nav から常に辿れる状態を先に作ります。"
       >
@@ -171,7 +171,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
   if (routeName === "notifications") {
     return (
       <PlaceholderPage
-        eyebrow="Notifications"
+        label="Notifications"
         title="通知"
         description="通知は header からアクセスする補助導線として置きます。閲覧系 route と混ぜず、今は unread 表現と受け皿だけを持たせます。"
       >
@@ -185,7 +185,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
 
   return (
     <PlaceholderPage
-      eyebrow="Account"
+      label="Account"
       title="アカウント"
       description="Google account first の設定導線を置くための placeholder です。ログイン、プロフィール、今後の通知設定などをここに集約します。"
     >
@@ -339,7 +339,7 @@ export default function RootApp() {
       onVersionChange={setSelectedVersion}
     >
       <div style={{ display: route.name === "home" ? "block" : "none" }} aria-hidden={route.name !== "home"}>
-        <RunHomePage
+        <HomePage
           embedded
           selectedSeason={selectedVersion}
           onSelectedSeasonChange={setSelectedVersion}
@@ -349,7 +349,7 @@ export default function RootApp() {
       </div>
 
       {route.name === "submit" ? (
-        <RunSubmitPage
+        <SubmitPage
           embedded
           onBack={() => {
             navigate(lastBrowseRoute.name === "submit" ? { name: "home" } : lastBrowseRoute);

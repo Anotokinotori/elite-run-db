@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { WeaponClass, WeaponTier } from "../../../data/mockRuns";
-import type { EnkaProfile, EnkaProfileCharacter } from "../../../lib/enkaNetwork";
+import { MAX_ENKA_PROFILE_CHARACTERS, normalizeEnkaUidInput, type EnkaProfile, type EnkaProfileCharacter } from "../../../lib/enkaNetwork";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { WeaponIcon } from "../../../components/WeaponIcon";
-import { CHARACTER_OPTIONS, ELEMENT_FILTER_OPTIONS, WEAPON_OPTIONS } from "../submitConfig";
-import { EmptyCharacterBadge, FieldError, SectionTitle } from "../ui/submitUi";
+import { CHARACTER_OPTIONS, ELEMENT_FILTER_OPTIONS, WEAPON_OPTIONS } from "../config";
+import { EmptyCharacterBadge, FieldError, SectionTitle } from "../ui";
 
 const WEAPON_CLASS_FILTER_OPTIONS = [
   { key: "all", label: "すべて" },
@@ -416,7 +416,7 @@ export function UidCharacterPickerModal({
   const selectedCharacters = selectedCharacterIds
     .map((characterId) => profile?.characters.find((character) => character.characterId === characterId))
     .filter((character): character is EnkaProfileCharacter => character !== undefined);
-  const profileCharacters = Array.from({ length: 8 }, (_, index) => profile?.characters[index] ?? null);
+  const profileCharacters = Array.from({ length: MAX_ENKA_PROFILE_CHARACTERS }, (_, index) => profile?.characters[index] ?? null);
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-[rgba(0,0,0,0.2)] px-4 py-6" onClick={onClose}>
@@ -434,14 +434,15 @@ export function UidCharacterPickerModal({
                 <div className="flex flex-col gap-3 md:flex-row">
                   <input
                     value={uid}
-                    onChange={(event) => onUidChange(event.target.value.replace(/[^\d]/g, "").slice(0, 9))}
+                    onChange={(event) => onUidChange(normalizeEnkaUidInput(event.target.value))}
                     inputMode="numeric"
+                    autoFocus
                     placeholder="UID を入力"
                     className="w-full rounded-[8px] bg-white px-4 py-3 text-[18px] text-black outline-none md:text-[20px]"
                   />
                   <button
                     type="button"
-                    onClick={onFetch}
+                    onClick={() => onFetch()}
                     disabled={isLoading}
                     className="inline-flex w-fit shrink-0 items-center justify-center self-start whitespace-nowrap rounded-[8px] bg-[#333333] px-5 py-3 text-[16px] text-white disabled:cursor-not-allowed disabled:opacity-60 md:self-auto"
                   >
@@ -454,7 +455,7 @@ export function UidCharacterPickerModal({
                     {profile.signature ? ` / ${profile.signature}` : ""}
                   </div>
                 ) : (
-                  <div className="mt-3 text-[13px] text-[#7b7b8d]">Enka.Network の公開プロフィールから最大 8 人を読み込みます。</div>
+                  <div className="mt-3 text-[13px] text-[#7b7b8d]">Enka.Network の公開プロフィールから最大 12 人を読み込みます。</div>
                 )}
                 <FieldError message={fetchError} />
               </div>

@@ -1,26 +1,26 @@
-﻿import type { RefObject } from "react";
+import type { RefObject } from "react";
 
 import type { Bracket } from "../../../data/mockRuns";
-import { HOME_BRACKET_FILTER_OPTIONS, HOME_LABELS, HOME_LAYOUT_CLASSES, HOME_LEADERBOARD_VIEW_OPTIONS } from "../homeConfig";
-import { FilterFunnelIcon, SearchIcon } from "../ui/homeIcons";
+import { HOME_BRACKET_FILTER_OPTIONS, HOME_LABELS, HOME_LAYOUT_CLASSES, HOME_LEADERBOARD_VIEW_OPTIONS } from "../config";
+import { FilterFunnelIcon, SearchIcon } from "../ui/icons";
 import { LeaderboardRow } from "../ui/LeaderboardRow";
-import type { ActiveFilterDisplayChip, HomeRun, HomeRunWithBucket, LeaderboardView } from "../types";
-import { HomeActiveFilterChipStrip } from "./HomeActiveFilterChipStrip";
+import type { ActiveFilterChipViewData, HomeRun, HomeRunWithGroup, LeaderboardView } from "../types";
+import { ActiveFilterChipStrip } from "./ActiveFilterChipStrip";
 
-type HomeLeaderboardSectionProps = {
+type LeaderboardSectionProps = {
   leaderboardRef: RefObject<HTMLDivElement | null>;
   leaderboardView: LeaderboardView;
   filterBracket: Bracket | null;
-  leaderboardRuns: Array<HomeRun | HomeRunWithBucket>;
-  activeFilterChips: ActiveFilterDisplayChip[];
+  leaderboardRuns: Array<HomeRun | HomeRunWithGroup>;
+  activeFilterChips: ActiveFilterChipViewData[];
   onOpenFilter: () => void;
-  onRemoveFilterChip: (chip: ActiveFilterDisplayChip) => void;
+  onRemoveFilterChip: (chip: ActiveFilterChipViewData) => void;
   onFilterBracketChange: (bracket: Bracket | null) => void;
   onLeaderboardViewChange: (view: LeaderboardView) => void;
   onSelectRun: (runId: string) => void;
 };
 
-export function HomeLeaderboardSection({
+export function LeaderboardSection({
   leaderboardRef,
   leaderboardView,
   filterBracket,
@@ -31,7 +31,7 @@ export function HomeLeaderboardSection({
   onFilterBracketChange,
   onLeaderboardViewChange,
   onSelectRun,
-}: HomeLeaderboardSectionProps) {
+}: LeaderboardSectionProps) {
   return (
     <div ref={leaderboardRef} className={HOME_LAYOUT_CLASSES.leaderboardFullBleed}>
       <div className={HOME_LAYOUT_CLASSES.leaderboardInner}>
@@ -71,7 +71,7 @@ export function HomeLeaderboardSection({
               <div className="text-[13px] font-semibold tracking-[0.01em]">絞り込み</div>
               <span>絞り込み</span>
             </button>
-            <HomeActiveFilterChipStrip chips={activeFilterChips} onRemove={onRemoveFilterChip} />
+            <ActiveFilterChipStrip chips={activeFilterChips} onRemove={onRemoveFilterChip} />
           </div>
           <div className="mb-8 flex items-center justify-between text-[13px] font-semibold md:text-[14px]">
             {HOME_BRACKET_FILTER_OPTIONS.map((item) => (

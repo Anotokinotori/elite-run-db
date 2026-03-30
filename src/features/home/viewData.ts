@@ -1,9 +1,9 @@
-﻿import { HOME_ACTIVE_FILTER_CHIP_DEFINITIONS, HOME_LABELS } from "./homeConfig";
-import { buildActiveFilterChips, getBestRun, sortRuns } from "./homeLogic";
-import type { ActiveFilterDisplayChip, HomeFeaturedCard, HomeFilterState, HomeRun } from "./types";
+import { HOME_ACTIVE_FILTER_CHIP_DEFINITIONS, HOME_LABELS } from "./config";
+import { buildFilterChips, getBestRun, sortRuns } from "./logic";
+import type { ActiveFilterChipViewData, HomeFeaturedCard, HomeFilterState, HomeRun } from "./types";
 
-export function buildActiveFilterDisplayChips(filters: HomeFilterState): ActiveFilterDisplayChip[] {
-  return buildActiveFilterChips(filters, HOME_ACTIVE_FILTER_CHIP_DEFINITIONS).map((chip) => ({
+export function buildActiveFilterChipsForView(filters: HomeFilterState): ActiveFilterChipViewData[] {
+  return buildFilterChips(filters, HOME_ACTIVE_FILTER_CHIP_DEFINITIONS).map((chip) => ({
     ...chip,
     displayLabel: `${chip.prefix}: ${chip.label}`,
   }));

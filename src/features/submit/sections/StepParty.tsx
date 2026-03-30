@@ -3,11 +3,12 @@ import { characterDb } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { WeaponIcon } from "../../../components/WeaponIcon";
 
-import { BRACKET_META } from "../submitConfig";
+import { BRACKET_META } from "../config";
+import { normalizeEnkaUidInput } from "../../../lib/enkaNetwork";
 import type { FieldErrors, SubmitDraft, SubmitPartySlot } from "../types";
-import { FieldError, FieldTitle, MockFieldBox, SearchActionIcon, StepHeroHeader } from "../ui/submitUi";
+import { FieldError, FieldTitle, MockFieldBox, SearchActionIcon, StepHeroHeader } from "../ui";
 
-type SubmitStepPartyProps = {
+type StepPartyProps = {
   activeCharacter: { name: string } | undefined;
   activeCharacterCost: number;
   activePartySlot: SubmitPartySlot;
@@ -27,7 +28,7 @@ type SubmitStepPartyProps = {
   setShowWeaponPicker: (value: boolean) => void;
 };
 
-export function SubmitStepParty(props: SubmitStepPartyProps) {
+export function StepParty(props: StepPartyProps) {
   const {
     activeCharacter,
     activeCharacterCost,
@@ -61,7 +62,7 @@ export function SubmitStepParty(props: SubmitStepPartyProps) {
                         <input
                           value={draft.basicInfo.uid}
                           onChange={(event) => {
-                            updateBasicInfo("uid", event.target.value.replace(/[^\d]/g, "").slice(0, 9));
+                            updateBasicInfo("uid", normalizeEnkaUidInput(event.target.value));
                             setUidError("");
                           }}
                           inputMode="numeric"

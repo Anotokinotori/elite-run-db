@@ -1,1 +1,1 @@
-﻿export * from "./logic/recordDetailHelpers";
+export * from "./helpers";

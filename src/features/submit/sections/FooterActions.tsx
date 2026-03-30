@@ -1,7 +1,7 @@
 import type { SubmitStep } from "../types";
-import { BottomActionButtons } from "../ui/submitUi";
+import { BottomActionButtons } from "../ui";
 
-export function SubmitFooterActions({
+export function FooterActions({
   currentStep,
   onAdvance,
   onSave,

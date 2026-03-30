@@ -2,7 +2,7 @@ import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
 
 import type { Bracket, Platform } from "../../../data/mockRuns";
 import { PlatformIcon } from "../../../components/UiIcons";
-import { BRACKET_META, SUBMIT_SURFACE_SCALE } from "../submitConfig";
+import { BRACKET_META, SUBMIT_SURFACE_SCALE } from "../config";
 import type { SubmitStep } from "../types";
 
 export function FieldError({ message }: { message?: string }) {

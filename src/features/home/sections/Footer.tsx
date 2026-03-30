@@ -1,6 +1,6 @@
-﻿import { TimerIcon } from "../ui/homeIcons";
+import { TimerIcon } from "../ui/icons";
 
-export function HomeFooter() {
+export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#212121] py-12">
       <div className="max-w-7xl mx-auto px-4 text-center text-sm text-white/52">

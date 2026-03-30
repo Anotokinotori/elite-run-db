@@ -1,25 +1,25 @@
 ﻿import type { SimilarRunMatch } from "../../../lib/getSimilarRuns";
 
-import { LoadoutEntryCard, SidebarPanel, SidebarSectionHeader } from "../ui/recordDetailUi";
+import { PartyBuildItemCard, SidebarPanel, SidebarSectionHeader } from "../ui";
 import { SimilarRunCard } from "./SimilarRunCard";
-import type { PartyLoadoutEntry, SimilarActionState } from "../types";
+import type { PartyBuildItem, SimilarActionState } from "../types";
 
-export function RecordDetailSidebar({
+export function Sidebar({
   compareOpen,
-  partyLoadout,
+  partyBuildItems,
   similarRuns,
   similarActionState,
   openMenuRunId,
-  compareQueuedRunId,
+  selectedCompareRunId,
   onToggleMenu,
   onAction,
 }: {
   compareOpen: boolean;
-  partyLoadout: PartyLoadoutEntry[];
+  partyBuildItems: PartyBuildItem[];
   similarRuns: SimilarRunMatch[];
   similarActionState: SimilarActionState;
   openMenuRunId: string | null;
-  compareQueuedRunId: string | null;
+  selectedCompareRunId: string | null;
   onToggleMenu: (runId: string) => void;
   onAction: (runId: string, action: "like" | "share" | "compare") => void;
 }) {
@@ -27,10 +27,10 @@ export function RecordDetailSidebar({
     <aside className={`flex w-full shrink-0 flex-col gap-[18px] ${compareOpen ? "lg:w-full xl:w-full" : "lg:w-[304px] xl:w-[316px]"}`}>
       <SidebarPanel>
         <div className="flex flex-col gap-[16px]">
-          <SidebarSectionHeader title="使用編成" meta={`${partyLoadout.length}メンバー`} />
+          <SidebarSectionHeader title="使用編成" meta={`${partyBuildItems.length}メンバー`} />
           <div className="flex flex-col gap-[12px]">
-            {partyLoadout.map((entry) => (
-              <LoadoutEntryCard key={`${entry.characterName}-${entry.slot}`} entry={entry} />
+            {partyBuildItems.map((entry) => (
+              <PartyBuildItemCard key={`${entry.characterName}-${entry.slot}`} entry={entry} />
             ))}
           </div>
         </div>
@@ -44,7 +44,7 @@ export function RecordDetailSidebar({
               {similarRuns.map((match) => {
                 const runState = similarActionState[match.run.id] ?? { liked: false, shared: false };
                 const isOpen = openMenuRunId === match.run.id;
-                const isCompareQueued = compareQueuedRunId === match.run.id;
+                const isCompareSelected = selectedCompareRunId === match.run.id;
 
                 return (
                   <SimilarRunCard
@@ -53,7 +53,7 @@ export function RecordDetailSidebar({
                     liked={runState.liked}
                     shared={runState.shared}
                     isMenuOpen={isOpen}
-                    isCompareQueued={isCompareQueued}
+                    isCompareSelected={isCompareSelected}
                     onToggleMenu={() => onToggleMenu(match.run.id)}
                     onAction={(action) => onAction(match.run.id, action)}
                   />

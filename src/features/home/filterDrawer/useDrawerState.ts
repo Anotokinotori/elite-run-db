@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { Character } from "../../../data/mockRuns";
-import { cloneHomeFilterState, createEmptyHomeFilterState, updateSelectionGroup } from "../homeLogic";
+import { cloneHomeFilterState, createEmptyHomeFilterState, updateSelectionGroup } from "../logic";
 import type {
   CharacterAssistFilters,
   CharacterFilterTabKey,
@@ -34,14 +34,14 @@ function createCharacterAssistFilters(): Record<CharacterFilterTabKey, Character
   };
 }
 
-type UseFilterDrawerStateOptions = {
+type UseDrawerStateOptions = {
   isOpen: boolean;
   initialFilters: HomeFilterState;
   characters: Character[];
   tagGroups: TagGroup[];
 };
 
-export function useFilterDrawerState({ isOpen, initialFilters, characters, tagGroups }: UseFilterDrawerStateOptions) {
+export function useDrawerState({ isOpen, initialFilters, characters, tagGroups }: UseDrawerStateOptions) {
   const [draftFilters, setDraftFilters] = useState<HomeFilterState>(() => createEmptyHomeFilterState());
   const [activeTab, setActiveTab] = useState<FilterTabKey>("partyCharacters");
   const [selectionTargets, setSelectionTargets] = useState<Record<FilterTabKey, SelectionTarget>>(() => createSelectionTargets());

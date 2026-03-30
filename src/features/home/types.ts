@@ -1,8 +1,8 @@
-﻿import type { Element, RunRecord } from "../../data/mockRuns";
+import type { Element, RunRecord } from "../../data/mockRuns";
 
 export type RankMove = "up" | "down" | "same" | "new";
 export type LeaderboardView = "rta" | "char" | "fes";
-export type DisplayBucket =
+export type DisplayGroup =
   | { type: "single"; ids: [string]; key: string; label: string }
   | { type: "pair"; ids: [string, string]; key: string; label: string };
 
@@ -17,8 +17,8 @@ export type HomeRun = RunRecord & {
   rankMove: RankMove;
 };
 
-export type HomeRunWithBucket = HomeRun & {
-  displayBucket: DisplayBucket;
+export type HomeRunWithGroup = HomeRun & {
+  displayGroup: DisplayGroup;
 };
 
 export type IncludeMode = "and" | "or";
@@ -54,7 +54,7 @@ export type ActiveFilterChipDefinition = {
   resolveLabel: (value: string) => string;
 };
 
-export type ActiveFilterDisplayChip = ActiveFilterChip & {
+export type ActiveFilterChipViewData = ActiveFilterChip & {
   displayLabel: string;
 };
 

@@ -4,10 +4,10 @@ import { defaultRunId, getRunById, mockRuns } from "../../data/mockRuns";
 import { getSimilarRuns } from "../../lib/getSimilarRuns";
 
 import { CompareDrawer } from "./sections/CompareDrawer";
-import { RecordDetailHeader } from "./sections/RecordDetailHeader";
-import { RecordDetailMainColumn } from "./sections/RecordDetailMainColumn";
-import { RecordDetailSidebar } from "./sections/RecordDetailSidebar";
-import { getPartyLoadout } from "./recordDetailLogic";
+import { Header } from "./sections/Header";
+import { MainColumn } from "./sections/MainColumn";
+import { Sidebar } from "./sections/Sidebar";
+import { getPartyBuildItems } from "./logic";
 import type { SimilarActionState } from "./types";
 
 export function RecordDetailPage({
@@ -29,7 +29,7 @@ export function RecordDetailPage({
   const [comments, setComments] = useState(currentRun?.comments ?? []);
   const [commentLikeState, setCommentLikeState] = useState<Record<string, boolean>>({});
   const [openMenuRunId, setOpenMenuRunId] = useState<string | null>(null);
-  const [compareQueuedRunId, setCompareQueuedRunId] = useState<string | null>(null);
+  const [selectedCompareRunId, setSelectedCompareRunId] = useState<string | null>(null);
   const [syncPlaying, setSyncPlaying] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false,
@@ -55,7 +55,7 @@ export function RecordDetailPage({
     }
 
     setOpenMenuRunId(null);
-    setCompareQueuedRunId(null);
+    setSelectedCompareRunId(null);
     setSyncPlaying(false);
   }, [isDesktop]);
 
@@ -71,7 +71,7 @@ export function RecordDetailPage({
     setComments(currentRun.comments);
     setCommentLikeState({});
     setOpenMenuRunId(null);
-    setCompareQueuedRunId(null);
+    setSelectedCompareRunId(null);
     setSyncPlaying(false);
     setSimilarActionState({});
     setHeaderVersion(currentRun.versionLabel);
@@ -82,13 +82,13 @@ export function RecordDetailPage({
   }
 
   const similarRuns = getSimilarRuns(currentRun, mockRuns, 4);
-  const compareRun = compareQueuedRunId ? getRunById(compareQueuedRunId) ?? null : null;
+  const compareRun = selectedCompareRunId ? getRunById(selectedCompareRunId) ?? null : null;
   const compareOpen = isDesktop && compareRun !== null;
   const forceMobileLayout = compareOpen;
   const visibleTags = descriptionExpanded ? currentRun.tags : [];
   const shouldShowExpandedArea = descriptionExpanded && (currentRun.summary.length > 0 || currentRun.tags.length > 0);
   const canExpandDescription = currentRun.tags.length > 0 || currentRun.summary.length > 0;
-  const partyLoadout = getPartyLoadout(currentRun);
+  const partyBuildItems = getPartyBuildItems(currentRun);
   const mainSurfaceClass = embedded
     ? compareOpen
       ? "min-h-full lg:mr-[50vw]"
@@ -139,7 +139,7 @@ export function RecordDetailPage({
         return;
       }
 
-      setCompareQueuedRunId(runId);
+      setSelectedCompareRunId(runId);
       setSyncPlaying(false);
       return;
     }
@@ -168,7 +168,7 @@ export function RecordDetailPage({
   return (
     <>
       <main className={`bg-[#212121] text-white/90 transition-[width] duration-300 ${mainSurfaceClass}`}>
-        <RecordDetailHeader
+        <Header
           embedded={embedded}
           forceMobileLayout={forceMobileLayout}
           onBack={onBack}
@@ -179,7 +179,7 @@ export function RecordDetailPage({
         />
 
         <div className={`mx-auto flex w-full max-w-[1600px] flex-col gap-[12px] px-3 py-3 ${forceMobileLayout ? "" : "md:px-4 md:py-4 lg:px-5 lg:py-5"} ${compareOpen ? "lg:items-stretch" : "lg:flex-row lg:items-start lg:gap-[14px]"}`}>
-          <RecordDetailMainColumn
+          <MainColumn
             currentRun={currentRun}
             comments={comments}
             commentDraft={commentDraft}
@@ -201,13 +201,13 @@ export function RecordDetailPage({
             onCommentLike={toggleCommentLike}
           />
 
-          <RecordDetailSidebar
+          <Sidebar
             compareOpen={compareOpen}
-            partyLoadout={partyLoadout}
+            partyBuildItems={partyBuildItems}
             similarRuns={similarRuns}
             similarActionState={similarActionState}
             openMenuRunId={openMenuRunId}
-            compareQueuedRunId={compareQueuedRunId}
+            selectedCompareRunId={selectedCompareRunId}
             onToggleMenu={(runKey) => setOpenMenuRunId((previous) => (previous === runKey ? null : runKey))}
             onAction={handleSimilarAction}
           />
@@ -221,7 +221,7 @@ export function RecordDetailPage({
         syncPlaying={syncPlaying}
         embedded={embedded}
         onClose={() => {
-          setCompareQueuedRunId(null);
+          setSelectedCompareRunId(null);
           setSyncPlaying(false);
         }}
         onToggleSync={() => setSyncPlaying((previous) => !previous)}

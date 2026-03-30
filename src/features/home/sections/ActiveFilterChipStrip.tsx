@@ -1,11 +1,11 @@
-﻿import type { ActiveFilterDisplayChip } from "../types";
+import type { ActiveFilterChipViewData } from "../types";
 
-type HomeActiveFilterChipStripProps = {
-  chips: ActiveFilterDisplayChip[];
-  onRemove: (chip: ActiveFilterDisplayChip) => void;
+type ActiveFilterChipStripProps = {
+  chips: ActiveFilterChipViewData[];
+  onRemove: (chip: ActiveFilterChipViewData) => void;
 };
 
-export function HomeActiveFilterChipStrip({ chips, onRemove }: HomeActiveFilterChipStripProps) {
+export function ActiveFilterChipStrip({ chips, onRemove }: ActiveFilterChipStripProps) {
   if (chips.length === 0) {
     return null;
   }

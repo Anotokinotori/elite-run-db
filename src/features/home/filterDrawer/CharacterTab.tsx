@@ -1,6 +1,6 @@
-﻿import type { Element } from "../../../data/mockRuns";
+import type { Element } from "../../../data/mockRuns";
 import { CharacterImage } from "../ui/CharacterImage";
-import { SearchIcon } from "../ui/homeIcons";
+import { SearchIcon } from "../ui/icons";
 import type { CharacterFilterTabKey, ElementFilterOption, HomeFilterState } from "../types";
 
 const SEARCH_LABEL = "検索";
@@ -11,7 +11,7 @@ function filterButtonTone(active: boolean, activeClass: string) {
   return active ? activeClass : "border-white/12 bg-white/[0.05] text-white/70 hover:bg-white/10 hover:text-white";
 }
 
-type FilterDrawerCharacterTabProps = {
+type CharacterTabProps = {
   activeTab: CharacterFilterTabKey;
   draftFilters: HomeFilterState;
   visibleCharacters: Array<{ id: string; name: string }>;
@@ -25,7 +25,7 @@ type FilterDrawerCharacterTabProps = {
   onToggleCharacter: (characterId: string) => void;
 };
 
-export function FilterDrawerCharacterTab({
+export function CharacterTab({
   activeTab,
   draftFilters,
   visibleCharacters,
@@ -37,7 +37,7 @@ export function FilterDrawerCharacterTab({
   onCharacterSearchChange,
   onToggleElementFilter,
   onToggleCharacter,
-}: FilterDrawerCharacterTabProps) {
+}: CharacterTabProps) {
   return (
     <>
       <section className="space-y-2 [&>div:first-child]:hidden">

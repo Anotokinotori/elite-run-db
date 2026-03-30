@@ -1,5 +1,5 @@
-﻿import { calcBracket, calcCharCost, calcWeaponCost, characterDb, weaponDb } from "../../../data/mockRuns";
-import { DEFAULT_WEAPON_BY_CLASS } from "../submitConfig";
+import { calcBracket, calcCharCost, calcWeaponCost, characterDb, weaponDb } from "../../../data/mockRuns";
+import { DEFAULT_WEAPON_BY_CLASS } from "../config";
 import type { SubmitPartySlot } from "../types";
 
 export function getDefaultWeaponId(characterId: string) {

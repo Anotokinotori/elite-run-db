@@ -1,7 +1,7 @@
-﻿import { DETAIL_ICON_BUTTON_CLASS } from "../recordDetailConfig";
-import { CircleAvatar } from "../ui/recordDetailUi";
+﻿import { DETAIL_ICON_BUTTON_CLASS } from "../config";
+import { CircleAvatar } from "../ui";
 
-export function RecordDetailHeader({
+export function Header({
   embedded,
   forceMobileLayout,
   onBack,

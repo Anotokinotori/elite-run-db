@@ -1,1 +1,1 @@
-export { RunSubmitPage } from "../features/submit/RunSubmitPage";
+export { SubmitPage } from "../features/submit/Page";

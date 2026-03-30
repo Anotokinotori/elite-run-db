@@ -1,7 +1,7 @@
-﻿import type { RunRecord } from "../../../data/mockRuns";
+import type { RunRecord } from "../../../data/mockRuns";
 import { characterDb, weaponDb } from "../../../data/mockRuns";
 
-import type { PartyLoadoutEntry } from "../types";
+import type { PartyBuildItem } from "../types";
 
 export function postYouTubeCommand(iframe: HTMLIFrameElement | null, command: "playVideo" | "pauseVideo") {
   iframe?.contentWindow?.postMessage(
@@ -18,7 +18,7 @@ export function getInitials(label: string) {
   return label.slice(0, 2).toUpperCase();
 }
 
-export function getPartyLoadout(run: RunRecord): PartyLoadoutEntry[] {
+export function getPartyBuildItems(run: RunRecord): PartyBuildItem[] {
   return run.party.map((member, index) => {
     const character = characterDb[member.characterId];
     const weaponLoadout = run.weapons[index];

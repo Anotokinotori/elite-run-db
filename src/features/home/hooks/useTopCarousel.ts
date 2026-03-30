@@ -1,6 +1,6 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-type UseHomeTopCarouselOptions = {
+type UseTopCarouselOptions = {
   enabled: boolean;
   contentKey: string;
   topPanelAutoscrollMs: number;
@@ -8,13 +8,13 @@ type UseHomeTopCarouselOptions = {
   scrollDurationMs: number;
 };
 
-export function useHomeTopCarousel({
+export function useTopCarousel({
   enabled,
   contentKey,
   topPanelAutoscrollMs,
   featuredPanelAutoscrollMs,
   scrollDurationMs,
-}: UseHomeTopCarouselOptions) {
+}: UseTopCarouselOptions) {
   const rowRef = useRef<HTMLDivElement | null>(null);
   const measureFrameRef = useRef<number | null>(null);
   const autoScrollTimerRef = useRef<number | null>(null);

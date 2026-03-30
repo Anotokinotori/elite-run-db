@@ -5,9 +5,9 @@ import { CharacterIcon } from "../../../components/CharacterIcon";
 import { PlatformIcon } from "../../../components/UiIcons";
 import { getYouTubeEmbedUrl } from "../../../lib/youtube";
 
-import { DETAIL_MUTED_SURFACE_CLASS, DETAIL_PANEL_INNER_CLASS, DETAIL_PANEL_SHELL_CLASS } from "../recordDetailConfig";
-import { getInitials, parsePlatformTag } from "../recordDetailLogic";
-import type { PartyLoadoutEntry } from "../types";
+import { DETAIL_MUTED_SURFACE_CLASS, DETAIL_PANEL_INNER_CLASS, DETAIL_PANEL_SHELL_CLASS } from "../config";
+import { getInitials, parsePlatformTag } from "../logic";
+import type { PartyBuildItem } from "../types";
 
 export function CircleAvatar({
   label,
@@ -100,7 +100,7 @@ export function SidebarSectionHeader({ title, meta }: { title: ReactNode; meta?:
   );
 }
 
-export function LoadoutEntryCard({ entry }: { entry: PartyLoadoutEntry }) {
+export function PartyBuildItemCard({ entry }: { entry: PartyBuildItem }) {
   return (
     <div className="rounded-[16px] border border-white/10 bg-[#272727] p-[12px] md:p-[14px]">
       <div className="flex items-start gap-[12px] md:gap-[14px]">

@@ -1,6 +1,6 @@
-﻿import { CalendarIcon } from "../ui/homeIcons";
+import { CalendarIcon } from "../ui/icons";
 
-export function HomeFestivalBanner() {
+export function FestivalBanner() {
   return (
     <div className="bg-gradient-to-r from-[#ff7e5f] to-[#feb47b] rounded-2xl p-8 mb-8 text-center relative overflow-hidden shadow-lg">
       <div className="relative z-10">

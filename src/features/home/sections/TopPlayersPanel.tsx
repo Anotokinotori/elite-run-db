@@ -1,6 +1,6 @@
-﻿import type { Bracket } from "../../../data/mockRuns";
-import { HOME_BUTTON_CLASSES, HOME_LABELS, HOME_PANEL_CLASSES, HOME_TOP_PLAYER_BRACKETS } from "../homeConfig";
-import { getBestRun } from "../homeLogic";
+import type { Bracket } from "../../../data/mockRuns";
+import { HOME_BUTTON_CLASSES, HOME_LABELS, HOME_PANEL_CLASSES, HOME_TOP_PLAYER_BRACKETS } from "../config";
+import { getBestRun } from "../logic";
 import { TopPlayerCard } from "../ui/TopPlayerCard";
 import type { HomeRun } from "../types";
 

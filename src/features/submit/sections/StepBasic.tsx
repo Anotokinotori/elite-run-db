@@ -1,8 +1,8 @@
-import { PLATFORM_OPTIONS, RULESET_OPTIONS } from "../submitConfig";
+import { PLATFORM_OPTIONS, RULESET_OPTIONS } from "../config";
 import type { FieldErrors, PlayMode, SubmitDraft, TimeInputParts } from "../types";
-import { FieldError, FieldTitle, MockChoiceButton, MockFieldBox, PlatformChoiceContent, SectionDivider, StepHeroHeader } from "../ui/submitUi";
+import { FieldError, FieldTitle, MockChoiceButton, MockFieldBox, PlatformChoiceContent, SectionDivider, StepHeroHeader } from "../ui";
 
-type SubmitStepBasicProps = {
+type StepBasicProps = {
   draft: SubmitDraft;
   errors: FieldErrors;
   timeInput: TimeInputParts;
@@ -10,7 +10,7 @@ type SubmitStepBasicProps = {
   updateTimeInput: (part: keyof TimeInputParts, value: string) => void;
 };
 
-export function SubmitStepBasic({ draft, errors, timeInput, updateBasicInfo, updateTimeInput }: SubmitStepBasicProps) {
+export function StepBasic({ draft, errors, timeInput, updateBasicInfo, updateTimeInput }: StepBasicProps) {
   return (
 <section className="mx-auto flex w-full max-w-[980px] flex-col gap-8">
               <StepHeroHeader

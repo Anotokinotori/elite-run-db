@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { characterDb, weaponDb } from "../../data/mockRuns";
-import { fetchEnkaProfile, isValidEnkaUid, type EnkaProfile, type EnkaProfileCharacter } from "../../lib/enkaNetwork";
+import { fetchEnkaProfile, isValidEnkaUid, normalizeEnkaUidInput, type EnkaProfile, type EnkaProfileCharacter } from "../../lib/enkaNetwork";
 
-import { AUTO_SAVE_DELAY_MS, WEAPON_OPTIONS } from "./submitConfig";
+import { AUTO_SAVE_DELAY_MS, WEAPON_OPTIONS } from "./config";
 import {
   applyUidSelectionToParty,
   buildTimeInputValue,
@@ -22,17 +22,17 @@ import {
   validateStep1,
   validateStep2,
   validateStep3,
-} from "./submitLogic";
-import { CharacterPickerModal, GuidelineModal, UidCharacterPickerModal, WeaponPickerModal } from "./modals/submitModals";
-import { SubmitFooterActions } from "./sections/SubmitFooterActions";
-import { SubmitHeader } from "./sections/SubmitHeader";
-import { SubmitStepBasic } from "./sections/SubmitStepBasic";
-import { SubmitStepDetails } from "./sections/SubmitStepDetails";
-import { SubmitStepParty } from "./sections/SubmitStepParty";
+} from "./logic";
+import { CharacterPickerModal, GuidelineModal, UidCharacterPickerModal, WeaponPickerModal } from "./modals";
+import { FooterActions } from "./sections/FooterActions";
+import { Header } from "./sections/Header";
+import { StepBasic } from "./sections/StepBasic";
+import { StepDetails } from "./sections/StepDetails";
+import { StepParty } from "./sections/StepParty";
 import type { FieldErrors, SubmitDraft, SubmitPartySlot, SubmitStep } from "./types";
-import { StepIndicator, SubmitSurfaceScale } from "./ui/submitUi";
+import { StepIndicator, SubmitSurfaceScale } from "./ui";
 
-export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void; embedded?: boolean }) {
+export function SubmitPage({ onBack, embedded = false }: { onBack: () => void; embedded?: boolean }) {
   const [initialState] = useState(() => loadInitialDraftState());
   const [draft, setDraft] = useState<SubmitDraft>(initialState.draft);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -300,7 +300,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
   };
 
   const handleFetchUid = async (uid = draft.basicInfo.uid) => {
-    const normalizedUid = uid.trim();
+    const normalizedUid = normalizeEnkaUidInput(uid);
 
     if (!isValidEnkaUid(normalizedUid)) {
       setUidError("UIDは9桁の数字で入力してください。");
@@ -362,14 +362,14 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
   return (
     <>
       <main className="min-h-screen bg-white text-[#333333]">
-        <SubmitHeader embedded={embedded} onBack={onBack} />
+        <Header embedded={embedded} onBack={onBack} />
 
         <SubmitSurfaceScale>
           <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6">
             <StepIndicator currentStep={draft.currentStep} onBack={handleStepBack} />
 
             {draft.currentStep === 1 ? (
-              <SubmitStepBasic
+              <StepBasic
                 draft={draft}
                 errors={errors}
                 timeInput={timeInput}
@@ -379,7 +379,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
             ) : null}
 
             {draft.currentStep === 2 ? (
-              <SubmitStepParty
+              <StepParty
                 activeCharacter={activeCharacter}
                 activeCharacterCost={activeCharacterCost}
                 activePartySlot={activePartySlot}
@@ -401,7 +401,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
             ) : null}
 
             {draft.currentStep === 3 ? (
-              <SubmitStepDetails
+              <StepDetails
                 availablePartyCharacters={availablePartyCharacters}
                 draft={draft}
                 errors={errors}
@@ -413,7 +413,7 @@ export function RunSubmitPage({ onBack, embedded = false }: { onBack: () => void
               />
             ) : null}
 
-            <SubmitFooterActions
+            <FooterActions
               currentStep={draft.currentStep}
               onSave={handleManualSave}
               onAdvance={handleStepAdvance}

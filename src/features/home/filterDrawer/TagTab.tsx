@@ -1,9 +1,9 @@
-﻿import { SearchIcon } from "../ui/homeIcons";
+import { SearchIcon } from "../ui/icons";
 import type { HomeFilterState, TagGroup } from "../types";
 
 const SEARCH_LABEL = "検索";
 
-type FilterDrawerTagTabProps = {
+type TagTabProps = {
   draftFilters: HomeFilterState;
   tagSearch: string;
   visibleTagGroups: TagGroup[];
@@ -13,7 +13,7 @@ type FilterDrawerTagTabProps = {
   onToggleTag: (tag: string) => void;
 };
 
-export function FilterDrawerTagTab({
+export function TagTab({
   draftFilters,
   tagSearch,
   visibleTagGroups,
@@ -21,7 +21,7 @@ export function FilterDrawerTagTab({
   emptyTagResultLabel,
   onTagSearchChange,
   onToggleTag,
-}: FilterDrawerTagTabProps) {
+}: TagTabProps) {
   return (
     <>
       <section className="space-y-2 [&>div:first-child]:hidden">

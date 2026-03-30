@@ -4,6 +4,7 @@ import { WEAPON_ID_BY_ENKA_ITEM_ID } from "./weaponCatalog";
 
 const ENKA_CACHE_KEY_PREFIX = "elite-run-db.enkaProfile.";
 const DEFAULT_ENKA_TTL_SECONDS = 300;
+export const MAX_ENKA_PROFILE_CHARACTERS = 12;
 
 type JsonRecord = Record<string, unknown>;
 
@@ -50,6 +51,14 @@ function asNumber(value: unknown) {
   }
 
   return null;
+}
+
+function normalizeEnkaUid(uid: string) {
+  return uid.normalize("NFKC").trim();
+}
+
+export function normalizeEnkaUidInput(uid: string) {
+  return normalizeEnkaUid(uid).replace(/[^\d]/g, "").slice(0, 9);
 }
 
 function getWeaponRefinement(weapon: JsonRecord | null) {
@@ -179,7 +188,7 @@ function setCachedProfile(uid: string, profile: EnkaProfile) {
 }
 
 export function isValidEnkaUid(uid: string) {
-  return /^\d{9}$/.test(uid.trim());
+  return /^\d{9}$/.test(normalizeEnkaUid(uid));
 }
 
 async function getResponseErrorMessage(response: Response) {
@@ -220,7 +229,7 @@ async function getResponseErrorMessage(response: Response) {
 }
 
 export async function fetchEnkaProfile(uid: string): Promise<EnkaProfile> {
-  const normalizedUid = uid.trim();
+  const normalizedUid = normalizeEnkaUid(uid);
 
   if (!isValidEnkaUid(normalizedUid)) {
     throw new Error("UIDは9桁の数字で入力してください。");
@@ -250,7 +259,7 @@ export async function fetchEnkaProfile(uid: string): Promise<EnkaProfile> {
     .map(asRecord)
     .map((avatar) => (detailedAvatars.length > 0 ? normalizeAvatar(avatar ?? {}) : normalizeShowcaseAvatar(avatar ?? {})))
     .filter((avatar): avatar is EnkaProfileCharacter => avatar !== null)
-    .slice(0, 8);
+    .slice(0, MAX_ENKA_PROFILE_CHARACTERS);
   const ttlSeconds = asNumber(payload.ttl) ?? DEFAULT_ENKA_TTL_SECONDS;
 
   const profile: EnkaProfile = {

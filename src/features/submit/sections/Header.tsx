@@ -1,4 +1,4 @@
-export function SubmitHeader({ embedded, onBack }: { embedded: boolean; onBack: () => void }) {
+export function Header({ embedded, onBack }: { embedded: boolean; onBack: () => void }) {
   return (
     <>
         {embedded ? (

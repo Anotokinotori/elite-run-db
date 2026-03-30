@@ -1,4 +1,4 @@
-﻿type HomeHeaderProps = {
+type HeaderProps = {
   embedded: boolean;
   appTitle: string;
   submitLabel: string;
@@ -8,7 +8,7 @@
   onRequestSubmit: () => void;
 };
 
-export function HomeHeader({
+export function Header({
   embedded,
   appTitle,
   submitLabel,
@@ -16,7 +16,7 @@ export function HomeHeader({
   activeSeason,
   onSeasonChange,
   onRequestSubmit,
-}: HomeHeaderProps) {
+}: HeaderProps) {
   if (embedded) {
     return null;
   }

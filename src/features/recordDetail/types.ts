@@ -1,4 +1,4 @@
-﻿export type PartyLoadoutEntry = {
+﻿export type PartyBuildItem = {
   slot: number;
   characterId: string;
   characterName: string;

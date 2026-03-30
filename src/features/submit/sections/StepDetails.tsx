@@ -1,11 +1,11 @@
 import { characterDb } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 
-import { SEARCH_TAG_OPTIONS } from "../submitConfig";
+import { SEARCH_TAG_OPTIONS } from "../config";
 import type { FieldErrors, SubmitDraft } from "../types";
-import { AttackerSelectionIndicator, FieldError, FieldTitle, SectionDivider, StepHeroHeader } from "../ui/submitUi";
+import { AttackerSelectionIndicator, FieldError, FieldTitle, SectionDivider, StepHeroHeader } from "../ui";
 
-type SubmitStepDetailsProps = {
+type StepDetailsProps = {
   availablePartyCharacters: string[];
   draft: SubmitDraft;
   errors: FieldErrors;
@@ -16,7 +16,7 @@ type SubmitStepDetailsProps = {
   onToggleTag: (tag: string) => void;
 };
 
-export function SubmitStepDetails({
+export function StepDetails({
   availablePartyCharacters,
   draft,
   errors,
@@ -25,7 +25,7 @@ export function SubmitStepDetails({
   onOpenGuidelines,
   onToggleMainAttacker,
   onToggleTag,
-}: SubmitStepDetailsProps) {
+}: StepDetailsProps) {
   const toggleMainAttacker = onToggleMainAttacker;
 
   return (

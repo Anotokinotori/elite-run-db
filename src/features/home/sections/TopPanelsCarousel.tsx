@@ -1,10 +1,10 @@
-﻿import type { CSSProperties, RefObject } from "react";
+import type { CSSProperties, RefObject } from "react";
 import type { Bracket } from "../../../data/mockRuns";
 import type { HomeFeaturedCard, HomeRun } from "../types";
 import { FeaturedPlayersPanel } from "./FeaturedPlayersPanel";
 import { TopPlayersPanel } from "./TopPlayersPanel";
 
-type HomeTopPanelsCarouselProps = {
+type TopPanelsCarouselProps = {
   rowRef: RefObject<HTMLDivElement | null>;
   style: CSSProperties;
   heroRuns: HomeRun[];
@@ -15,7 +15,7 @@ type HomeTopPanelsCarouselProps = {
   onSelectRun: (runId: string) => void;
 };
 
-export function HomeTopPanelsCarousel({
+export function TopPanelsCarousel({
   rowRef,
   style,
   heroRuns,
@@ -24,7 +24,7 @@ export function HomeTopPanelsCarousel({
   onJumpTo,
   onViewBracket,
   onSelectRun,
-}: HomeTopPanelsCarouselProps) {
+}: TopPanelsCarouselProps) {
   return (
     <div className="relative left-1/2 right-1/2 z-10 -mt-40 mb-12 w-screen -translate-x-1/2 px-5 md:-mt-72 sm:px-6 lg:px-8">
       <div className="relative">

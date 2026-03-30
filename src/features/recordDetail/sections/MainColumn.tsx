@@ -3,10 +3,10 @@
 import type { RunRecord } from "../../../data/mockRuns";
 import { LikeIcon, ShareIcon } from "../../../components/UiIcons";
 
-import { collapsedCopyStyle, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../recordDetailConfig";
-import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PillButton, PlatformLabel, SectionTitle, TagChip, VideoFrame } from "../ui/recordDetailUi";
+import { collapsedCopyStyle, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../config";
+import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PillButton, PlatformLabel, SectionTitle, TagChip, VideoFrame } from "../ui";
 
-export function RecordDetailMainColumn({
+export function MainColumn({
   currentRun,
   comments,
   commentDraft,

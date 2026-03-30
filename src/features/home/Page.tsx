@@ -15,13 +15,13 @@ import {
   OTHER_RULESET_LABEL,
   OTHER_RULESET_LABELS,
   PRIMARY_RULESET_TABS,
-} from "./homeConfig";
-import { useHomeTopCarousel } from "./hooks/useHomeTopCarousel";
+} from "./config";
+import { useTopCarousel } from "./hooks/useTopCarousel";
 import {
   applyRLogic,
   applyWRTag,
   buildCharTopRows,
-  buildDisplayBucket,
+  buildDisplayGroup,
   cloneHomeFilterState,
   createEmptyHomeFilterState,
   filterRuns,
@@ -33,18 +33,18 @@ import {
   removeSelectionGroupValue,
   seasonGte,
   sortRuns,
-} from "./homeLogic";
-import { buildActiveFilterDisplayChips, buildFeaturedCards } from "./homeViewModels";
-import { HomeFestivalBanner } from "./sections/HomeFestivalBanner";
-import { HomeFooter } from "./sections/HomeFooter";
-import { HomeHeader } from "./sections/HomeHeader";
-import { HomeHero } from "./sections/HomeHero";
-import { HomeLeaderboardSection } from "./sections/HomeLeaderboardSection";
-import { HomeShell } from "./sections/HomeShell";
-import { HomeTopPanelsCarousel } from "./sections/HomeTopPanelsCarousel";
-import type { HomeRun, HomeRunWithBucket, LeaderboardView } from "./types";
+} from "./logic";
+import { buildActiveFilterChipsForView, buildFeaturedCards } from "./viewData";
+import { FestivalBanner } from "./sections/FestivalBanner";
+import { Footer } from "./sections/Footer";
+import { Header } from "./sections/Header";
+import { Hero } from "./sections/Hero";
+import { LeaderboardSection } from "./sections/LeaderboardSection";
+import { Shell } from "./sections/Shell";
+import { TopPanelsCarousel } from "./sections/TopPanelsCarousel";
+import type { HomeRun, HomeRunWithGroup, LeaderboardView } from "./types";
 
-type RunHomePageProps = {
+type HomePageProps = {
   onRequestSubmit: () => void;
   onSelectRun: (runId: string) => void;
   embedded?: boolean;
@@ -52,13 +52,13 @@ type RunHomePageProps = {
   onSelectedSeasonChange?: (season: string) => void;
 };
 
-export function RunHomePage({
+export function HomePage({
   onRequestSubmit,
   onSelectRun,
   embedded = false,
   selectedSeason,
   onSelectedSeasonChange,
-}: RunHomePageProps) {
+}: HomePageProps) {
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
   const [runs] = useState<HomeRun[]>(() => applyWRTag(mockRuns.map((run) => normalizeHomeRun(run, FESTIVAL_RULESET))));
   const [activeSeasonInternal, setActiveSeasonInternal] = useState(getDefaultSeason(HOME_SEASONS));
@@ -76,7 +76,7 @@ export function RunHomePage({
 
   const characters = useMemo(() => selectableCharacters, []);
   const tagGroups = useMemo(() => getTagGroups(runs, HOME_FILTER_TAG_GROUP_DEFINITIONS, "その他"), [runs]);
-  const activeFilterChips = useMemo(() => buildActiveFilterDisplayChips(homeFilters), [homeFilters]);
+  const activeFilterChips = useMemo(() => buildActiveFilterChipsForView(homeFilters), [homeFilters]);
 
   const filters = useMemo(
     () => ({
@@ -91,7 +91,7 @@ export function RunHomePage({
   const filteredBase = useMemo(() => filterRuns(runs, filters), [filters, runs]);
   const rLogicApplied = useMemo(() => (enableRLogic ? applyRLogic(filteredBase) : filteredBase), [enableRLogic, filteredBase]);
   const filteredRuns = useMemo(() => sortRuns(rLogicApplied, sortMode), [rLogicApplied, sortMode]);
-  const charScopeRuns = useMemo(
+  const charTargetRuns = useMemo(
     () =>
       runs.filter((run) =>
         matchesLeaderboardScope(run, {
@@ -102,24 +102,24 @@ export function RunHomePage({
       ),
     [activeSeason, filterBracket, runs],
   );
-  const charScopeRunsWithBuckets = useMemo<HomeRunWithBucket[]>(
+  const charTargetRunsWithGroups = useMemo<HomeRunWithGroup[]>(
     () =>
-      charScopeRuns.map((run) => ({
+      charTargetRuns.map((run) => ({
         ...run,
-        displayBucket: buildDisplayBucket(run, charScopeRuns),
+        displayGroup: buildDisplayGroup(run, charTargetRuns),
       })),
-    [charScopeRuns],
+    [charTargetRuns],
   );
   const filteredCharRuns = useMemo(
-    () => charScopeRunsWithBuckets.filter((run) => matchesHomeFilterState(run, homeFilters)),
-    [charScopeRunsWithBuckets, homeFilters],
+    () => charTargetRunsWithGroups.filter((run) => matchesHomeFilterState(run, homeFilters)),
+    [charTargetRunsWithGroups, homeFilters],
   );
   const charTopRuns = useMemo(() => sortRuns(buildCharTopRows(filteredCharRuns), "time"), [filteredCharRuns]);
   const leaderboardRuns = leaderboardView === "char" ? charTopRuns : filteredRuns;
   const heroRuns = useMemo(() => runs.filter((run) => seasonGte(run.season, activeSeason) && !run.isFestival), [activeSeason, runs]);
   const featuredCards = useMemo(() => buildFeaturedCards(heroRuns, runs), [heroRuns, runs]);
 
-  const topCarousel = useHomeTopCarousel({
+  const topCarousel = useTopCarousel({
     enabled: activeTab === "main",
     contentKey: `${activeSeason}:${heroRuns.length}:${featuredCards.length}`,
     ...HOME_CAROUSEL_CONFIG,
@@ -143,8 +143,8 @@ export function RunHomePage({
   };
 
   return (
-    <HomeShell>
-      <HomeHeader
+    <Shell>
+      <Header
         embedded={embedded}
         appTitle={HOME_LABELS.appTitle}
         submitLabel={HOME_LABELS.submitLabel}
@@ -155,7 +155,7 @@ export function RunHomePage({
       />
 
       {activeTab === "main" ? (
-        <HomeHero
+        <Hero
           heroImageUrl={HERO_IMAGE_URL}
           subHeaderTab={subHeaderTab}
           isOtherMenuOpen={isOtherMenuOpen}
@@ -171,7 +171,7 @@ export function RunHomePage({
       <main className="max-w-7xl mx-auto px-5 pt-8 sm:px-6 lg:px-8">
         {activeTab === "main" ? (
           <>
-            <HomeTopPanelsCarousel
+            <TopPanelsCarousel
               rowRef={topCarousel.rowRef}
               style={topCarousel.style}
               heroRuns={heroRuns}
@@ -181,7 +181,7 @@ export function RunHomePage({
               onViewBracket={handleViewBracket}
               onSelectRun={onSelectRun}
             />
-            <HomeLeaderboardSection
+            <LeaderboardSection
               leaderboardRef={leaderboardRef}
               leaderboardView={leaderboardView}
               filterBracket={filterBracket}
@@ -196,10 +196,10 @@ export function RunHomePage({
           </>
         ) : null}
 
-        {activeTab === "festival" ? <HomeFestivalBanner /> : null}
+        {activeTab === "festival" ? <FestivalBanner /> : null}
       </main>
 
-      <HomeFooter />
+      <Footer />
       <FilterDrawer
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
@@ -220,6 +220,6 @@ export function RunHomePage({
         emptyCharacterResultLabel={HOME_LABELS.emptyCharacterResultLabel}
         emptyTagResultLabel={HOME_LABELS.emptyTagResultLabel}
       />
-    </HomeShell>
+    </Shell>
   );
 }
