@@ -2,10 +2,8 @@ import {
   type Bracket,
   type Platform,
   type WeaponClass,
-  characterDb,
   selectableCharacters,
   selectableWeapons,
-  weaponDb,
 } from "../../data/mockRuns";
 import type { SubmitDraft, SubmitPartySlot } from "./types";
 

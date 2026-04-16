@@ -4,6 +4,16 @@ Teyvat EliteDB は、原神（Genshin Impact）の「精鋭狩りRTA」におけ
 
 現在、コンセプト実証のためのプロトタイプとして開発が進められている。
 
+## 開発中の画面イメージ
+
+<p align="center">
+  <img
+    src="./.github/assets/readme-prototype-2026-04-16.png"
+    alt="Teyvat EliteDB の開発中プロトタイプ画面"
+    width="310"
+  />
+</p>
+
 ## 📖 プロジェクトが始まった背景
 
 原神の精鋭狩りRTA界隈では、長らくSpeedrun.com (SRC) が主な記録サイトとして利用されてきた。しかし、ナタ環境以降、キャラクターの選択肢が爆発的に増えたことで、従来の「純粋なタイムの速さのみ」を競うSRCのシステムと、コミュニティの現状に大きなすれ違いが生じ始めている。

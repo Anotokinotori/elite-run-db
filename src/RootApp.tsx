@@ -358,7 +358,8 @@ export default function RootApp() {
       ) : null}
 
       {route.name === "detail" ? (
-        <RecordDetailPage
+
+<RecordDetailPage
           embedded
           key={route.runId}
           runId={route.runId}
