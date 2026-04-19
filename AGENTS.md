@@ -175,7 +175,7 @@ Any `1 / 2 / 3 / 4` controls inside Step 2 refer to the **four party member slot
 
 ### UID modal behavior
 The UID picker should mimic Spiral Abyss character selection semantics as closely as practical:
-- left side: up to 8 profile characters
+- left side: up to 12 profile characters
 - right side: 4 used-character slots
 - tapping a left-side character selects it
 - selected characters get a numeric order overlay on the upper part of the icon
@@ -273,6 +273,7 @@ Keep changes scoped to the requested task.
 
 If the environment supports tests/build:
 - run the smallest relevant verification first
+- for refactor / logic tasks, prefer running `npm run lint`, `npm run test`, `npm run typecheck`, then `npm run build`
 - prefer targeted checks before expensive full checks
 - if something is skipped, state that clearly in the final summary
 

@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { defineConfig, type Connect } from "vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -81,6 +82,11 @@ function attachEnkaProxy(server: { middlewares: { use: (handler: Connect.NextHan
 }
 
 export default defineConfig({
+  test: {
+    environment: "jsdom",
+    globals: true,
+    include: ["src/**/*.test.ts"],
+  },
   plugins: [
     react(),
     tailwindcss(),

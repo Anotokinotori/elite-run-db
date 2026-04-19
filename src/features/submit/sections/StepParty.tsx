@@ -21,7 +21,7 @@ type StepPartyProps = {
   uidError: string;
   updateBasicInfo: <Key extends keyof SubmitDraft["basicInfo"]>(key: Key, value: SubmitDraft["basicInfo"][Key]) => void;
   updatePartySlot: (slotIndex: number, patch: Partial<SubmitPartySlot>) => void;
-  handleUidSearchSubmit: (event?: { preventDefault: () => void }) => void;
+  handleUidSearchSubmit: (event: { preventDefault: () => void }) => void;
   setUidError: (value: string) => void;
   setActiveSlot: (slotIndex: number) => void;
   setShowCharacterPicker: (value: boolean) => void;

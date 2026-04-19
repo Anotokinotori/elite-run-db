@@ -77,25 +77,8 @@ export function RecordDetailPage({
     setHeaderVersion(currentRun.versionLabel);
   }, [currentRun]);
 
-  if (!currentRun) {
-    return null;
-  }
-
-  const similarRuns = getSimilarRuns(currentRun, mockRuns, 4);
   const compareRun = selectedCompareRunId ? getRunById(selectedCompareRunId) ?? null : null;
   const compareOpen = isDesktop && compareRun !== null;
-  const forceMobileLayout = compareOpen;
-  const visibleTags = descriptionExpanded ? currentRun.tags : [];
-  const shouldShowExpandedArea = descriptionExpanded && (currentRun.summary.length > 0 || currentRun.tags.length > 0);
-  const canExpandDescription = currentRun.tags.length > 0 || currentRun.summary.length > 0;
-  const partyBuildItems = getPartyBuildItems(currentRun);
-  const mainSurfaceClass = embedded
-    ? compareOpen
-      ? "min-h-full lg:mr-[50vw]"
-      : "min-h-full"
-    : compareOpen
-      ? "fixed inset-y-0 left-0 z-40 overflow-y-auto lg:w-[50vw]"
-      : "min-h-screen lg:w-full";
 
   useEffect(() => {
     if (!compareOpen || embedded) {
@@ -109,6 +92,24 @@ export function RecordDetailPage({
       document.body.style.overflow = originalOverflow;
     };
   }, [compareOpen, embedded]);
+
+  if (!currentRun) {
+    return null;
+  }
+
+  const similarRuns = getSimilarRuns(currentRun, mockRuns, 4);
+  const forceMobileLayout = compareOpen;
+  const visibleTags = descriptionExpanded ? currentRun.tags : [];
+  const shouldShowExpandedArea = descriptionExpanded && (currentRun.summary.length > 0 || currentRun.tags.length > 0);
+  const canExpandDescription = currentRun.tags.length > 0 || currentRun.summary.length > 0;
+  const partyBuildItems = getPartyBuildItems(currentRun);
+  const mainSurfaceClass = embedded
+    ? compareOpen
+      ? "min-h-full lg:mr-[50vw]"
+      : "min-h-full"
+    : compareOpen
+      ? "fixed inset-y-0 left-0 z-40 overflow-y-auto lg:w-[50vw]"
+      : "min-h-screen lg:w-full";
 
   const handleCommentSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
