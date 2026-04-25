@@ -36,18 +36,18 @@ export function LeaderboardSection({
     <div ref={leaderboardRef} className={HOME_LAYOUT_CLASSES.leaderboardFullBleed}>
       <div className={HOME_LAYOUT_CLASSES.leaderboardInner}>
         <div className="pt-12 pb-14 md:pt-14 md:pb-16">
-          <div className="mb-8 flex items-center border-t border-white/10 pt-8">
-            <div className="text-[18px] font-bold tracking-[0.01em] text-white md:text-[20px]">{HOME_LABELS.leaderboardLabel}</div>
+          <div className="mb-8 flex items-center border-t border-[#e5e7eb] pt-8">
+            <div className="text-[18px] font-bold tracking-[0.01em] text-[#111827] md:text-[20px]">{HOME_LABELS.leaderboardLabel}</div>
           </div>
           <div className="mb-8 flex items-center justify-center">
-            <div className="flex items-center overflow-hidden rounded-full border border-white/12 bg-[#262526]/70 w-full max-w-[520px] md:min-w-[520px]">
+            <div className="flex items-center overflow-hidden rounded-full border border-[#dcdfe6] bg-white w-full max-w-[520px] md:min-w-[520px]">
               {HOME_LEADERBOARD_VIEW_OPTIONS.map((item) => (
                 <button
                   key={item.key}
                   type="button"
                   onClick={() => onLeaderboardViewChange(item.key)}
                   className={`flex-1 px-4 py-2.5 text-[13px] font-semibold transition-colors md:text-[14px] ${
-                    leaderboardView === item.key ? "bg-white text-[#1f1f20]" : "bg-transparent text-white/68 hover:bg-white/8 hover:text-white"
+                    leaderboardView === item.key ? "bg-black text-white" : "bg-white text-black hover:bg-[#f7f7f7]"
                   }`}
                   title={item.label}
                   aria-label={item.label}
@@ -61,7 +61,7 @@ export function LeaderboardSection({
           <div className="mb-8 flex flex-wrap items-center gap-y-3">
             <button
               type="button"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-white/12 px-5 text-[13px] font-semibold tracking-[0.01em] text-white/78 transition-colors hover:bg-white/10 hover:text-white [&>div]:hidden [&>span:last-of-type]:hidden"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#d8dde6] bg-white px-5 text-[13px] font-semibold tracking-[0.01em] text-[#333333] transition-colors hover:bg-[#eef1f5] [&>div]:hidden [&>span:last-of-type]:hidden"
               onClick={onOpenFilter}
             >
               <FilterFunnelIcon className="w-5 h-5" />
@@ -81,8 +81,8 @@ export function LeaderboardSection({
                 onClick={() => onFilterBracketChange(item.value)}
                 className={`flex-1 border-b-2 pb-3 text-center ${
                   filterBracket === item.value || (item.value === null && filterBracket === null)
-                    ? "border-white text-white"
-                    : "border-transparent text-white/38 hover:text-white/72"
+                    ? "border-[#111827] text-[#111827]"
+                    : "border-transparent text-[#8d93a3] hover:text-[#333333]"
                 }`}
               >
                 <span className="md:hidden">{item.shortLabel}</span>
@@ -108,4 +108,3 @@ export function LeaderboardSection({
     </div>
   );
 }
-

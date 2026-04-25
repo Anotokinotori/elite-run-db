@@ -106,24 +106,25 @@ export const HOME_BRACKET_FILTER_OPTIONS: Array<{ label: string; shortLabel: str
 ];
 
 export const HOME_PANEL_CLASSES = {
-  sectionPanel: "relative overflow-hidden rounded-[20px] bg-[#323232] drop-shadow-xl",
-  sectionPanelInner: "relative z-[1] m-[2px] rounded-[18px] bg-[#282828] text-white/90",
-  featuredPanel: "relative overflow-hidden rounded-[20px] bg-[#3a3a3a] drop-shadow-xl",
-  featuredPanelInner: "relative z-[1] m-[2px] rounded-[18px] bg-[#2f2f2f] text-white/90",
-  sectionTitle: "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-white",
+  sectionPanel: "relative overflow-hidden rounded-[20px] bg-transparent shadow-[0_24px_34px_-30px_rgba(37,44,58,0.30)]",
+  sectionPanelInner: "relative z-[1] m-[2px] rounded-[18px] border border-white/80 bg-white text-[#333333] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]",
+  featuredPanel: "relative overflow-hidden rounded-[20px] bg-transparent shadow-[0_24px_34px_-30px_rgba(37,44,58,0.30)]",
+  featuredPanelInner: "relative z-[1] m-[2px] rounded-[18px] border border-white/80 bg-white text-[#333333] shadow-[inset_0_1px_0_rgba(255,255,255,0.95)]",
+  sectionTitle: "text-[17px] md:text-[18px] font-bold tracking-[0.01em] text-[#111827]",
   reflectionTop:
-    "pointer-events-none absolute inset-x-[18px] top-[1px] h-[22px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.05)_42%,rgba(255,255,255,0))] blur-[10px]",
-  reflectionCorner: "pointer-events-none absolute -left-[10%] -top-[24%] h-44 w-72 rounded-full bg-white/52 blur-[60px]",
+    "pointer-events-none absolute inset-x-[18px] top-[1px] h-[22px] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(226,235,245,0.30)_44%,rgba(255,255,255,0))] blur-[10px]",
+  reflectionCorner:
+    "pointer-events-none absolute -left-[10%] -top-[24%] h-44 w-72 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.72),rgba(226,235,245,0.18)_48%,rgba(255,255,255,0)_72%)] blur-[60px]",
 } as const;
 
 export const HOME_BUTTON_CLASSES = {
-  icon: "flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] text-white/78 transition-colors hover:bg-white/[0.14] hover:text-white",
+  icon: "flex h-8 w-8 items-center justify-center rounded-full border border-[#d8dde6] bg-white text-[#333333] transition-colors hover:bg-[#f1f3f6]",
   primary:
-    "inline-flex h-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.08] px-4 text-[13px] font-semibold tracking-[0.01em] text-white transition-colors hover:bg-white/[0.14]",
+    "inline-flex h-10 items-center justify-center rounded-full border border-[#d8dde6] bg-[#f7f8fa] px-4 text-[13px] font-semibold tracking-[0.01em] text-[#333333] transition-colors hover:border-[#c8ced8] hover:bg-[#eef1f5]",
 } as const;
 
 export const HOME_LAYOUT_CLASSES = {
-  leaderboardFullBleed: "relative left-1/2 right-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#212121]",
+  leaderboardFullBleed: "relative left-1/2 right-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#f5f6f8]",
   leaderboardInner: "mx-auto max-w-7xl px-5 sm:px-6 lg:px-8",
 } as const;
 

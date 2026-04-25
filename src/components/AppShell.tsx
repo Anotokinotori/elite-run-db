@@ -278,21 +278,36 @@ function DrawerSection({
   routeName,
   onNavigate,
   onExternalSelect,
+  lightChrome,
 }: {
   items: NavItem[];
   routeName: ShellRouteName;
   onNavigate: (route: ShellDestination) => void;
   onExternalSelect: () => void;
+  lightChrome: boolean;
 }) {
   return (
     <div className="flex flex-col gap-4 px-4 py-8 sm:px-6">
       {items.map((item) => {
         const Icon = item.icon;
         const active = item.kind === "route" ? isNavActive(routeName, item.route) : false;
-        const itemClassName = "group flex w-full items-center gap-4 rounded-full px-4 py-3 text-left transition-all hover:bg-[#272727]";
+        const itemClassName = classNames(
+          "group flex w-full items-center gap-4 rounded-full px-4 py-3 text-left transition-all",
+          lightChrome ? "hover:bg-[#f1f3f6]" : "hover:bg-[#272727]",
+        );
         const labelClassName = classNames(
           "whitespace-nowrap text-[20px] transition-colors",
-          active ? "font-bold text-[#d9d9d9]" : "font-normal text-[#d9d9d9] group-hover:text-[#d9d9d9]",
+          lightChrome
+            ? active
+              ? "font-bold text-[#111827]"
+              : "font-normal text-[#4b5563] group-hover:text-[#111827]"
+            : active
+              ? "font-bold text-[#d9d9d9]"
+              : "font-normal text-[#d9d9d9] group-hover:text-[#d9d9d9]",
+        );
+        const iconClassName = classNames(
+          "size-6 shrink-0",
+          lightChrome ? (active ? "text-[#111827]" : "text-[#7b8493]") : active ? "text-[#d9d9d9]" : "text-[#8b95a7]",
         );
 
         if (item.kind === "external") {
@@ -305,7 +320,7 @@ function DrawerSection({
               onClick={onExternalSelect}
               className={itemClassName}
             >
-              <Icon className="size-6 shrink-0 text-[#8b95a7]" />
+              <Icon className={classNames("size-6 shrink-0", lightChrome ? "text-[#7b8493]" : "text-[#8b95a7]")} />
               <span className={labelClassName}>{item.label}</span>
             </a>
           );
@@ -313,7 +328,7 @@ function DrawerSection({
 
         return (
           <button key={item.key} type="button" onClick={() => onNavigate(item.route)} className={itemClassName}>
-            <Icon active={active} className={classNames("size-6 shrink-0", active ? "text-[#d9d9d9]" : "text-[#8b95a7]")} />
+            <Icon active={active} className={iconClassName} />
             <span className={labelClassName}>{item.label}</span>
           </button>
         );
@@ -326,39 +341,44 @@ function DrawerBody({
   routeName,
   onNavigate,
   onClose,
+  lightChrome,
 }: {
   routeName: ShellRouteName;
   onNavigate: (route: ShellDestination) => void;
   onClose: () => void;
+  lightChrome: boolean;
 }) {
   return (
     <>
-      <div className="flex justify-start border-b border-[#343434] px-4 py-8 sm:px-6">
+      <div className={classNames("flex justify-start border-b px-4 py-8 sm:px-6", lightChrome ? "border-[#e5e7eb]" : "border-[#343434]")}>
         <button
           type="button"
           onClick={() => onNavigate("account")}
-          className="flex w-full max-w-[240px] flex-col gap-3 rounded-[24px] p-3 text-left transition-colors hover:bg-[#272727]"
+          className={classNames(
+            "flex w-full max-w-[240px] flex-col gap-3 rounded-[24px] p-3 text-left transition-colors",
+            lightChrome ? "hover:bg-[#f1f3f6]" : "hover:bg-[#272727]",
+          )}
         >
           <div className="flex items-center justify-between gap-4">
             <div className="relative flex size-[36px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9]">
               <UserIcon className="size-5 text-gray-500" />
             </div>
-            <span className="rounded-full p-1 text-[#8b95a7]" aria-hidden="true">
+            <span className={classNames("rounded-full p-1", lightChrome ? "text-[#7b8493]" : "text-[#8b95a7]")} aria-hidden="true">
               <MoreIcon className="size-5" />
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <p className="truncate text-[16px] font-bold text-[#d9d9d9]">{"アカウント名"}</p>
-            <p className="truncate text-[12px] font-normal text-[#8b95a7]">{"いいねをもらった数：０"}</p>
+            <p className={classNames("truncate text-[16px] font-bold", lightChrome ? "text-[#111827]" : "text-[#d9d9d9]")}>{"アカウント名"}</p>
+            <p className={classNames("truncate text-[12px] font-normal", lightChrome ? "text-[#7b8493]" : "text-[#8b95a7]")}>{"いいねをもらった数：０"}</p>
           </div>
         </button>
       </div>
 
-      <div className="border-b border-[#343434]">
-        <DrawerSection items={primaryNavItems} routeName={routeName} onNavigate={onNavigate} onExternalSelect={onClose} />
+      <div className={classNames("border-b", lightChrome ? "border-[#e5e7eb]" : "border-[#343434]")}>
+        <DrawerSection items={primaryNavItems} routeName={routeName} onNavigate={onNavigate} onExternalSelect={onClose} lightChrome={lightChrome} />
       </div>
 
-      <DrawerSection items={externalToolItems} routeName={routeName} onNavigate={onNavigate} onExternalSelect={onClose} />
+      <DrawerSection items={externalToolItems} routeName={routeName} onNavigate={onNavigate} onExternalSelect={onClose} lightChrome={lightChrome} />
     </>
   );
 }
@@ -368,11 +388,13 @@ function GlobalDrawer({
   routeName,
   onClose,
   onNavigate,
+  lightChrome,
 }: {
   isOpen: boolean;
   routeName: ShellRouteName;
   onClose: () => void;
   onNavigate: (route: ShellDestination) => void;
+  lightChrome: boolean;
 }) {
   const handleNavigate = (route: ShellDestination) => {
     onNavigate(route);
@@ -382,12 +404,15 @@ function GlobalDrawer({
   return (
     <aside
       className={classNames(
-        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto border-r border-[#343434] bg-[#000000] text-[#d9d9d9] transition-transform duration-300 ease-in-out sm:w-[320px]",
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col overflow-y-auto border-r transition-transform duration-300 ease-in-out sm:w-[320px]",
+        lightChrome
+          ? "border-[#e5e7eb] bg-white text-[#333333] shadow-[18px_0_44px_rgba(31,41,55,0.12)]"
+          : "border-[#343434] bg-[#000000] text-[#d9d9d9]",
         isOpen ? "translate-x-0" : "-translate-x-full",
       )}
       aria-hidden={!isOpen}
     >
-      <DrawerBody routeName={routeName} onNavigate={handleNavigate} onClose={onClose} />
+      <DrawerBody routeName={routeName} onNavigate={handleNavigate} onClose={onClose} lightChrome={lightChrome} />
     </aside>
   );
 }
@@ -413,14 +438,21 @@ function GlobalHeader({
   onRequestSubmit: () => void;
   onVersionChange: (version: string) => void;
 }) {
-  const utilityButtonClass =
-    "relative rounded-full p-2 text-[#d9d9d9] transition-colors hover:bg-[#272727] hover:text-[#d9d9d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6a6a6a]";
+  const lightChrome = routeName === "home" || routeName === "detail";
+  const utilityButtonClass = lightChrome
+    ? "relative rounded-full p-2 text-[#4b5563] transition-colors hover:bg-[#f1f3f6] hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#cfd6e2]"
+    : "relative rounded-full p-2 text-[#d9d9d9] transition-colors hover:bg-[#272727] hover:text-[#d9d9d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6a6a6a]";
 
   return (
-    <header className="sticky top-0 z-30 h-[80px] shrink-0 border-b border-[#343434] bg-[#000000]">
+    <header className={classNames("sticky top-0 z-30 h-[80px] shrink-0 border-b", lightChrome ? "border-[#e5e7eb] bg-white shadow-[0_1px_0_rgba(17,24,39,0.03)]" : "border-[#343434] bg-[#000000]")}>
       <div className="header-font flex h-full items-center justify-between gap-4 px-4 py-4 md:px-6">
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-          <button type="button" className="text-[#d9d9d9] transition-colors hover:text-[#d9d9d9]" onClick={onMenuClick} aria-label="\u30e1\u30cb\u30e5\u30fc\u3092\u958b\u304f">
+          <button
+            type="button"
+            className={classNames("transition-colors", lightChrome ? "text-[#333333] hover:text-[#111827]" : "text-[#d9d9d9] hover:text-[#d9d9d9]")}
+            onClick={onMenuClick}
+            aria-label="\u30e1\u30cb\u30e5\u30fc\u3092\u958b\u304f"
+          >
             <MenuIcon className="size-7" />
           </button>
 
@@ -428,7 +460,10 @@ function GlobalHeader({
             <button
               type="button"
               onClick={onTitleClick}
-              className="whitespace-nowrap text-[20px] font-semibold tracking-tight text-[#d9d9d9] transition-opacity hover:opacity-85 md:text-[32px]"
+              className={classNames(
+                "whitespace-nowrap text-[20px] font-semibold tracking-tight transition-opacity hover:opacity-85 md:text-[32px]",
+                lightChrome ? "text-[#111827]" : "text-[#d9d9d9]",
+              )}
             >
               {"\u7cbe\u92ed\u72e9\u308aDB"}
             </button>
@@ -438,15 +473,20 @@ function GlobalHeader({
             <select
               value={version}
               onChange={(event) => onVersionChange(event.target.value)}
-              className="min-w-[104px] appearance-none rounded-full border border-[#3a3a3a] bg-[#272727] py-2 pl-4 pr-10 text-[12px] font-normal text-[#d9d9d9] outline-none transition-colors hover:border-[#505050] focus:border-[#6a6a6a] sm:text-[14px] md:text-[16px]"
+              className={classNames(
+                "min-w-[104px] appearance-none rounded-full border py-2 pl-4 pr-10 text-[12px] font-normal outline-none transition-colors sm:text-[14px] md:text-[16px]",
+                lightChrome
+                  ? "border-black/30 bg-white text-black hover:border-black/45 focus:border-black/60"
+                  : "border-[#3a3a3a] bg-[#272727] text-[#d9d9d9] hover:border-[#505050] focus:border-[#6a6a6a]",
+              )}
             >
               {versionOptions.map((option) => (
-                <option key={option} value={option} className="bg-[#272727] text-[#d9d9d9]">
+                <option key={option} value={option} className={lightChrome ? "bg-white text-black" : "bg-[#272727] text-[#d9d9d9]"}>
                   {option}
                 </option>
               ))}
             </select>
-            <ChevronDownIcon className="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-[#8b95a7]" />
+            <ChevronDownIcon className={classNames("pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2", lightChrome ? "text-black/70" : "text-[#8b95a7]")} />
           </div>
         </div>
 
@@ -456,7 +496,11 @@ function GlobalHeader({
             onClick={onRequestSubmit}
             className={classNames(
               "flex items-center gap-2 rounded-full px-3 py-2 transition-colors sm:px-4",
-              routeName === "submit" ? "bg-white text-[#111111]" : "bg-[#272727] text-[#d9d9d9] hover:bg-[#313131]",
+              routeName === "submit"
+                ? "bg-white text-[#111111]"
+                : lightChrome
+                  ? "bg-[#111827] text-white hover:bg-[#263142]"
+                  : "bg-[#272727] text-[#d9d9d9] hover:bg-[#313131]",
             )}
           >
             <PlusIcon className="size-5" />
@@ -467,10 +511,14 @@ function GlobalHeader({
             type="button"
             onClick={() => onNavigate("notifications")}
             aria-label="\u901a\u77e5"
-            className={classNames(utilityButtonClass, routeName === "notifications" && "bg-[#272727] text-[#d9d9d9] hover:bg-[#272727]")}
+            className={classNames(
+              utilityButtonClass,
+              routeName === "notifications" &&
+                (lightChrome ? "bg-[#eef1f5] text-[#111827] hover:bg-[#eef1f5]" : "bg-[#272727] text-[#d9d9d9] hover:bg-[#272727]"),
+            )}
           >
             <BellIcon className="size-6 sm:size-7" />
-            {hasUnreadNotifications ? <span className="absolute top-1 right-1 block size-2.5 rounded-full border-2 border-[#000000] bg-red-500" /> : null}
+            {hasUnreadNotifications ? <span className={classNames("absolute top-1 right-1 block size-2.5 rounded-full border-2 bg-red-500", lightChrome ? "border-white" : "border-[#000000]")} /> : null}
           </button>
 
           <button
@@ -479,7 +527,7 @@ function GlobalHeader({
             aria-label="\u30a2\u30ab\u30a6\u30f3\u30c8"
             className={classNames(
               "flex size-[32px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#d9d9d9] transition-opacity hover:opacity-80 sm:size-[36px]",
-              routeName === "account" && "ring-2 ring-[#657086]",
+              routeName === "account" && (lightChrome ? "ring-2 ring-[#9aa7ba]" : "ring-2 ring-[#657086]"),
             )}
           >
             <UserIcon className="size-5 text-gray-600" />
@@ -512,6 +560,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const lightChrome = routeName === "home" || routeName === "detail";
 
   useEffect(() => {
     if (!isDrawerOpen) {
@@ -550,6 +599,7 @@ export function AppShell({
         routeName={routeName}
         onClose={() => setIsDrawerOpen(false)}
         onNavigate={onNavigate}
+        lightChrome={lightChrome}
       />
 
       <div className="flex min-h-screen">
@@ -566,7 +616,7 @@ export function AppShell({
             onVersionChange={onVersionChange}
           />
 
-          <main className="min-w-0 flex-1 bg-[#f0f2f5] text-[#333333]">{children}</main>
+          <main className={classNames("min-w-0 flex-1 text-[#333333]", lightChrome ? "bg-[#f5f6f8]" : "bg-[#f0f2f5]")}>{children}</main>
         </div>
       </div>
     </div>

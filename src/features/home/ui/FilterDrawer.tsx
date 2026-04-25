@@ -103,17 +103,17 @@ export function FilterDrawer({
   const visibleCharacters = activeTab === "tags" ? [] : getVisibleCharacters(activeTab);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-[2px]" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px]" onClick={onClose}>
       <div
-        className="absolute inset-y-0 right-0 flex w-full max-w-[720px] flex-col border-l border-white/10 bg-[#191919] text-white shadow-[-24px_0_60px_rgba(0,0,0,0.35)]"
+        className="absolute inset-y-0 right-0 flex w-full max-w-[720px] flex-col border-l border-[#e5e7eb] bg-white text-[#333333] shadow-[-24px_0_60px_rgba(31,41,55,0.16)]"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="shrink-0 border-b border-white/10">
+        <div className="shrink-0 border-b border-[#e5e7eb]">
           <div className="flex items-start justify-between gap-4 px-5 py-5 md:px-6">
-            <div className="text-[24px] font-semibold text-white">{title}</div>
+            <div className="text-[24px] font-semibold text-[#111827]">{title}</div>
             <button
               type="button"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/72"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d8dde6] bg-[#f7f8fa] text-[#5f6678] transition-colors hover:bg-[#eef1f5] hover:text-[#111827]"
               onClick={onClose}
               aria-label="Close"
             >
@@ -129,7 +129,7 @@ export function FilterDrawer({
                 key={tab.key}
                 type="button"
                 className={`-mb-px flex-1 shrink-0 border-b-2 pb-4 text-center transition-colors ${
-                  activeTab === tab.key ? "border-white text-white" : "border-transparent text-white/38 hover:text-white/72"
+                  activeTab === tab.key ? "border-[#111827] text-[#111827]" : "border-transparent text-[#8d93a3] hover:text-[#333333]"
                 }`}
                 onClick={() => setActiveTab(tab.key)}
               >
@@ -144,7 +144,7 @@ export function FilterDrawer({
             <section className="space-y-4">
               <div className="flex justify-center">
                 <div
-                  className="flex w-full max-w-[320px] items-center overflow-hidden rounded-full border border-white/12 bg-[#262526]/70 sm:max-w-[360px]"
+                  className="flex w-full max-w-[320px] items-center overflow-hidden rounded-full border border-[#d8dde6] bg-[#edf1f5] sm:max-w-[360px]"
                   aria-label="Selection target"
                 >
                   {filterTargetOptions.map((option) => (
@@ -152,7 +152,7 @@ export function FilterDrawer({
                       key={`${activeTab}-target-${option.key}`}
                       type="button"
                       className={`flex-1 px-5 py-2 text-[13px] font-semibold transition-colors sm:px-7 ${
-                        selectionTarget === option.key ? "bg-white text-[#1f1f20]" : "bg-transparent text-white/68 hover:bg-white/8 hover:text-white"
+                        selectionTarget === option.key ? "bg-[#111827] text-white" : "bg-transparent text-[#5f6678] hover:bg-white hover:text-[#111827]"
                       }`}
                       onClick={() =>
                         setSelectionTargets((current) => ({
@@ -170,7 +170,7 @@ export function FilterDrawer({
               <div className="flex items-center justify-end gap-3">
                 <span
                   className={`text-[11px] font-semibold tracking-[0.08em] transition-colors ${
-                    draftFilters[activeTab].includeMode === "or" ? "text-white/82" : "text-white/40"
+                    draftFilters[activeTab].includeMode === "or" ? "text-[#333333]" : "text-[#8d93a3]"
                   }`}
                 >
                   OR
@@ -191,7 +191,7 @@ export function FilterDrawer({
                 </div>
                 <span
                   className={`text-[11px] font-semibold tracking-[0.08em] transition-colors ${
-                    draftFilters[activeTab].includeMode === "and" ? "text-white/82" : "text-white/40"
+                    draftFilters[activeTab].includeMode === "and" ? "text-[#333333]" : "text-[#8d93a3]"
                   }`}
                 >
                   AND
@@ -240,17 +240,17 @@ export function FilterDrawer({
           </div>
         </div>
 
-        <div className="grid shrink-0 grid-cols-[1fr_minmax(220px,360px)_1fr] items-center gap-3 border-t border-white/10 px-5 py-4 md:px-6">
+        <div className="grid shrink-0 grid-cols-[1fr_minmax(220px,360px)_1fr] items-center gap-3 border-t border-[#e5e7eb] px-5 py-4 md:px-6">
           <button
             type="button"
-            className="justify-self-start text-[13px] font-medium text-white/54 underline decoration-white/20 underline-offset-4"
+            className="justify-self-start text-[13px] font-medium text-[#5f6678] underline decoration-[#c8ced8] underline-offset-4 hover:text-[#333333]"
             onClick={resetDraft}
           >
             {resetLabel}
           </button>
           <button
             type="button"
-            className="w-full rounded-full border border-white bg-white px-6 py-2.5 text-[13px] font-semibold text-[#5f6373] transition-colors hover:bg-white/90 hover:text-[#4d5160]"
+            className="w-full rounded-full border border-[#111827] bg-[#111827] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#263142]"
             onClick={() => {
               onApply(cloneHomeFilterState(draftFilters));
               onClose();

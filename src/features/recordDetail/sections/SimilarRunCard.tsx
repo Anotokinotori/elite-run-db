@@ -34,10 +34,10 @@ function SimilarActionMenu({
         </svg>
       </button>
       {isOpen ? (
-        <div className="absolute right-0 top-full z-20 mt-2 w-[180px] rounded-[16px] border border-white/10 bg-[#323132] p-2 shadow-[0_20px_40px_rgba(0,0,0,0.28)]">
+        <div className="absolute right-0 top-full z-20 mt-2 w-[180px] rounded-[16px] border border-[#e5e7eb] bg-white p-2 shadow-[0_20px_40px_rgba(31,41,55,0.14)]">
           <button
             type="button"
-            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-white/90 hover:bg-white/[0.08]"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6]"
             onClick={() => onAction("like")}
           >
             <LikeIcon filled={liked} className={`h-4 w-4 ${liked ? DETAIL_LIKE_ACTIVE_ICON_CLASS : ""}`} />
@@ -45,7 +45,7 @@ function SimilarActionMenu({
           </button>
           <button
             type="button"
-            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-white/90 hover:bg-white/[0.08]"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6]"
             onClick={() => onAction("share")}
           >
             <ShareIcon className="h-4 w-4" />
@@ -53,7 +53,7 @@ function SimilarActionMenu({
           </button>
           <button
             type="button"
-            className="hidden h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-white/90 hover:bg-white/[0.08] lg:flex"
+            className="hidden h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6] lg:flex"
             onClick={() => onAction("compare")}
           >
             <CompareViewIcon className="h-4 w-4" />
@@ -87,16 +87,16 @@ export function SimilarRunCard({
   return (
     <article
       className={`rounded-[16px] border p-[14px] transition-colors ${
-        isCompareSelected ? "border-white/20 bg-[#3b3a3b]" : "border-white/10 bg-[#323132] hover:bg-[#353435]"
+        isCompareSelected ? "border-[#9aa7ba] bg-[#eef1f5]" : "border-[#e5e7eb] bg-white hover:bg-[#f7f8fa]"
       }`}
     >
       <div className="flex items-start gap-[10px]">
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-[12px]">
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[15px] font-semibold leading-[1.4] text-white/92 md:text-[16px]">{match.run.title}</div>
-              <div className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[4px] text-[12px] text-white/52 md:text-[13px]">
-                <span className="max-w-full truncate font-medium text-white/78">{match.run.userName}</span>
+              <div className="truncate text-[15px] font-semibold leading-[1.4] text-[#111827] md:text-[16px]">{match.run.title}</div>
+              <div className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[4px] text-[12px] text-[#8d93a3] md:text-[13px]">
+                <span className="max-w-full truncate font-medium text-[#5f6678]">{match.run.userName}</span>
                 <span>{match.run.postedLabel}</span>
                 <PlatformLabel platform={match.run.platform} iconClassName="h-[13px] w-[13px]" />
               </div>
@@ -106,7 +106,7 @@ export function SimilarRunCard({
             </div>
           </div>
 
-          <div className="mt-[12px] rounded-[16px] border border-white/10 bg-[#272727] px-[10px] py-[9px]">
+          <div className="mt-[12px] rounded-[16px] border border-[#e5e7eb] bg-[#f7f8fa] px-[10px] py-[9px]">
             <div className="flex items-center justify-between gap-[8px]">
               {match.run.party.map((member) => {
                 const characterName = characterDb[member.characterId]?.name ?? member.characterId;

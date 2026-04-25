@@ -8,7 +8,7 @@ const ELEMENT_FILTER_LABEL = "元素絞り込み";
 const CHARACTER_LIST_LABEL = "キャラクター一覧";
 
 function filterButtonTone(active: boolean, activeClass: string) {
-  return active ? activeClass : "border-white/12 bg-white/[0.05] text-white/70 hover:bg-white/10 hover:text-white";
+  return active ? activeClass : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]";
 }
 
 type CharacterTabProps = {
@@ -41,21 +41,21 @@ export function CharacterTab({
   return (
     <>
       <section className="space-y-2 [&>div:first-child]:hidden">
-        <div className="text-[12px] font-medium text-white/48">{SEARCH_LABEL}</div>
+        <div className="text-[12px] font-medium text-[#8d93a3]">{SEARCH_LABEL}</div>
         <label className="relative block">
-          <SearchIcon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/36" />
+          <SearchIcon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#8d93a3]" />
           <input
             type="text"
             value={characterSearchValue}
             onChange={(event) => onCharacterSearchChange(event.target.value)}
             placeholder={characterSearchPlaceholder}
-            className="h-11 w-full rounded-[14px] border border-white/10 bg-white/[0.04] pl-11 pr-4 text-[14px] text-white placeholder:text-white/28 outline-none transition-colors focus:border-white/24"
+            className="h-11 w-full rounded-[14px] border border-[#d8dde6] bg-[#f7f8fa] pl-11 pr-4 text-[14px] text-[#333333] placeholder:text-[#8d93a3] outline-none transition-colors focus:border-[#9aa7ba] focus:bg-white"
           />
         </label>
       </section>
 
       <section className="space-y-3 [&>div:first-child]:hidden">
-        <div className="text-[12px] font-medium text-white/48">{ELEMENT_FILTER_LABEL}</div>
+        <div className="text-[12px] font-medium text-[#8d93a3]">{ELEMENT_FILTER_LABEL}</div>
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             {elementFilterOptions.map((option) => (
@@ -64,7 +64,7 @@ export function CharacterTab({
                 type="button"
                 className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${filterButtonTone(
                   selectedElement === option.key,
-                  "border-transparent bg-white text-[#151515]",
+                  "border-transparent bg-[#111827] text-white",
                 )}`}
                 onClick={() => onToggleElementFilter(option.key)}
               >
@@ -76,7 +76,7 @@ export function CharacterTab({
       </section>
 
       <section className="space-y-3 [&>div:first-child]:hidden">
-        <div className="text-[12px] font-medium text-white/48">{CHARACTER_LIST_LABEL}</div>
+        <div className="text-[12px] font-medium text-[#8d93a3]">{CHARACTER_LIST_LABEL}</div>
         <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
           {visibleCharacters.map((character) => {
             const isInclude = draftFilters[activeTab].includeIds.includes(character.id);
@@ -88,17 +88,17 @@ export function CharacterTab({
                 type="button"
                 className={`relative rounded-[16px] border p-2 text-center transition-all ${
                   isExclude
-                    ? "border-[#8d575d] bg-[#43292d]/70"
+                    ? "border-[#efc9b0] bg-[#fff7f2]"
                     : isInclude
-                      ? "border-cyan-300 bg-cyan-400/12"
-                      : "border-white/10 bg-white/[0.04] hover:border-white/20"
+                      ? "border-[#8fc7d8] bg-[#eef9fc]"
+                      : "border-[#e5e7eb] bg-[#f7f8fa] hover:border-[#c8ced8] hover:bg-white"
                 }`}
                 onClick={() => onToggleCharacter(character.id)}
               >
                 {isInclude || isExclude ? (
                   <div
                     className={`absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                      isExclude ? "bg-[#b96b74] text-white" : "bg-cyan-300 text-[#141414]"
+                      isExclude ? "bg-[#c27642] text-white" : "bg-[#6bbbd0] text-white"
                     }`}
                   >
                     {isExclude ? "-" : "+"}
@@ -106,14 +106,14 @@ export function CharacterTab({
                 ) : null}
                 <div className="flex flex-col items-center">
                   <CharacterImage characterId={character.id} variant="circle" alt={character.name} className="h-14 w-14 rounded-full object-cover" />
-                  <div className="mt-2 truncate text-[11px] font-medium text-white/76">{character.name}</div>
+                  <div className="mt-2 truncate text-[11px] font-medium text-[#5f6678]">{character.name}</div>
                 </div>
               </button>
             );
           })}
         </div>
         {visibleCharacters.length === 0 ? (
-          <div className="rounded-[16px] border border-dashed border-white/10 bg-white/[0.02] px-4 py-8 text-center text-[13px] text-white/42">
+          <div className="rounded-[16px] border border-dashed border-[#d8dde6] bg-[#f7f8fa] px-4 py-8 text-center text-[13px] text-[#8d93a3]">
             {emptyCharacterResultLabel}
           </div>
         ) : null}
