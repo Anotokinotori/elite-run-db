@@ -19,18 +19,18 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
   const partyBuildItems = getPartyBuildItems(run);
 
   return (
-    <div className="flex min-h-full flex-col gap-[16px] bg-[#212121] px-3 py-3 text-white/90">
+    <div className="flex min-h-full flex-col gap-[16px] bg-[#f5f6f8] px-3 py-3 text-[#333333]">
       <VideoFrame title={run.title} videoUrl={run.videoUrl} iframeRef={iframeRef} mute />
 
       <div className="flex flex-col gap-[12px]">
         <div className="flex flex-col gap-[12px]">
-          <div className="text-[16px] font-bold leading-none text-white md:text-[18px]">{run.title}</div>
+          <div className="text-[16px] font-bold leading-none text-[#111827] md:text-[18px]">{run.title}</div>
           <div className="flex items-center justify-between gap-[12px]">
             <div className="flex min-w-0 items-center gap-[12px]">
               <CircleAvatar label={run.userName} size={40} />
-              <div className="truncate text-[16px] font-bold leading-none text-white md:text-[18px]">{run.userName}</div>
+              <div className="truncate text-[16px] font-bold leading-none text-[#111827] md:text-[18px]">{run.userName}</div>
             </div>
-            <div className="inline-flex shrink-0 items-center gap-[6px] rounded-[42px] border border-white/10 bg-[#272727] px-[10px] py-[5px] text-[12px] text-white/82 md:text-[13px]">
+            <div className="inline-flex shrink-0 items-center gap-[6px] rounded-[42px] border border-[#d8dde6] bg-white px-[10px] py-[5px] text-[12px] text-[#333333] md:text-[13px]">
               <PlatformIcon platform={run.platform} className="h-[13px] w-[13px]" />
               <span>{run.platform}</span>
             </div>
@@ -38,13 +38,13 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
         </div>
 
         <div className={`w-full ${DETAIL_MUTED_SURFACE_CLASS} p-[12px]`}>
-          <div className="flex items-center gap-x-[16px] overflow-x-auto whitespace-nowrap text-[13px] text-white/74 md:gap-x-[18px] md:text-[14px]">
+          <div className="flex items-center gap-x-[16px] overflow-x-auto whitespace-nowrap text-[13px] text-[#5f6678] md:gap-x-[18px] md:text-[14px]">
             <span>ver : {run.versionLabel}</span>
             <span>{run.postedLabel}</span>
             <PlatformLabel platform={run.platform} />
           </div>
           <div className="mt-[12px] space-y-[12px]">
-            <p className="whitespace-pre-line text-[14px] leading-[1.75] text-white/88 md:text-[15px]">{run.summary}</p>
+            <p className="whitespace-pre-line text-[14px] leading-[1.75] text-[#333333] md:text-[15px]">{run.summary}</p>
             <div className="flex flex-wrap gap-[10px] md:gap-[12px]">
               {run.tags.map((tag) => (
                 <TagChip key={`${run.id}-${tag}`} tag={tag} />
@@ -122,16 +122,16 @@ export function CompareDrawer({
 
   return (
     <div className={embedded ? "fixed top-[80px] right-0 bottom-0 z-20 hidden lg:block" : "fixed inset-y-0 right-0 z-50 hidden lg:block"} aria-modal="false" role="complementary">
-      <div className="flex h-full w-[50vw] flex-col border-l border-white/10 bg-[#212121] shadow-[-20px_0_40px_rgba(0,0,0,0.35)]">
-        <div className="flex min-h-[52px] items-center justify-between border-b border-white/10 bg-[#212121] px-4 py-2">
+      <div className="flex h-full w-[50vw] flex-col border-l border-[#e5e7eb] bg-[#f5f6f8] shadow-[-20px_0_40px_rgba(31,41,55,0.16)]">
+        <div className="flex min-h-[52px] items-center justify-between border-b border-[#e5e7eb] bg-white px-4 py-2">
           <div className="min-w-0">
-            <div className="text-[16px] font-semibold text-white/92 md:text-[18px]">比較ビュー</div>
+            <div className="text-[16px] font-semibold text-[#111827] md:text-[18px]">比較ビュー</div>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onToggleSync}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] border border-white/10 bg-[#272727] px-4 text-[13px] font-medium text-white transition hover:bg-[#303030]"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] border border-[#d8dde6] bg-[#f7f8fa] px-4 text-[13px] font-medium text-[#333333] transition hover:bg-[#eef1f5]"
             >
               {syncPlaying ? <PauseIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
               <span>{syncPlaying ? "同期停止" : "同時再生"}</span>
@@ -150,7 +150,7 @@ export function CompareDrawer({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[#212121]">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[#f5f6f8]">
           <CompareRunPane run={comparedRun} iframeRef={comparedIframeRef} />
         </div>
       </div>

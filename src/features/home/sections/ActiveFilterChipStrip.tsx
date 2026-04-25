@@ -12,7 +12,7 @@ export function ActiveFilterChipStrip({ chips, onRemove }: ActiveFilterChipStrip
 
   return (
     <>
-      <p className="ml-3 mr-2 text-[14px] font-medium text-white/42">{"\uFF1A"}</p>
+      <p className="ml-3 mr-2 text-[14px] font-medium text-[#8d93a3]">{"\uFF1A"}</p>
       <div className="flex flex-wrap items-center gap-2">
         {chips.map((chip) => (
           <button
@@ -20,8 +20,8 @@ export function ActiveFilterChipStrip({ chips, onRemove }: ActiveFilterChipStrip
             type="button"
             className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-full px-2.5 text-[11px] font-medium transition-colors ${
               chip.isExclude
-                ? "border border-[#6e4a4a] text-white/76 hover:bg-[#3a2626]"
-                : "border border-white/12 text-white/78 hover:bg-white/10 hover:text-white"
+                ? "border border-[#efc9b0] bg-[#fff7f2] text-[#b6611e] hover:bg-[#fbf1ea]"
+                : "border border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"
             }`}
             onClick={() => onRemove(chip)}
           >

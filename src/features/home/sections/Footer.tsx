@@ -2,9 +2,9 @@ import { TimerIcon } from "../ui/icons";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-[#212121] py-12">
-      <div className="max-w-7xl mx-auto px-4 text-center text-sm text-white/52">
-        <div className="mb-4 flex items-center justify-center gap-2 text-white/74">
+    <footer className="border-t border-[#e5e7eb] bg-white py-12">
+      <div className="max-w-7xl mx-auto px-4 text-center text-sm text-[#8d93a3]">
+        <div className="mb-4 flex items-center justify-center gap-2 text-[#5f6678]">
           <TimerIcon size={20} />
           <span className="text-lg font-bold">Teyvat EliteDB</span>
         </div>

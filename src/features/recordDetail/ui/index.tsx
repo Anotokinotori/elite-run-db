@@ -54,7 +54,7 @@ export function PillButton({
       className={`inline-flex items-center justify-center gap-2 rounded-[42px] px-[14px] py-[7px] text-[14px] font-medium leading-none transition duration-150 hover:-translate-y-[1px] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] md:text-[15px] ${
         dark || active
           ? "border border-black/50 bg-black text-white"
-          : "border border-white/10 bg-[#272727] text-white/90 hover:bg-[#303030]"
+          : "border border-[#d8dde6] bg-[#f7f8fa] text-[#333333] hover:bg-[#eef1f5]"
       } ${className}`}
     >
       {children}
@@ -77,14 +77,14 @@ export function TinyBadge({ label, highlighted = false }: { label: string; highl
 }
 
 export function SectionTitle({ children }: { children: ReactNode }) {
-  return <div className="text-[16px] font-bold leading-none text-white/90 md:text-[18px]">{children}</div>;
+  return <div className="text-[16px] font-bold leading-none text-[#111827] md:text-[18px]">{children}</div>;
 }
 
 export function SidebarPanel({ children }: { children: ReactNode }) {
   return (
     <section className={`w-full ${DETAIL_PANEL_SHELL_CLASS}`}>
       <div className={`${DETAIL_PANEL_INNER_CLASS} p-[16px]`}>
-        <div className="pointer-events-none absolute -left-[30%] -top-[44%] h-[220px] w-[220px] rounded-full bg-white/18 blur-[72px]" />
+        <div className="pointer-events-none absolute -left-[30%] -top-[44%] h-[220px] w-[220px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.72),rgba(232,224,210,0.24)_48%,rgba(255,255,255,0)_72%)] blur-[72px]" />
         <div className="relative z-[1]">{children}</div>
       </div>
     </section>
@@ -95,19 +95,19 @@ export function SidebarSectionHeader({ title, meta }: { title: ReactNode; meta?:
   return (
     <div className="flex items-start justify-between gap-[12px]">
       <SectionTitle>{title}</SectionTitle>
-      {meta ? <div className="shrink-0 text-[12px] font-medium text-white/52 md:text-[13px]">{meta}</div> : null}
+      {meta ? <div className="shrink-0 text-[12px] font-medium text-[#8d93a3] md:text-[13px]">{meta}</div> : null}
     </div>
   );
 }
 
 export function PartyBuildItemCard({ entry }: { entry: PartyBuildItem }) {
   return (
-    <div className="rounded-[16px] border border-white/10 bg-[#272727] p-[12px] md:p-[14px]">
+    <div className="rounded-[16px] border border-[#e5e7eb] bg-[#f7f8fa] p-[12px] md:p-[14px]">
       <div className="flex items-start gap-[12px] md:gap-[14px]">
         <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={56} />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[16px] font-semibold leading-[1.2] text-white/92 md:text-[17px]">{entry.characterName}</div>
-          <div className="mt-[5px] truncate text-[13px] leading-[1.45] text-white/56 md:text-[14px]">{entry.weaponName}</div>
+          <div className="truncate text-[16px] font-semibold leading-[1.2] text-[#111827] md:text-[17px]">{entry.characterName}</div>
+          <div className="mt-[5px] truncate text-[13px] leading-[1.45] text-[#5f6678] md:text-[14px]">{entry.weaponName}</div>
           <div className="mt-[10px] flex flex-wrap gap-[8px]">
             <TinyBadge label={`C${entry.cons}`} highlighted={entry.cons === 6} />
             <TinyBadge label={`R${entry.refine}`} highlighted={entry.refine === 5} />
@@ -120,7 +120,7 @@ export function PartyBuildItemCard({ entry }: { entry: PartyBuildItem }) {
 
 export function SimilarityReasonChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-[#272727] px-[10px] py-[5px] text-[11px] font-medium leading-none text-white/68 md:text-[12px]">
+    <span className="inline-flex items-center rounded-full border border-[#d8dde6] bg-[#eef1f5] px-[10px] py-[5px] text-[11px] font-medium leading-none text-[#5f6678] md:text-[12px]">
       {label}
     </span>
   );
@@ -145,7 +145,7 @@ export function TagChip({ tag }: { tag: string }) {
   const platformParts = parsePlatformTag(tag);
 
   return (
-    <span className="inline-flex items-center gap-[6px] rounded-[42px] border border-white/10 bg-[#272727] px-[10px] py-[5px] text-[12px] text-white/85 md:px-[12px] md:py-[6px] md:text-[13px]">
+    <span className="inline-flex items-center gap-[6px] rounded-[42px] border border-[#d8dde6] bg-white px-[10px] py-[5px] text-[12px] text-[#333333] md:px-[12px] md:py-[6px] md:text-[13px]">
       {platformParts ? (
         <span className="inline-flex items-center gap-[4px]">
           {platformParts.map((platform, index) => (
@@ -174,7 +174,7 @@ export function VideoFrame({
   const embedUrl = getYouTubeEmbedUrl(videoUrl, { autoplay, mute, enableJsApi: true });
 
   return (
-    <div className="aspect-[669/380] w-full overflow-hidden rounded-[16px] border border-white/10 bg-[#272727] shadow-[0_20px_40px_rgba(0,0,0,0.28)]">
+    <div className="aspect-[669/380] w-full overflow-hidden rounded-[16px] border border-[#e5e7eb] bg-[#d9d9d9] shadow-[0_16px_34px_rgba(31,41,55,0.12)]">
       {embedUrl ? (
         <iframe
           ref={iframeRef}
