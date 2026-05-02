@@ -91,6 +91,7 @@ export function HomePage({
   const filteredBase = useMemo(() => filterRuns(runs, filters), [filters, runs]);
   const rLogicApplied = useMemo(() => (enableRLogic ? applyRLogic(filteredBase) : filteredBase), [enableRLogic, filteredBase]);
   const filteredRuns = useMemo(() => sortRuns(rLogicApplied, sortMode), [rLogicApplied, sortMode]);
+  const leaderboardLastUpdatedDate = useMemo(() => getLatestRunDate(runs), [runs]);
   const charTargetRuns = useMemo(
     () =>
       runs.filter((run) =>
@@ -184,6 +185,7 @@ export function HomePage({
             <LeaderboardSection
               leaderboardRef={leaderboardRef}
               leaderboardView={leaderboardView}
+              lastUpdatedDate={leaderboardLastUpdatedDate}
               filterBracket={filterBracket}
               leaderboardRuns={leaderboardRuns}
               activeFilterChips={activeFilterChips}
@@ -222,4 +224,14 @@ export function HomePage({
       />
     </Shell>
   );
+}
+
+function getLatestRunDate(runs: HomeRun[]) {
+  return runs.reduce((latestDate, run) => {
+    if (!latestDate) {
+      return run.date;
+    }
+
+    return new Date(run.date).getTime() > new Date(latestDate).getTime() ? run.date : latestDate;
+  }, "");
 }

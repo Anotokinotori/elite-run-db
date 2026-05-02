@@ -616,7 +616,7 @@ export function AppShell({
             onVersionChange={onVersionChange}
           />
 
-          <main className={classNames("min-w-0 flex-1 text-[#333333]", lightChrome ? "bg-[#f5f6f8]" : "bg-[#f0f2f5]")}>{children}</main>
+          <main className={classNames("min-w-0 flex-1 text-[#333333]", routeName === "home" ? "bg-[#EDECEC]" : lightChrome ? "bg-[#f5f6f8]" : "bg-[#f0f2f5]")}>{children}</main>
         </div>
       </div>
     </div>

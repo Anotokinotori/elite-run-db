@@ -124,7 +124,7 @@ export const HOME_BUTTON_CLASSES = {
 } as const;
 
 export const HOME_LAYOUT_CLASSES = {
-  leaderboardFullBleed: "relative left-1/2 right-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#f5f6f8]",
+  leaderboardFullBleed: "relative left-1/2 right-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#EDECEC]",
   leaderboardInner: "mx-auto max-w-7xl px-5 sm:px-6 lg:px-8",
 } as const;
 
