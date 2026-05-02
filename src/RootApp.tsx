@@ -5,7 +5,7 @@ import { PlaceholderPage } from "./components/PlaceholderPage";
 import { RecordDetailPage } from "./components/RecordDetailPage";
 import { HomePage } from "./components/HomePage";
 import { SubmitPage } from "./components/SubmitPage";
-import { defaultRunId, getRunById, mockRuns } from "./data/mockRuns";
+import { appRuns, defaultAppRunId, getAppRunById } from "./data/appRuns";
 
 type AppRoute =
   | { name: "home" }
@@ -21,7 +21,7 @@ type AppRoute =
 type ShellDestination = Exclude<AppRoute["name"], "detail">;
 
 const DEFAULT_VERSION_OPTIONS = ["Luna3", "Luna2", "Luna1", "5.8", "5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"];
-const APP_VERSION_OPTIONS = Array.from(new Set([...DEFAULT_VERSION_OPTIONS, ...mockRuns.map((run) => run.versionLabel)]));
+const APP_VERSION_OPTIONS = Array.from(new Set([...DEFAULT_VERSION_OPTIONS, ...appRuns.map((run) => run.versionLabel)]));
 
 function getRouteFromHash(): AppRoute {
   if (typeof window === "undefined") {
@@ -35,12 +35,12 @@ function getRouteFromHash(): AppRoute {
   }
 
   if (normalizedHash === "detail") {
-    return { name: "detail", runId: defaultRunId };
+    return { name: "detail", runId: defaultAppRunId };
   }
 
   if (normalizedHash.startsWith("detail/")) {
     const runId = decodeURIComponent(normalizedHash.slice("detail/".length));
-    return { name: "detail", runId: getRunById(runId) ? runId : defaultRunId };
+    return { name: "detail", runId: getAppRunById(runId) ? runId : defaultAppRunId };
   }
 
   if (normalizedHash === "chat") {
@@ -232,7 +232,7 @@ export default function RootApp() {
 
   useEffect(() => {
     if (route.name === "detail") {
-      const currentRun = getRunById(route.runId);
+      const currentRun = getAppRunById(route.runId);
       if (currentRun?.versionLabel) {
         setSelectedVersion(currentRun.versionLabel);
       }
@@ -372,7 +372,6 @@ export default function RootApp() {
     </AppShell>
   );
 }
-
 
 
 

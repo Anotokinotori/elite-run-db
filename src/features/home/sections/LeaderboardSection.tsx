@@ -1,7 +1,14 @@
 import type { RefObject } from "react";
 
 import type { Bracket } from "../../../data/mockRuns";
-import { HOME_BRACKET_FILTER_OPTIONS, HOME_LABELS, HOME_LAYOUT_CLASSES, HOME_LEADERBOARD_VIEW_OPTIONS } from "../config";
+import {
+  HOME_BRACKET_ACCENT_COLORS,
+  HOME_BRACKET_FILTER_OPTIONS,
+  HOME_DEFAULT_LEADERBOARD_ACCENT_COLOR,
+  HOME_LABELS,
+  HOME_LAYOUT_CLASSES,
+  HOME_LEADERBOARD_VIEW_OPTIONS,
+} from "../config";
 import { FilterFunnelIcon, SearchIcon } from "../ui/icons";
 import { LeaderboardRow } from "../ui/LeaderboardRow";
 import type { ActiveFilterChipViewData, HomeRun, HomeRunWithGroup, LeaderboardView } from "../types";
@@ -35,11 +42,12 @@ export function LeaderboardSection({
   onSelectRun,
 }: LeaderboardSectionProps) {
   const lastUpdatedLabel = formatLeaderboardUpdatedLabel(lastUpdatedDate);
+  const leaderboardAccentColor = filterBracket ? HOME_BRACKET_ACCENT_COLORS[filterBracket] : HOME_DEFAULT_LEADERBOARD_ACCENT_COLOR;
 
   return (
     <div ref={leaderboardRef} className={HOME_LAYOUT_CLASSES.leaderboardFullBleed}>
       <div className={HOME_LAYOUT_CLASSES.leaderboardInner}>
-        <div className="pt-12 pb-14 md:pt-14 md:pb-16">
+        <div className="pt-8 pb-14 md:pt-10 md:pb-16">
           <div className="mb-8 border-t border-[#d4d4d4] pt-7 md:mb-9 md:pt-8">
             <h2 className="max-w-full overflow-hidden whitespace-nowrap text-[43px] font-normal leading-[40px] text-black md:text-[50px] lg:text-[69px] lg:leading-[62px] [font-family:'Bebas_Neue','Arial_Narrow','Space_Grotesk',sans-serif]">
               LEADERBOARD
@@ -105,7 +113,7 @@ export function LeaderboardSection({
           {leaderboardRuns.length > 0 ? (
             <div className="space-y-5">
               {leaderboardRuns.map((run, index) => (
-                <LeaderboardRow key={run.id} run={run} index={index} onSelect={onSelectRun} view={leaderboardView} />
+                <LeaderboardRow key={run.id} run={run} index={index} onSelect={onSelectRun} view={leaderboardView} accentColor={leaderboardAccentColor} />
               ))}
             </div>
           ) : (

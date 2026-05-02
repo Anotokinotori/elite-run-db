@@ -1,7 +1,8 @@
 import type { Bracket } from "../../../data/mockRuns";
-import { HOME_BUTTON_CLASSES, HOME_LABELS, HOME_PANEL_CLASSES } from "../config";
-import { TopPlayerCard } from "../ui/TopPlayerCard";
+import { HOME_FEATURED_ACCENT_COLOR, HOME_LABELS } from "../config";
+import { PlayerBlockPanel, type PlayerBlockItem } from "../ui/PlayerBlockPanel";
 import type { HomeFeaturedCard } from "../types";
+import { formatHomePanelUpdatedLabel } from "../viewData";
 
 type FeaturedPlayersPanelProps = {
   panelKey: string;
@@ -11,46 +12,41 @@ type FeaturedPlayersPanelProps = {
 };
 
 export function FeaturedPlayersPanel({ panelKey, featuredCards, onViewBracket, onSelectRun }: FeaturedPlayersPanelProps) {
+  const items: PlayerBlockItem[] = featuredCards.map((item) => {
+    const featuredRun = item.run;
+
+    return {
+      key: item.key,
+      label: item.title,
+      run: featuredRun,
+      accentColor: HOME_FEATURED_ACCENT_COLOR,
+      actionLabel: item.actionLabel,
+      actionDisabled: !featuredRun,
+      onAction: () => {
+        if (!featuredRun) {
+          return;
+        }
+
+        if (item.action === "detail") {
+          onSelectRun(featuredRun.id);
+          return;
+        }
+
+        onViewBracket(featuredRun.bracket);
+      },
+    };
+  });
+
   return (
-    <div key={panelKey} data-top-panel className={`${HOME_PANEL_CLASSES.featuredPanel} min-w-[860px] flex-shrink-0 self-stretch`}>
-      <div className={HOME_PANEL_CLASSES.reflectionTop} />
-      <div className={HOME_PANEL_CLASSES.reflectionCorner} />
-      <div className={`${HOME_PANEL_CLASSES.featuredPanelInner} flex h-full flex-col p-5`}>
-        <div className={`${HOME_PANEL_CLASSES.sectionTitle} mb-4`}>{HOME_LABELS.featuredPlayersLabel}</div>
-        <div className="grid flex-1 min-w-[820px] grid-cols-4 gap-4">
-          {featuredCards.map((item) => {
-            const featuredRun = item.run;
-
-            return (
-              <TopPlayerCard
-                key={item.key}
-                label={item.title}
-                run={featuredRun}
-                theme={item.theme}
-                onView={() => {
-                  if (!featuredRun) {
-                    return;
-                  }
-
-                  onViewBracket(featuredRun.bracket);
-                }}
-                onSelect={onSelectRun}
-                actionLabel={item.actionLabel}
-                onAction={
-                  item.action === "detail" && featuredRun
-                    ? () => {
-                        onSelectRun(featuredRun.id);
-                      }
-                    : undefined
-                }
-                primaryButtonClass={HOME_BUTTON_CLASSES.primary}
-                loadingLabel={HOME_LABELS.loadingLabel}
-              />
-            );
-          })}
-        </div>
-      </div>
-    </div>
+    <PlayerBlockPanel
+      panelKey={panelKey}
+      heading={HOME_LABELS.featuredPlayersLabel}
+      subheading="Featured Runs"
+      badge="PICK UP"
+      updatedLabel={formatHomePanelUpdatedLabel(items.map((item) => item.run))}
+      items={items}
+      loadingLabel={HOME_LABELS.loadingLabel}
+      onSelectRun={onSelectRun}
+    />
   );
 }
-

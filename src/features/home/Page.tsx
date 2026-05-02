@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 
-import { mockRuns, selectableCharacters, type Bracket } from "../../data/mockRuns";
+import { appRuns } from "../../data/appRuns";
+import { selectableCharacters, type Bracket } from "../../data/mockRuns";
 import { FilterDrawer } from "./ui/FilterDrawer";
 import {
   FESTIVAL_RULESET,
@@ -60,7 +61,7 @@ export function HomePage({
   onSelectedSeasonChange,
 }: HomePageProps) {
   const leaderboardRef = useRef<HTMLDivElement | null>(null);
-  const [runs] = useState<HomeRun[]>(() => applyWRTag(mockRuns.map((run) => normalizeHomeRun(run, FESTIVAL_RULESET))));
+  const [runs] = useState<HomeRun[]>(() => applyWRTag(appRuns.map((run) => normalizeHomeRun(run, FESTIVAL_RULESET))));
   const [activeSeasonInternal, setActiveSeasonInternal] = useState(getDefaultSeason(HOME_SEASONS));
   const [activeTab] = useState<"main" | "festival">("main");
   const [filterBracket, setFilterBracket] = useState<Bracket | null>(null);

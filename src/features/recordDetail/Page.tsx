@@ -1,6 +1,6 @@
 ﻿import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import { defaultRunId, getRunById, mockRuns } from "../../data/mockRuns";
+import { appRuns, defaultAppRunId, getAppRunById } from "../../data/appRuns";
 import { getSimilarRuns } from "../../lib/getSimilarRuns";
 
 import { CompareDrawer } from "./sections/CompareDrawer";
@@ -21,7 +21,7 @@ export function RecordDetailPage({
   onRequestSubmit?: () => void;
   embedded?: boolean;
 }) {
-  const currentRun = getRunById(runId ?? defaultRunId) ?? getRunById(defaultRunId) ?? null;
+  const currentRun = getAppRunById(runId ?? defaultAppRunId) ?? getAppRunById(defaultAppRunId) ?? null;
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [liked, setLiked] = useState(false);
   const [shared, setShared] = useState(false);
@@ -38,7 +38,7 @@ export function RecordDetailPage({
   const [headerVersion, setHeaderVersion] = useState(currentRun?.versionLabel ?? "Luna3");
   const mainVideoIframeRef = useRef<HTMLIFrameElement | null>(null);
 
-  const versionOptions = useMemo(() => Array.from(new Set(mockRuns.map((run) => run.versionLabel))), []);
+  const versionOptions = useMemo(() => Array.from(new Set(appRuns.map((run) => run.versionLabel))), []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
@@ -77,7 +77,7 @@ export function RecordDetailPage({
     setHeaderVersion(currentRun.versionLabel);
   }, [currentRun]);
 
-  const compareRun = selectedCompareRunId ? getRunById(selectedCompareRunId) ?? null : null;
+  const compareRun = selectedCompareRunId ? getAppRunById(selectedCompareRunId) ?? null : null;
   const compareOpen = isDesktop && compareRun !== null;
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export function RecordDetailPage({
     return null;
   }
 
-  const similarRuns = getSimilarRuns(currentRun, mockRuns, 4);
+  const similarRuns = getSimilarRuns(currentRun, appRuns, 4);
   const forceMobileLayout = compareOpen;
   const visibleTags = descriptionExpanded ? currentRun.tags : [];
   const shouldShowExpandedArea = descriptionExpanded && (currentRun.summary.length > 0 || currentRun.tags.length > 0);

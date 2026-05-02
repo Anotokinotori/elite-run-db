@@ -48,11 +48,13 @@ export function LeaderboardRow({
   index,
   onSelect,
   view,
+  accentColor,
 }: {
   run: HomeRun | HomeRunWithGroup;
   index: number;
   onSelect: (runId: string) => void;
   view: LeaderboardView;
+  accentColor: string;
 }) {
   const isFirst = index === 0;
   const displayGroup = view === "char" && "displayGroup" in run ? run.displayGroup : null;
@@ -79,7 +81,7 @@ export function LeaderboardRow({
 
   const renderPartyStrip = (size: "mobile" | "desktop") => (
     <div className={classNames("flex min-w-0 items-stretch overflow-hidden", isFirst && "-ml-1")}>
-      {isFirst ? <div className="w-1 shrink-0 bg-[#F32C16]" aria-hidden="true" /> : null}
+      {isFirst ? <div className="w-1 shrink-0" style={{ backgroundColor: accentColor }} aria-hidden="true" /> : null}
       <div className={classNames("flex min-w-0 items-center", isFirst ? "gap-0 border-y border-r border-black/10 bg-[#f4f4f4]" : "gap-2")}>
         {run.party.map((member, memberIndex) => (
           <CharacterImage
@@ -95,11 +97,11 @@ export function LeaderboardRow({
   );
 
   const rankClass = isFirst
-    ? "flex h-8 w-14 shrink-0 items-center justify-center bg-[#F32C16] text-[24px] font-black leading-none text-black sm:h-10 md:h-12 md:w-16 md:text-[34px]"
+    ? "flex h-8 w-14 shrink-0 items-center justify-center text-[24px] font-black leading-none text-black sm:h-10 md:h-12 md:w-16 md:text-[34px]"
     : "flex h-14 w-14 shrink-0 items-center justify-center text-[28px] font-black leading-none text-black md:h-16 md:w-16 md:text-[32px]";
 
   const mobileRankClass = isFirst
-    ? "flex h-9 w-11 shrink-0 items-center justify-center bg-[#F32C16] text-[24px] font-black leading-none text-black sm:h-10 sm:w-14"
+    ? "flex h-9 w-11 shrink-0 items-center justify-center text-[24px] font-black leading-none text-black sm:h-10 sm:w-14"
     : "flex h-10 w-11 shrink-0 items-center justify-center text-[26px] font-black leading-none text-black sm:h-12 sm:w-12 sm:text-[28px]";
 
   const infoBlock = (
@@ -120,7 +122,9 @@ export function LeaderboardRow({
     >
       <div className="grid min-w-0 grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3 md:hidden">
         <div className="flex shrink-0 flex-col items-center justify-center gap-1">
-          <div className={mobileRankClass}>{rank}</div>
+          <div className={mobileRankClass} style={isFirst ? { backgroundColor: accentColor } : undefined}>
+            {rank}
+          </div>
           <RankMoveIcon move={run.rankMove} className="h-5 w-5 shrink-0 text-[#8a8a8a]" />
         </div>
         <div className="min-w-0 overflow-hidden">{renderPartyStrip("mobile")}</div>
@@ -134,7 +138,9 @@ export function LeaderboardRow({
       {isFirst ? (
         <div className="hidden items-center gap-5 md:grid md:grid-cols-[minmax(388px,470px)_24px_minmax(112px,1fr)_max-content] xl:grid-cols-[470px_24px_minmax(190px,1fr)_max-content]">
           <div className="flex min-w-0 items-center">
-            <div className={rankClass}>{rank}</div>
+            <div className={rankClass} style={{ backgroundColor: accentColor }}>
+              {rank}
+            </div>
             {renderPartyStrip("desktop")}
           </div>
           <div className="flex items-center justify-center text-[#8a8a8a]">
