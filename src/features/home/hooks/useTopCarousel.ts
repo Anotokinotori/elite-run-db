@@ -108,6 +108,7 @@ export function useTopCarousel({
   };
 
   return {
+    index,
     rowRef,
     style: {
       transform: `translateX(-${offsets[index] ?? 0}px)`,

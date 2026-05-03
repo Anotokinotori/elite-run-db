@@ -20,9 +20,9 @@ const RANK_BLOCK_WIDTH = CARD_SIZE.outerWidth * 4 + RAIL_GAP * 3 + RAIL_PADDING 
 const SECTION_BLOCK_WIDTH = RANK_BLOCK_WIDTH * 4 + BLOCK_GAP * 3 + SECTION_CARD_AREA_PADDING.left + SECTION_CARD_AREA_PADDING.right;
 
 const MAGAZINE_FACE_CROP = {
-  trimLeftPercent: 5,
-  cutRightPercent: 55,
-  scale: 1.08,
+  trimLeftPercent: 10,
+  cutRightPercent: 60,
+  scale: 1.1,
   objectPosition: "50% 50%",
 } as const;
 
@@ -45,7 +45,7 @@ export type PlayerBlockItem = {
 type PlayerBlockPanelProps = {
   panelKey: string;
   heading: string;
-  subheading: string;
+  subheading?: string;
   badge: string;
   updatedLabel?: string;
   items: PlayerBlockItem[];
@@ -91,13 +91,17 @@ export function PlayerBlockPanel({
           >
             {badge}
           </span>
-          <span className="font-black leading-none tracking-[0.06em] text-white" style={{ fontSize: scale(13.5), fontFamily: FONT_FAMILY.japaneseUi }}>
+          <span className="font-black leading-none tracking-[0.06em] text-[#d9d9d9]" style={{ fontSize: scale(13.5), fontFamily: FONT_FAMILY.japaneseUi }}>
             {heading}
           </span>
-          <span className="shrink-0 rounded-full bg-white/25" style={{ width: scale(3), height: scale(3) }} />
-          <span className="font-normal uppercase leading-none tracking-[0.1em] text-white/40" style={{ fontSize: scale(10), fontFamily: FONT_FAMILY.headingDisplay }}>
-            {subheading}
-          </span>
+          {subheading ? (
+            <>
+              <span className="shrink-0 rounded-full bg-white/25" style={{ width: scale(3), height: scale(3) }} />
+              <span className="font-normal uppercase leading-none tracking-[0.1em] text-white/40" style={{ fontSize: scale(10), fontFamily: FONT_FAMILY.headingDisplay }}>
+                {subheading}
+              </span>
+            </>
+          ) : null}
         </div>
 
         {updatedLabel ? (

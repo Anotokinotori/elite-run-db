@@ -2,6 +2,7 @@
 
 import { appRuns, defaultAppRunId, getAppRunById } from "../../data/appRuns";
 import { getSimilarRuns } from "../../lib/getSimilarRuns";
+import { formatVersionLabel, uniqueFormattedVersionLabels } from "../../lib/versionLabels";
 
 import { CompareDrawer } from "./sections/CompareDrawer";
 import { Header } from "./sections/Header";
@@ -35,10 +36,10 @@ export function RecordDetailPage({
     typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false,
   );
   const [similarActionState, setSimilarActionState] = useState<SimilarActionState>({});
-  const [headerVersion, setHeaderVersion] = useState(currentRun?.versionLabel ?? "Luna3");
+  const [headerVersion, setHeaderVersion] = useState(formatVersionLabel(currentRun?.versionLabel ?? "Luna3"));
   const mainVideoIframeRef = useRef<HTMLIFrameElement | null>(null);
 
-  const versionOptions = useMemo(() => Array.from(new Set(appRuns.map((run) => run.versionLabel))), []);
+  const versionOptions = useMemo(() => uniqueFormattedVersionLabels(appRuns.map((run) => run.versionLabel)), []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
@@ -74,7 +75,7 @@ export function RecordDetailPage({
     setSelectedCompareRunId(null);
     setSyncPlaying(false);
     setSimilarActionState({});
-    setHeaderVersion(currentRun.versionLabel);
+    setHeaderVersion(formatVersionLabel(currentRun.versionLabel));
   }, [currentRun]);
 
   const compareRun = selectedCompareRunId ? getAppRunById(selectedCompareRunId) ?? null : null;

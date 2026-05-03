@@ -3,16 +3,18 @@
 import { AppShell } from "./components/AppShell";
 import { PlaceholderPage } from "./components/PlaceholderPage";
 import { RecordDetailPage } from "./components/RecordDetailPage";
+import { RecordLibraryPage } from "./components/RecordLibraryPage";
 import { HomePage } from "./components/HomePage";
 import { SubmitPage } from "./components/SubmitPage";
 import { appRuns, defaultAppRunId, getAppRunById } from "./data/appRuns";
+import { uniqueFormattedVersionLabels } from "./lib/versionLabels";
 
 type AppRoute =
   | { name: "home" }
   | { name: "detail"; runId: string }
   | { name: "submit" }
   | { name: "chat" }
-  | { name: "question" }
+  | { name: "library" }
   | { name: "exchange" }
   | { name: "event" }
   | { name: "notifications" }
@@ -21,14 +23,15 @@ type AppRoute =
 type ShellDestination = Exclude<AppRoute["name"], "detail">;
 
 const DEFAULT_VERSION_OPTIONS = ["Luna3", "Luna2", "Luna1", "5.8", "5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"];
-const APP_VERSION_OPTIONS = Array.from(new Set([...DEFAULT_VERSION_OPTIONS, ...appRuns.map((run) => run.versionLabel)]));
+const APP_VERSION_OPTIONS = uniqueFormattedVersionLabels([...DEFAULT_VERSION_OPTIONS, ...appRuns.map((run) => run.versionLabel)]);
 
 function getRouteFromHash(): AppRoute {
   if (typeof window === "undefined") {
     return { name: "home" };
   }
 
-  const normalizedHash = window.location.hash.replace(/^#/, "");
+  const rawHash = window.location.hash.replace(/^#/, "");
+  const normalizedHash = rawHash.toLowerCase();
 
   if (normalizedHash === "submit") {
     return { name: "submit" };
@@ -39,7 +42,7 @@ function getRouteFromHash(): AppRoute {
   }
 
   if (normalizedHash.startsWith("detail/")) {
-    const runId = decodeURIComponent(normalizedHash.slice("detail/".length));
+    const runId = decodeURIComponent(rawHash.slice("detail/".length));
     return { name: "detail", runId: getAppRunById(runId) ? runId : defaultAppRunId };
   }
 
@@ -48,7 +51,11 @@ function getRouteFromHash(): AppRoute {
   }
 
   if (normalizedHash === "question") {
-    return { name: "question" };
+    return { name: "chat" };
+  }
+
+  if (normalizedHash === "library") {
+    return { name: "library" };
   }
 
   if (normalizedHash === "exchange") {
@@ -83,8 +90,8 @@ function getHashFromRoute(route: AppRoute) {
     return "#chat";
   }
 
-  if (route.name === "question") {
-    return "#question";
+  if (route.name === "library") {
+    return "#library";
   }
 
   if (route.name === "exchange") {
@@ -106,32 +113,29 @@ function getHashFromRoute(route: AppRoute) {
   return "#home";
 }
 
+function routesEqual(a: AppRoute, b: AppRoute) {
+  if (a.name !== b.name) {
+    return false;
+  }
+
+  if (a.name === "detail" && b.name === "detail") {
+    return a.runId === b.runId;
+  }
+
+  return true;
+}
+
 function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], "home" | "detail" | "submit"> }) {
   if (routeName === "chat") {
     return (
       <PlaceholderPage
-        label="Chat"
-        title="雑談"
-        description="精鋭狩りの軽い相談、雑談、日々の試走メモを溜めるための入口です。後続 issue でスレッド一覧や投稿 UI を差し替えやすいよう、まずは route と受け皿だけを繋いでいます。"
+        label="Hunting Chat"
+        title="狩りチャット"
+        description="精鋭狩りの軽い相談、質問、日々の試走メモをまとめて扱う入口です。雑談と質問を分けず、狩りに関する会話をひとつの場所へ集約します。"
       >
         <div className="grid gap-3 md:grid-cols-2">
-          <div className="rounded-[16px] border border-[#ececf4] bg-[#f8f8fb] px-4 py-4 text-[14px] text-[#5e6173]">最近の話題や募集を見つけやすい一覧領域</div>
+          <div className="rounded-[16px] border border-[#ececf4] bg-[#f8f8fb] px-4 py-4 text-[14px] text-[#5e6173]">最近の会話、質問、募集を見つけやすい一覧領域</div>
           <div className="rounded-[16px] border border-[#ececf4] bg-[#f8f8fb] px-4 py-4 text-[14px] text-[#5e6173]">簡易投稿ボックスや pinned thread の置き場</div>
-        </div>
-      </PlaceholderPage>
-    );
-  }
-
-  if (routeName === "question") {
-    return (
-      <PlaceholderPage
-        label="Questions"
-        title="質問"
-        description="編成、ルート、装備、申請方法など、記録閲覧と地続きの質問を独立ページとして置きます。情報交換に埋もれないよう専用 route で扱います。"
-      >
-        <div className="space-y-3 text-[14px] leading-[1.8] text-[#5e6173]">
-          <div className="rounded-[16px] border border-[#ececf4] bg-[#f8f8fb] px-4 py-4">「この編成でどこを短縮できるか」などの Q&A 一覧</div>
-          <div className="rounded-[16px] border border-[#ececf4] bg-[#f8f8fb] px-4 py-4">初心者向け導線と、答えが見つかりやすい固定カテゴリ</div>
         </div>
       </PlaceholderPage>
     );
@@ -231,17 +235,14 @@ export default function RootApp() {
   }, [route]);
 
   useEffect(() => {
-    if (route.name === "detail") {
-      const currentRun = getAppRunById(route.runId);
-      if (currentRun?.versionLabel) {
-        setSelectedVersion(currentRun.versionLabel);
-      }
-    }
-  }, [route]);
-
-  useEffect(() => {
     const previousRoute = previousRouteRef.current;
     previousRouteRef.current = route;
+
+    const currentHashRoute = getRouteFromHash();
+    if (!routesEqual(currentHashRoute, route)) {
+      setRoute(currentHashRoute);
+      return;
+    }
 
     const nextHash = getHashFromRoute(route);
 
@@ -293,8 +294,8 @@ export default function RootApp() {
       return;
     }
 
-    if (target === "question") {
-      navigate({ name: "question" });
+    if (target === "library") {
+      navigate({ name: "library" });
       return;
     }
 
@@ -368,10 +369,9 @@ export default function RootApp() {
         />
       ) : null}
 
-      {route.name !== "home" && route.name !== "submit" && route.name !== "detail" ? <RoutePlaceholder routeName={route.name} /> : null}
+      {route.name === "library" ? <RecordLibraryPage onOpenRankings={navigateHomeFromTitle} /> : null}
+
+      {route.name !== "home" && route.name !== "submit" && route.name !== "detail" && route.name !== "library" ? <RoutePlaceholder routeName={route.name} /> : null}
     </AppShell>
   );
 }
-
-
-

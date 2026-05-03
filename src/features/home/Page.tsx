@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState } from "react";
 
+import { ChevronRightIcon } from "../../components/UiIcons";
 import { appRuns } from "../../data/appRuns";
 import { selectableCharacters, type Bracket } from "../../data/mockRuns";
 import { FilterDrawer } from "./ui/FilterDrawer";
+import { SearchIcon } from "./ui/icons";
 import {
   FESTIVAL_RULESET,
   HERO_IMAGE_URL,
@@ -176,6 +178,7 @@ export function HomePage({
             <TopPanelsCarousel
               rowRef={topCarousel.rowRef}
               style={topCarousel.style}
+              activeIndex={topCarousel.index}
               heroRuns={heroRuns}
               featuredCards={featuredCards}
               onTransitionEnd={topCarousel.handleTransitionEnd}
@@ -203,6 +206,7 @@ export function HomePage({
       </main>
 
       <Footer />
+      <RecordLibraryFloatingCta />
       <FilterDrawer
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
@@ -224,6 +228,23 @@ export function HomePage({
         emptyTagResultLabel={HOME_LABELS.emptyTagResultLabel}
       />
     </Shell>
+  );
+}
+
+function RecordLibraryFloatingCta() {
+  return (
+    <a
+      href="#library"
+      aria-label="記録図書館で記録を探す"
+      className="fixed bottom-6 right-6 z-30 flex items-center gap-3 border border-white/25 bg-[#111116] px-3.5 py-3 text-left text-[#d9d9d9] shadow-[0_12px_28px_rgba(0,0,0,0.24)] transition duration-200 hover:-translate-y-0.5 hover:border-white/40 hover:bg-[#17171d] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111116]"
+    >
+      <span className="flex items-center gap-1.5 border border-white/35 px-2 py-1 text-[9px] font-bold uppercase leading-none text-white/60">
+        <SearchIcon size={11} className="shrink-0" />
+        Library
+      </span>
+      <span className="cta-shine-text whitespace-nowrap text-[14px] font-black leading-none sm:text-[15px]">記録を探す</span>
+      <ChevronRightIcon className="h-4 w-4 shrink-0 text-white/70" />
+    </a>
   );
 }
 

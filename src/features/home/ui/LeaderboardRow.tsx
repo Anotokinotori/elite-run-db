@@ -2,6 +2,7 @@ import { characterDb, type Bracket } from "../../../data/mockRuns";
 import { CharacterImage } from "./CharacterImage";
 import { RankMoveIcon } from "./icons";
 import { getBracketLabel } from "../logic";
+import { formatVersionLabel } from "../../../lib/versionLabels";
 import type { HomeRun, HomeRunWithGroup, LeaderboardView } from "../types";
 
 function classNames(...values: Array<string | false | null | undefined>) {
@@ -11,7 +12,7 @@ function classNames(...values: Array<string | false | null | undefined>) {
 function getLeaderboardStats(run: HomeRun | HomeRunWithGroup) {
   return [
     { label: "DEVICE", value: run.platform },
-    { label: "SEASON", value: run.versionLabel || run.season },
+    { label: "SEASON", value: formatVersionLabel(run.versionLabel || run.season) },
     { label: "BRACKET", value: getBracketLabel(run.bracket as Bracket) },
   ];
 }
@@ -20,10 +21,10 @@ function LeaderboardStatList({ run }: { run: HomeRun | HomeRunWithGroup }) {
   const stats = getLeaderboardStats(run);
 
   return (
-    <div className="grid grid-cols-3 gap-3 text-[11px] leading-tight md:w-max md:grid-cols-[max-content_max-content] md:items-baseline md:justify-self-end md:gap-x-5 md:gap-y-2">
+    <div className="grid grid-cols-3 gap-3 text-[11px] leading-tight md:w-[148px] md:grid-cols-[64px_64px] md:items-baseline md:justify-self-end md:gap-x-3 md:gap-y-2">
       {stats.map((stat) => (
         <div key={stat.label} className="grid grid-cols-1 gap-1 md:contents">
-          <div className="font-medium text-[#848484]">{stat.label}</div>
+          <div className="w-[64px] font-medium text-[#848484]">{stat.label}</div>
           <div className="min-w-0 truncate text-[13px] font-bold text-black md:text-[14px]">{stat.value}</div>
         </div>
       ))}

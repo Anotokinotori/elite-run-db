@@ -47,6 +47,42 @@ textarea::placeholder {
   font-family: "Space Grotesk", "Noto Sans JP", sans-serif;
 }
 
+.cta-shine-text {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  color: #d9d9d9;
+}
+
+.cta-shine-text::after {
+  content: "";
+  position: absolute;
+  inset: -15% -35%;
+  background: linear-gradient(105deg, transparent 0%, transparent 42%, rgba(255, 255, 255, 0.9) 49%, rgba(255, 255, 255, 0.28) 54%, transparent 62%, transparent 100%);
+  mix-blend-mode: screen;
+  transform: translateX(-120%);
+  animation: cta-shine-sweep 5s ease-in-out infinite;
+}
+
+@keyframes cta-shine-sweep {
+  0%,
+  68% {
+    transform: translateX(-120%);
+  }
+
+  92%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-shine-text::after {
+    animation: none;
+    content: none;
+  }
+}
+
 .hoyo-card {
   background: white;
   border-radius: 12px;

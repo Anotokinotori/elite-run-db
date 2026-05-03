@@ -37,7 +37,6 @@ export function TopPlayersPanel({ panelKey, heroRuns, onViewBracket, onSelectRun
     <PlayerBlockPanel
       panelKey={panelKey}
       heading={HOME_LABELS.topPlayersLabel}
-      subheading="All Tier Rankings"
       badge="RANKING"
       updatedLabel={formatHomePanelUpdatedLabel(items.map((item) => item.run))}
       items={items}

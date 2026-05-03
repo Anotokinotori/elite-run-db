@@ -1,7 +1,7 @@
 ﻿import { characterDb, type Bracket } from "../../data/mockRuns";
 import type { ActiveFilterChipDefinition, ElementFilterOption, FilterTabOption, SelectionTargetOption, TagGroup } from "./types";
 
-export const HERO_IMAGE_URL = "https://pbs.twimg.com/media/G6QnKhYWMAAtYMl.jpg";
+export const HERO_IMAGE_URL = "https://cdn.asoworld.com/img/865f059851cb4fb0a1584a711a8bd338.jpg";
 export const FESTIVAL_RULESET = "祭典";
 export const HOME_SEASONS = ["Luna3", "Luna2", "Luna1", "5.8", "5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"];
 export const PRIMARY_RULESET_TABS = ["NPUI", "PUI", "PUA"] as const;

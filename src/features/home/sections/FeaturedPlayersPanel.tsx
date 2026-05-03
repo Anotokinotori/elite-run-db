@@ -41,7 +41,6 @@ export function FeaturedPlayersPanel({ panelKey, featuredCards, onViewBracket, o
     <PlayerBlockPanel
       panelKey={panelKey}
       heading={HOME_LABELS.featuredPlayersLabel}
-      subheading="Featured Runs"
       badge="PICK UP"
       updatedLabel={formatHomePanelUpdatedLabel(items.map((item) => item.run))}
       items={items}
