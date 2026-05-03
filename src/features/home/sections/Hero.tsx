@@ -27,7 +27,7 @@ export function Hero({
       style={{ backgroundImage: `url(${heroImageUrl})` }}
       aria-label="Hero visual"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#f5f6f8]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#EDECEC]" />
       <div className="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-4xl bg-black/15 backdrop-blur-sm rounded-full border border-white/30 px-4 py-2">
         <div className="flex items-center justify-between text-sm font-medium text-white">
           {[...primaryRulesetTabs, otherTabLabel].map((label) => {

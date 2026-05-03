@@ -2,6 +2,7 @@
 
 import type { RunRecord } from "../../../data/mockRuns";
 import { LikeIcon, ShareIcon } from "../../../components/UiIcons";
+import { formatVersionLabel } from "../../../lib/versionLabels";
 
 import { collapsedCopyStyle, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../config";
 import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PillButton, PlatformLabel, SectionTitle, TagChip, VideoFrame } from "../ui";
@@ -79,7 +80,7 @@ export function MainColumn({
         <div className={`w-full ${DETAIL_MUTED_SURFACE_CLASS} p-[12px]`}>
           <div className={`flex gap-[16px] ${compareOpen ? "flex-col items-start whitespace-normal" : "items-center justify-between whitespace-nowrap"}`}>
             <div className={`flex min-w-0 gap-x-[16px] text-[13px] text-[#5f6678] md:gap-x-[18px] md:text-[14px] ${compareOpen ? "flex-wrap items-center gap-y-[6px]" : "items-center"}`}>
-              <span>ver : {currentRun.versionLabel}</span>
+              <span>ver : {formatVersionLabel(currentRun.versionLabel)}</span>
               <span>{currentRun.postedLabel}</span>
               <PlatformLabel platform={currentRun.platform} />
             </div>

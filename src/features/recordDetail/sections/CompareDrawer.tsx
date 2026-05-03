@@ -2,6 +2,7 @@
 
 import type { RunRecord } from "../../../data/mockRuns";
 import { PlatformIcon, PauseIcon, PlayIcon } from "../../../components/UiIcons";
+import { formatVersionLabel } from "../../../lib/versionLabels";
 
 import { DETAIL_ICON_BUTTON_CLASS, DETAIL_MUTED_SURFACE_CLASS } from "../config";
 import { getPartyBuildItems, postYouTubeCommand } from "../logic";
@@ -39,7 +40,7 @@ function CompareRunPane({ run, iframeRef }: { run: RunRecord; iframeRef: React.R
 
         <div className={`w-full ${DETAIL_MUTED_SURFACE_CLASS} p-[12px]`}>
           <div className="flex items-center gap-x-[16px] overflow-x-auto whitespace-nowrap text-[13px] text-[#5f6678] md:gap-x-[18px] md:text-[14px]">
-            <span>ver : {run.versionLabel}</span>
+            <span>ver : {formatVersionLabel(run.versionLabel)}</span>
             <span>{run.postedLabel}</span>
             <PlatformLabel platform={run.platform} />
           </div>

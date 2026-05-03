@@ -29,14 +29,11 @@ export function buildFeaturedCards(heroRuns: HomeRun[], runs: HomeRun[]): HomeFe
     offmetaRuns.push(run);
   });
 
-  const offmetaTheme = { gradient: "from-[#314857] to-[#1f2f38]" };
-
   return [
     {
       key: "first-post",
       title: HOME_LABELS.firstPostLabel,
       run: firstPostRun,
-      theme: { gradient: "from-[#6d3c2f] to-[#3c2520]" },
       actionLabel: HOME_LABELS.engageRecordLabel,
       action: "detail",
     },
@@ -44,9 +41,36 @@ export function buildFeaturedCards(heroRuns: HomeRun[], runs: HomeRun[]): HomeFe
       key: `offmeta-${index}`,
       title: HOME_LABELS.offmetaPickupLabel,
       run: offmetaRuns[index] ?? null,
-      theme: offmetaTheme,
       actionLabel: HOME_LABELS.viewRankingLabel,
       action: "leaderboard" as const,
     })),
   ];
+}
+
+export function formatHomePanelUpdatedLabel(runs: Array<Pick<HomeRun, "date"> | null>) {
+  const latestDate = runs.reduce((currentLatest, run) => {
+    if (!run?.date) {
+      return currentLatest;
+    }
+
+    if (!currentLatest) {
+      return run.date;
+    }
+
+    return new Date(`${run.date}T00:00:00Z`).getTime() > new Date(`${currentLatest}T00:00:00Z`).getTime() ? run.date : currentLatest;
+  }, "");
+
+  if (!latestDate) {
+    return undefined;
+  }
+
+  const date = new Date(`${latestDate}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) {
+    return undefined;
+  }
+
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+
+  return `${month}/${day} 更新`;
 }

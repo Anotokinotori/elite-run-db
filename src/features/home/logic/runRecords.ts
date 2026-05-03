@@ -1,4 +1,5 @@
 ﻿import { characterDb, type Bracket, type RunRecord } from "../../../data/mockRuns";
+import { versionRank } from "../../../lib/versionLabels";
 import type { HomeRun } from "../types";
 
 export function toSeconds(timeStr: string) {
@@ -167,36 +168,12 @@ export function getBestRun(runs: HomeRun[]) {
   return runs.reduce((best, run) => (isBetterRun(run, best) ? run : best), runs[0]);
 }
 
-function seasonRank(season: string) {
-  if (!season) {
-    return -1;
-  }
-
-  const normalized = String(season).trim();
-  const lunaMatch = normalized.match(/^Luna\s*(\d+)$/i);
-
-  if (lunaMatch) {
-    return 60 + parseInt(lunaMatch[1], 10);
-  }
-
-  if (normalized.toLowerCase() === "lunai") {
-    return 60;
-  }
-
-  const numeric = parseFloat(normalized);
-  if (Number.isFinite(numeric)) {
-    return Math.round(numeric * 10);
-  }
-
-  return -1;
-}
-
 export function seasonGte(runSeason: string, selectedSeason: string) {
   if (!selectedSeason) {
     return true;
   }
 
-  return seasonRank(runSeason) <= seasonRank(selectedSeason);
+  return versionRank(runSeason) <= versionRank(selectedSeason);
 }
 
 export function getDefaultSeason(seasons: string[]) {
@@ -206,7 +183,7 @@ export function getDefaultSeason(seasons: string[]) {
 
   return (
     seasons
-      .map((season) => ({ season, rank: seasonRank(season) }))
+      .map((season) => ({ season, rank: versionRank(season) }))
       .sort((left, right) => right.rank - left.rank)[0]?.season ?? seasons[seasons.length - 1]
   );
 }
@@ -221,4 +198,3 @@ export function getBracketLabel(bracket: Bracket) {
 
   return labels[bracket];
 }
-

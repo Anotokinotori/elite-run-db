@@ -89,7 +89,6 @@ export type HomeFeaturedCard = {
   key: string;
   title: string;
   run: HomeRun | null;
-  theme: { gradient: string };
   actionLabel: string;
   action: HomeFeaturedCardAction;
 };

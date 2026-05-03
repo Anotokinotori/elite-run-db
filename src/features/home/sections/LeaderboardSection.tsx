@@ -1,7 +1,14 @@
 import type { RefObject } from "react";
 
 import type { Bracket } from "../../../data/mockRuns";
-import { HOME_BRACKET_FILTER_OPTIONS, HOME_LABELS, HOME_LAYOUT_CLASSES, HOME_LEADERBOARD_VIEW_OPTIONS } from "../config";
+import {
+  HOME_BRACKET_ACCENT_COLORS,
+  HOME_BRACKET_FILTER_OPTIONS,
+  HOME_DEFAULT_LEADERBOARD_ACCENT_COLOR,
+  HOME_LABELS,
+  HOME_LAYOUT_CLASSES,
+  HOME_LEADERBOARD_VIEW_OPTIONS,
+} from "../config";
 import { FilterFunnelIcon, SearchIcon } from "../ui/icons";
 import { LeaderboardRow } from "../ui/LeaderboardRow";
 import type { ActiveFilterChipViewData, HomeRun, HomeRunWithGroup, LeaderboardView } from "../types";
@@ -10,6 +17,7 @@ import { ActiveFilterChipStrip } from "./ActiveFilterChipStrip";
 type LeaderboardSectionProps = {
   leaderboardRef: RefObject<HTMLDivElement | null>;
   leaderboardView: LeaderboardView;
+  lastUpdatedDate: string;
   filterBracket: Bracket | null;
   leaderboardRuns: Array<HomeRun | HomeRunWithGroup>;
   activeFilterChips: ActiveFilterChipViewData[];
@@ -23,6 +31,7 @@ type LeaderboardSectionProps = {
 export function LeaderboardSection({
   leaderboardRef,
   leaderboardView,
+  lastUpdatedDate,
   filterBracket,
   leaderboardRuns,
   activeFilterChips,
@@ -32,12 +41,23 @@ export function LeaderboardSection({
   onLeaderboardViewChange,
   onSelectRun,
 }: LeaderboardSectionProps) {
+  const lastUpdatedLabel = formatLeaderboardUpdatedLabel(lastUpdatedDate);
+  const leaderboardAccentColor = filterBracket ? HOME_BRACKET_ACCENT_COLORS[filterBracket] : HOME_DEFAULT_LEADERBOARD_ACCENT_COLOR;
+
   return (
     <div ref={leaderboardRef} className={HOME_LAYOUT_CLASSES.leaderboardFullBleed}>
       <div className={HOME_LAYOUT_CLASSES.leaderboardInner}>
-        <div className="pt-12 pb-14 md:pt-14 md:pb-16">
-          <div className="mb-8 flex items-center border-t border-[#e5e7eb] pt-8">
-            <div className="text-[18px] font-bold tracking-[0.01em] text-[#111827] md:text-[20px]">{HOME_LABELS.leaderboardLabel}</div>
+        <div className="pt-8 pb-14 md:pt-10 md:pb-16">
+          <div className="mb-8 border-t border-[#d4d4d4] pt-7 md:mb-9 md:pt-8">
+            <h2 className="max-w-full overflow-hidden whitespace-nowrap text-[43px] font-normal leading-[40px] text-black md:text-[50px] lg:text-[69px] lg:leading-[62px] [font-family:'Bebas_Neue','Arial_Narrow','Space_Grotesk',sans-serif]">
+              LEADERBOARD
+            </h2>
+            <time
+              dateTime={lastUpdatedDate}
+              className="mt-5 inline-flex min-h-10 items-center whitespace-nowrap border border-black bg-transparent px-5 py-2 text-[12px] font-black uppercase leading-none text-black sm:text-[13px] md:mt-6 md:min-h-11 md:px-6 md:text-[14px] [font-family:'Space_Grotesk','Noto_Sans_JP',sans-serif]"
+            >
+              {lastUpdatedLabel}
+            </time>
           </div>
           <div className="mb-8 flex items-center justify-center">
             <div className="flex items-center overflow-hidden rounded-full border border-[#dcdfe6] bg-white w-full max-w-[520px] md:min-w-[520px]">
@@ -91,9 +111,9 @@ export function LeaderboardSection({
             ))}
           </div>
           {leaderboardRuns.length > 0 ? (
-            <div>
+            <div className="space-y-5">
               {leaderboardRuns.map((run, index) => (
-                <LeaderboardRow key={run.id} run={run} index={index} onSelect={onSelectRun} view={leaderboardView} />
+                <LeaderboardRow key={run.id} run={run} index={index} onSelect={onSelectRun} view={leaderboardView} accentColor={leaderboardAccentColor} />
               ))}
             </div>
           ) : (
@@ -107,4 +127,18 @@ export function LeaderboardSection({
       </div>
     </div>
   );
+}
+
+function formatLeaderboardUpdatedLabel(dateValue: string) {
+  const date = new Date(`${dateValue}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return "UPDATED DATE UNKNOWN";
+  }
+
+  const month = new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" }).format(date).toUpperCase();
+  const day = new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: "UTC" }).format(date);
+  const year = new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: "UTC" }).format(date);
+
+  return `UPDATED ${month} ${day}, ${year}`;
 }

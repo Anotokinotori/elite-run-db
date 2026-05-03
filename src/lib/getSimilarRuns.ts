@@ -1,5 +1,7 @@
 ﻿import { type RunRecord } from "../data/mockRuns";
 
+import { versionRank } from "./versionLabels";
+
 export type SimilarRunMatch = {
   run: RunRecord;
   score: number;
@@ -44,7 +46,7 @@ export function getSimilarRuns(baseRun: RunRecord, allRuns: RunRecord[], limit =
         reasons.push("同じルールセット");
       }
 
-      if (run.season === baseRun.season) {
+      if (versionRank(run.season) === versionRank(baseRun.season)) {
         score += 18;
         reasons.push("同じシーズン");
       }

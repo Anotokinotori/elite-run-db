@@ -5,7 +5,7 @@ type ShellRouteName =
   | "detail"
   | "submit"
   | "chat"
-  | "question"
+  | "library"
   | "exchange"
   | "event"
   | "notifications"
@@ -21,7 +21,7 @@ type IconProps = {
 type InternalNavItem = {
   key: string;
   kind: "route";
-  route: "home" | "chat" | "question" | "exchange" | "event";
+  route: "home" | "chat" | "library" | "exchange" | "event";
   label: string;
   icon: (props: IconProps) => ReactNode;
 };
@@ -38,10 +38,10 @@ type NavItem = InternalNavItem | ExternalNavItem;
 
 const primaryNavItems: NavItem[] = [
   { key: "home", kind: "route", route: "home", label: "\u30ea\u30fc\u30c0\u30fc\u30dc\u30fc\u30c9", icon: TrophyIcon },
+  { key: "library", kind: "route", route: "library", label: "\u8a18\u9332\u56f3\u66f8\u9928", icon: QuestionIcon },
   { key: "event", kind: "route", route: "event", label: "\u30a4\u30d9\u30f3\u30c8\u60c5\u5831", icon: CalendarIcon },
   { key: "exchange", kind: "route", route: "exchange", label: "\u60c5\u5831\u4ea4\u63db", icon: LightbulbIcon },
-  { key: "chat", kind: "route", route: "chat", label: "\u96d1\u8ac7", icon: MessageIcon },
-  { key: "question", kind: "route", route: "question", label: "\u8cea\u554f", icon: QuestionIcon },
+  { key: "chat", kind: "route", route: "chat", label: "\u72e9\u308a\u30c1\u30e3\u30c3\u30c8", icon: MessageIcon },
 ];
 
 const externalToolItems: NavItem[] = [
@@ -438,7 +438,7 @@ function GlobalHeader({
   onRequestSubmit: () => void;
   onVersionChange: (version: string) => void;
 }) {
-  const lightChrome = routeName === "home" || routeName === "detail";
+  const lightChrome = false;
   const utilityButtonClass = lightChrome
     ? "relative rounded-full p-2 text-[#4b5563] transition-colors hover:bg-[#f1f3f6] hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#cfd6e2]"
     : "relative rounded-full p-2 text-[#d9d9d9] transition-colors hover:bg-[#272727] hover:text-[#d9d9d9] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6a6a6a]";
@@ -561,6 +561,7 @@ export function AppShell({
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const lightChrome = routeName === "home" || routeName === "detail";
+  const useDarkChrome = true;
 
   useEffect(() => {
     if (!isDrawerOpen) {
@@ -599,7 +600,7 @@ export function AppShell({
         routeName={routeName}
         onClose={() => setIsDrawerOpen(false)}
         onNavigate={onNavigate}
-        lightChrome={lightChrome}
+        lightChrome={!useDarkChrome}
       />
 
       <div className="flex min-h-screen">
@@ -616,7 +617,7 @@ export function AppShell({
             onVersionChange={onVersionChange}
           />
 
-          <main className={classNames("min-w-0 flex-1 text-[#333333]", lightChrome ? "bg-[#f5f6f8]" : "bg-[#f0f2f5]")}>{children}</main>
+          <main className={classNames("min-w-0 flex-1 text-[#333333]", routeName === "home" ? "bg-[#EDECEC]" : lightChrome ? "bg-[#f5f6f8]" : "bg-[#f0f2f5]")}>{children}</main>
         </div>
       </div>
     </div>
