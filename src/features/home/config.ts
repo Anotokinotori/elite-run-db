@@ -1,5 +1,5 @@
-﻿import { characterDb, type Bracket } from "../../data/mockRuns";
-import type { ActiveFilterChipDefinition, ElementFilterOption, FilterTabOption, SelectionTargetOption, TagGroup } from "./types";
+import { type Bracket } from "../../data/mockRuns";
+import type { ElementFilterOption, FilterTabOption, SelectionTargetOption, TagGroup } from "./types";
 
 export const HERO_IMAGE_URL = "https://cdn.asoworld.com/img/865f059851cb4fb0a1584a711a8bd338.jpg";
 export const FESTIVAL_RULESET = "祭典";
@@ -61,27 +61,6 @@ export const HOME_FILTER_TAG_GROUP_DEFINITIONS: TagGroup[] = [
   },
   { key: "playstyle", label: "編成傾向", tags: ["高速処理", "短期決戦", "安定寄り", "炎共鳴"] },
   { key: "relatedCharacters", label: "関連キャラ", tags: ["Amber", "Citlali", "Dehya", "Furina", "Keqing", "Mavuika", "Sayu", "Xilonen", "Yelan"] },
-];
-
-export const HOME_ACTIVE_FILTER_CHIP_DEFINITIONS: ActiveFilterChipDefinition[] = [
-  {
-    group: "partyCharacters",
-    prefix: "編成",
-    excludePrefix: "編成除外",
-    resolveLabel: (value) => characterDb[value]?.name ?? value,
-  },
-  {
-    group: "mainAttackers",
-    prefix: "メイン",
-    excludePrefix: "メイン除外",
-    resolveLabel: (value) => characterDb[value]?.name ?? value,
-  },
-  {
-    group: "tags",
-    prefix: "タグ",
-    excludePrefix: "タグ除外",
-    resolveLabel: (value) => value,
-  },
 ];
 
 export const HOME_TOP_PLAYER_BRACKETS: Array<{ label: string; bracket: Bracket }> = [

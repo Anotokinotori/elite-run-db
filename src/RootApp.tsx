@@ -3,10 +3,10 @@
 import { AppShell } from "./components/AppShell";
 import { PlaceholderPage } from "./components/PlaceholderPage";
 import { RecordDetailPage } from "./components/RecordDetailPage";
-import { RecordLibraryPage } from "./components/RecordLibraryPage";
 import { HomePage } from "./components/HomePage";
 import { SubmitPage } from "./components/SubmitPage";
 import { appRuns, defaultAppRunId, getAppRunById } from "./data/appRuns";
+import { LibraryPage } from "./features/library/Page";
 import { uniqueFormattedVersionLabels } from "./lib/versionLabels";
 
 type AppRoute =
@@ -369,7 +369,7 @@ export default function RootApp() {
         />
       ) : null}
 
-      {route.name === "library" ? <RecordLibraryPage onOpenRankings={navigateHomeFromTitle} /> : null}
+      {route.name === "library" ? <LibraryPage onOpenRankings={navigateHomeFromTitle} onSelectRun={(runId) => navigate({ name: "detail", runId })} /> : null}
 
       {route.name !== "home" && route.name !== "submit" && route.name !== "detail" && route.name !== "library" ? <RoutePlaceholder routeName={route.name} /> : null}
     </AppShell>

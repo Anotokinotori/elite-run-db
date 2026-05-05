@@ -1,4 +1,4 @@
-import type { ActiveFilterChip, ActiveFilterChipDefinition, HomeFilterState, HomeRun, TagGroup } from "../types";
+import type { HomeRun, TagGroup } from "../types";
 import { normalizeRunFilterTags } from "./filterState";
 
 export function getTagGroups(runs: HomeRun[], definitions: TagGroup[], otherLabel = "Other") {
@@ -23,29 +23,4 @@ export function getTagGroups(runs: HomeRun[], definitions: TagGroup[], otherLabe
   }
 
   return groups;
-}
-
-export function buildFilterChips(filters: HomeFilterState, chipDefinitions: ActiveFilterChipDefinition[]): ActiveFilterChip[] {
-  return chipDefinitions.flatMap(({ group, prefix, excludePrefix, resolveLabel }) => {
-    const selectionGroup = filters[group];
-
-    return [
-      ...selectionGroup.includeIds.map((value) => ({
-        key: `${group}-include-${value}`,
-        group,
-        value,
-        label: resolveLabel(value),
-        prefix,
-        isExclude: false,
-      })),
-      ...selectionGroup.excludeIds.map((value) => ({
-        key: `${group}-exclude-${value}`,
-        group,
-        value,
-        label: resolveLabel(value),
-        prefix: excludePrefix,
-        isExclude: true,
-      })),
-    ];
-  });
 }

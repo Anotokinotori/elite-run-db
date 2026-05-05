@@ -38,26 +38,6 @@ export type HomeFilterState = {
   tags: SelectionGroupState;
 };
 
-export type ActiveFilterChip = {
-  key: string;
-  group: FilterTabKey;
-  value: string;
-  label: string;
-  prefix: string;
-  isExclude: boolean;
-};
-
-export type ActiveFilterChipDefinition = {
-  group: FilterTabKey;
-  prefix: string;
-  excludePrefix: string;
-  resolveLabel: (value: string) => string;
-};
-
-export type ActiveFilterChipViewData = ActiveFilterChip & {
-  displayLabel: string;
-};
-
 export type TagGroup = {
   key: string;
   label: string;
