@@ -1,13 +1,6 @@
-import { HOME_ACTIVE_FILTER_CHIP_DEFINITIONS, HOME_LABELS } from "./config";
-import { buildFilterChips, getBestRun, sortRuns } from "./logic";
-import type { ActiveFilterChipViewData, HomeFeaturedCard, HomeFilterState, HomeRun } from "./types";
-
-export function buildActiveFilterChipsForView(filters: HomeFilterState): ActiveFilterChipViewData[] {
-  return buildFilterChips(filters, HOME_ACTIVE_FILTER_CHIP_DEFINITIONS).map((chip) => ({
-    ...chip,
-    displayLabel: `${chip.prefix}: ${chip.label}`,
-  }));
-}
+import { HOME_LABELS } from "./config";
+import { getBestRun, sortRuns } from "./logic";
+import type { HomeFeaturedCard, HomeRun } from "./types";
 
 export function buildFeaturedCards(heroRuns: HomeRun[], runs: HomeRun[]): HomeFeaturedCard[] {
   const firstPostRun = getBestRun(heroRuns.filter((run) => run.tags.includes("New")));

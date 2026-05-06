@@ -2,17 +2,12 @@ import { useMemo, useRef, useState } from "react";
 
 import { ChevronRightIcon } from "../../components/UiIcons";
 import { appRuns } from "../../data/appRuns";
-import { selectableCharacters, type Bracket } from "../../data/mockRuns";
-import { FilterDrawer } from "./ui/FilterDrawer";
+import { type Bracket } from "../../data/mockRuns";
 import { SearchIcon } from "./ui/icons";
 import {
   FESTIVAL_RULESET,
   HERO_IMAGE_URL,
   HOME_CAROUSEL_CONFIG,
-  HOME_ELEMENT_FILTER_OPTIONS,
-  HOME_FILTER_TAG_GROUP_DEFINITIONS,
-  HOME_FILTER_TABS,
-  HOME_FILTER_TARGET_OPTIONS,
   HOME_LABELS,
   HOME_SEASONS,
   OTHER_RULESET_LABEL,
@@ -25,19 +20,15 @@ import {
   applyWRTag,
   buildCharTopRows,
   buildDisplayGroup,
-  cloneHomeFilterState,
   createEmptyHomeFilterState,
   filterRuns,
   getDefaultSeason,
-  getTagGroups,
-  matchesHomeFilterState,
   matchesLeaderboardScope,
   normalizeHomeRun,
-  removeSelectionGroupValue,
   seasonGte,
   sortRuns,
 } from "./logic";
-import { buildActiveFilterChipsForView, buildFeaturedCards } from "./viewData";
+import { buildFeaturedCards } from "./viewData";
 import { FestivalBanner } from "./sections/FestivalBanner";
 import { Footer } from "./sections/Footer";
 import { Header } from "./sections/Header";
@@ -67,28 +58,23 @@ export function HomePage({
   const [activeSeasonInternal, setActiveSeasonInternal] = useState(getDefaultSeason(HOME_SEASONS));
   const [activeTab] = useState<"main" | "festival">("main");
   const [filterBracket, setFilterBracket] = useState<Bracket | null>(null);
-  const [homeFilters, setHomeFilters] = useState(() => createEmptyHomeFilterState());
   const [sortMode] = useState<"time" | "cost" | "date">("time");
   const [enableRLogic] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [subHeaderTab, setSubHeaderTab] = useState<string>(PRIMARY_RULESET_TABS[0]);
   const [leaderboardView, setLeaderboardView] = useState<LeaderboardView>("rta");
   const [isOtherMenuOpen, setIsOtherMenuOpen] = useState(false);
   const activeSeason = selectedSeason ?? activeSeasonInternal;
   const setActiveSeason = onSelectedSeasonChange ?? setActiveSeasonInternal;
-
-  const characters = useMemo(() => selectableCharacters, []);
-  const tagGroups = useMemo(() => getTagGroups(runs, HOME_FILTER_TAG_GROUP_DEFINITIONS, "その他"), [runs]);
-  const activeFilterChips = useMemo(() => buildActiveFilterChipsForView(homeFilters), [homeFilters]);
+  const emptyHomeFilters = useMemo(() => createEmptyHomeFilterState(), []);
 
   const filters = useMemo(
     () => ({
       season: activeSeason,
       isFestival: activeTab === "festival",
       bracket: filterBracket,
-      filterState: homeFilters,
+      filterState: emptyHomeFilters,
     }),
-    [activeSeason, activeTab, filterBracket, homeFilters],
+    [activeSeason, activeTab, emptyHomeFilters, filterBracket],
   );
 
   const filteredBase = useMemo(() => filterRuns(runs, filters), [filters, runs]);
@@ -114,11 +100,7 @@ export function HomePage({
       })),
     [charTargetRuns],
   );
-  const filteredCharRuns = useMemo(
-    () => charTargetRunsWithGroups.filter((run) => matchesHomeFilterState(run, homeFilters)),
-    [charTargetRunsWithGroups, homeFilters],
-  );
-  const charTopRuns = useMemo(() => sortRuns(buildCharTopRows(filteredCharRuns), "time"), [filteredCharRuns]);
+  const charTopRuns = useMemo(() => sortRuns(buildCharTopRows(charTargetRunsWithGroups), "time"), [charTargetRunsWithGroups]);
   const leaderboardRuns = leaderboardView === "char" ? charTopRuns : filteredRuns;
   const heroRuns = useMemo(() => runs.filter((run) => seasonGte(run.season, activeSeason) && !run.isFestival), [activeSeason, runs]);
   const featuredCards = useMemo(() => buildFeaturedCards(heroRuns, runs), [heroRuns, runs]);
@@ -137,13 +119,6 @@ export function HomePage({
     setFilterBracket(bracket);
     setLeaderboardView("rta");
     scrollToLeaderboard();
-  };
-
-  const handleRemoveFilterChip = (chip: (typeof activeFilterChips)[number]) => {
-    setHomeFilters((current) => ({
-      ...current,
-      [chip.group]: removeSelectionGroupValue(current[chip.group], chip.isExclude ? "exclude" : "include", chip.value),
-    }));
   };
 
   return (
@@ -192,9 +167,6 @@ export function HomePage({
               lastUpdatedDate={leaderboardLastUpdatedDate}
               filterBracket={filterBracket}
               leaderboardRuns={leaderboardRuns}
-              activeFilterChips={activeFilterChips}
-              onOpenFilter={() => setIsFilterOpen(true)}
-              onRemoveFilterChip={handleRemoveFilterChip}
               onFilterBracketChange={setFilterBracket}
               onLeaderboardViewChange={setLeaderboardView}
               onSelectRun={onSelectRun}
@@ -207,26 +179,6 @@ export function HomePage({
 
       <Footer />
       <RecordLibraryFloatingCta />
-      <FilterDrawer
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        onApply={(nextFilters) => {
-          setHomeFilters(cloneHomeFilterState(nextFilters));
-        }}
-        initialFilters={homeFilters}
-        characters={characters}
-        tagGroups={tagGroups}
-        title={HOME_LABELS.filterTitle}
-        resetLabel={HOME_LABELS.filterResetLabel}
-        applyLabel={HOME_LABELS.filterApplyLabel}
-        filterTabs={HOME_FILTER_TABS}
-        filterTargetOptions={HOME_FILTER_TARGET_OPTIONS}
-        elementFilterOptions={HOME_ELEMENT_FILTER_OPTIONS}
-        characterSearchPlaceholder={HOME_LABELS.characterSearchPlaceholder}
-        tagSearchPlaceholder={HOME_LABELS.tagSearchPlaceholder}
-        emptyCharacterResultLabel={HOME_LABELS.emptyCharacterResultLabel}
-        emptyTagResultLabel={HOME_LABELS.emptyTagResultLabel}
-      />
     </Shell>
   );
 }

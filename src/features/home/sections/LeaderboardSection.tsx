@@ -9,10 +9,9 @@ import {
   HOME_LAYOUT_CLASSES,
   HOME_LEADERBOARD_VIEW_OPTIONS,
 } from "../config";
-import { FilterFunnelIcon, SearchIcon } from "../ui/icons";
+import { SearchIcon } from "../ui/icons";
 import { LeaderboardRow } from "../ui/LeaderboardRow";
-import type { ActiveFilterChipViewData, HomeRun, HomeRunWithGroup, LeaderboardView } from "../types";
-import { ActiveFilterChipStrip } from "./ActiveFilterChipStrip";
+import type { HomeRun, HomeRunWithGroup, LeaderboardView } from "../types";
 
 type LeaderboardSectionProps = {
   leaderboardRef: RefObject<HTMLDivElement | null>;
@@ -20,9 +19,6 @@ type LeaderboardSectionProps = {
   lastUpdatedDate: string;
   filterBracket: Bracket | null;
   leaderboardRuns: Array<HomeRun | HomeRunWithGroup>;
-  activeFilterChips: ActiveFilterChipViewData[];
-  onOpenFilter: () => void;
-  onRemoveFilterChip: (chip: ActiveFilterChipViewData) => void;
   onFilterBracketChange: (bracket: Bracket | null) => void;
   onLeaderboardViewChange: (view: LeaderboardView) => void;
   onSelectRun: (runId: string) => void;
@@ -34,9 +30,6 @@ export function LeaderboardSection({
   lastUpdatedDate,
   filterBracket,
   leaderboardRuns,
-  activeFilterChips,
-  onOpenFilter,
-  onRemoveFilterChip,
   onFilterBracketChange,
   onLeaderboardViewChange,
   onSelectRun,
@@ -79,19 +72,14 @@ export function LeaderboardSection({
             </div>
           </div>
           <div className="mb-8 flex flex-wrap items-center gap-y-3">
-            <button
-              type="button"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#d8dde6] bg-white px-5 text-[13px] font-semibold tracking-[0.01em] text-[#333333] transition-colors hover:bg-[#eef1f5] [&>div]:hidden [&>span:last-of-type]:hidden"
-              onClick={onOpenFilter}
+            <a
+              href="#library"
+              aria-label="記録図書館で記録を探す"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#d8dde6] bg-white px-5 text-[13px] font-semibold tracking-[0.01em] text-[#333333] transition-colors hover:bg-[#eef1f5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40"
             >
-              <FilterFunnelIcon className="w-5 h-5" />
-              <span className="text-[13px] font-semibold tracking-[0.01em]">
-                {activeFilterChips.length > 0 ? `${HOME_LABELS.filterTitle}${activeFilterChips.length}` : HOME_LABELS.filterTitle}
-              </span>
-              <div className="text-[13px] font-semibold tracking-[0.01em]">絞り込み</div>
-              <span>絞り込み</span>
-            </button>
-            <ActiveFilterChipStrip chips={activeFilterChips} onRemove={onRemoveFilterChip} />
+              <SearchIcon size={18} className="shrink-0" />
+              <span>記録を探す</span>
+            </a>
           </div>
           <div className="mb-8 flex items-center justify-between text-[13px] font-semibold md:text-[14px]">
             {HOME_BRACKET_FILTER_OPTIONS.map((item) => (

@@ -109,7 +109,7 @@ export function FilterDrawer({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="shrink-0 border-b border-[#e5e7eb]">
-          <div className="flex items-start justify-between gap-4 px-5 py-5 md:px-6">
+          <div className="flex items-start justify-between gap-4 px-5 pb-5 pt-8 md:px-6">
             <div className="text-[24px] font-semibold text-[#111827]">{title}</div>
             <button
               type="button"
