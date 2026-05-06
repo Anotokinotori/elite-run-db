@@ -510,64 +510,6 @@ function formatHistoryDate(value: string) {
   }).format(date);
 }
 
-function SearchActionPanel({
-  hasSearchCriteria,
-  watchLaterRuns,
-  onSelectRun,
-  onRemoveWatchLater,
-}: {
-  hasSearchCriteria: boolean;
-  watchLaterRuns: RunRecord[];
-  onSelectRun: (runId: string) => void;
-  onRemoveWatchLater: (runId: string) => void;
-}) {
-  const actionRows = [
-    { key: "search", icon: ClockIcon, label: "検索履歴", count: hasSearchCriteria ? 1 : 0 },
-    { key: "browse", icon: EyeIcon, label: "閲覧履歴", count: 0 },
-    { key: "watch", icon: BookmarkIcon, label: "あとで見る", count: watchLaterRuns.length },
-  ];
-
-  return (
-    <section className="rounded-[8px] border border-[#dfe3ea] bg-white p-5 shadow-[0_12px_26px_rgba(21,27,38,0.06)]">
-      <h3 className="mb-3 text-[15px] font-black text-[#111827]">検索アクション</h3>
-      <div className="divide-y divide-[#eef1f5]">
-        {actionRows.map((item) => {
-          const Icon = item.icon;
-          return (
-            <div key={item.key} className="flex w-full items-center justify-between py-3 text-left text-[13px] font-bold text-[#374151]">
-              <span className="flex min-w-0 items-center gap-2">
-                <Icon className="h-4 w-4 shrink-0 text-[#8b95a7]" />
-                <span className="truncate">{item.label}</span>
-              </span>
-              <span className="flex shrink-0 items-center gap-2 text-[12px] text-[#8b95a7]">
-                {item.count}
-                <ChevronIcon className="h-4 w-4" />
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      {watchLaterRuns.length > 0 ? (
-        <div className="mt-3 space-y-2 border-t border-[#eef1f5] pt-3">
-          {watchLaterRuns.slice(0, 4).map((run) => (
-            <div key={`watch-later-${run.id}`} className="flex items-center gap-2 rounded-[8px] border border-[#edf0f4] bg-[#fbfcfd] p-2">
-              <button type="button" onClick={() => onSelectRun(run.id)} className="min-w-0 flex-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40">
-                <p className="truncate text-[12px] font-black text-[#111827]">{run.title}</p>
-                <p className="mt-0.5 truncate text-[10px] font-bold text-[#8d93a3]">
-                  {run.userName} / {run.time}
-                </p>
-              </button>
-              <button type="button" onClick={() => onRemoveWatchLater(run.id)} aria-label={`${run.title} をあとで見るから削除`} title="削除" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#7b8493] transition hover:bg-[#eef1f5] hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40">
-                <XIcon className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : null}
-    </section>
-  );
-}
-
 function LibraryCompareDrawer({
   baseRun,
   comparedRun,
@@ -800,18 +742,6 @@ function EyeIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
       <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function TrashIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v5" />
-      <path d="M14 11v5" />
     </svg>
   );
 }
