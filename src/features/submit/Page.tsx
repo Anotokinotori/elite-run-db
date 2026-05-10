@@ -122,7 +122,9 @@ export function SubmitPage({ onBack, embedded = false }: { onBack: () => void; e
               onSubmit={() =>
                 handleSubmit(draft, {
                   onSubmitSuccess: () => {
-                    window.alert("謠仙・縺励∪縺励◆");
+                    window.alert(
+                      "記録申請を受け付けました。\n\nこのサイトはUI/UX検証用プロトタイプのため、実際には送信・保存されません。入力内容はブラウザの下書きとして残ります。",
+                    );
                     onBack();
                   },
                   saveDraft,
