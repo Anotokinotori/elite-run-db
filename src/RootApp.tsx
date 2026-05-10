@@ -25,53 +25,83 @@ type ShellDestination = Exclude<AppRoute["name"], "detail">;
 const DEFAULT_VERSION_OPTIONS = ["Luna3", "Luna2", "Luna1", "5.8", "5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"];
 const APP_VERSION_OPTIONS = uniqueFormattedVersionLabels([...DEFAULT_VERSION_OPTIONS, ...appRuns.map((run) => run.versionLabel)]);
 
-function getRouteFromHash(): AppRoute {
+function safeDecodeRouteValue(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function getRouteFromRouteValue(rawValue: string): AppRoute | null {
+  const routeValue = rawValue.replace(/^#/, "").replace(/^\/+/, "").replace(/\/+$/, "");
+  const normalizedRouteValue = routeValue.toLowerCase();
+
+  if (!normalizedRouteValue || normalizedRouteValue === "home" || normalizedRouteValue === "index.html") {
+    return { name: "home" };
+  }
+
+  if (normalizedRouteValue === "submit") {
+    return { name: "submit" };
+  }
+
+  if (normalizedRouteValue === "detail") {
+    return { name: "detail", runId: defaultAppRunId };
+  }
+
+  if (normalizedRouteValue.startsWith("detail/")) {
+    const runId = safeDecodeRouteValue(routeValue.slice("detail/".length));
+    return { name: "detail", runId: getAppRunById(runId) ? runId : defaultAppRunId };
+  }
+
+  if (normalizedRouteValue === "chat") {
+    return { name: "chat" };
+  }
+
+  if (normalizedRouteValue === "question") {
+    return { name: "chat" };
+  }
+
+  if (normalizedRouteValue === "library") {
+    return { name: "library" };
+  }
+
+  if (normalizedRouteValue === "exchange") {
+    return { name: "exchange" };
+  }
+
+  if (normalizedRouteValue === "event") {
+    return { name: "event" };
+  }
+
+  if (normalizedRouteValue === "notifications") {
+    return { name: "notifications" };
+  }
+
+  if (normalizedRouteValue === "account") {
+    return { name: "account" };
+  }
+
+  return null;
+}
+
+function getRouteFromLocation(): AppRoute {
   if (typeof window === "undefined") {
     return { name: "home" };
   }
 
-  const rawHash = window.location.hash.replace(/^#/, "");
-  const normalizedHash = rawHash.toLowerCase();
+  if (window.location.hash) {
+    const hashRoute = getRouteFromRouteValue(window.location.hash);
 
-  if (normalizedHash === "submit") {
-    return { name: "submit" };
+    if (hashRoute) {
+      return hashRoute;
+    }
   }
 
-  if (normalizedHash === "detail") {
-    return { name: "detail", runId: defaultAppRunId };
-  }
+  const pathRoute = getRouteFromRouteValue(window.location.pathname);
 
-  if (normalizedHash.startsWith("detail/")) {
-    const runId = decodeURIComponent(rawHash.slice("detail/".length));
-    return { name: "detail", runId: getAppRunById(runId) ? runId : defaultAppRunId };
-  }
-
-  if (normalizedHash === "chat") {
-    return { name: "chat" };
-  }
-
-  if (normalizedHash === "question") {
-    return { name: "chat" };
-  }
-
-  if (normalizedHash === "library") {
-    return { name: "library" };
-  }
-
-  if (normalizedHash === "exchange") {
-    return { name: "exchange" };
-  }
-
-  if (normalizedHash === "event") {
-    return { name: "event" };
-  }
-
-  if (normalizedHash === "notifications") {
-    return { name: "notifications" };
-  }
-
-  if (normalizedHash === "account") {
-    return { name: "account" };
+  if (pathRoute) {
+    return pathRoute;
   }
 
   return { name: "home" };
@@ -111,6 +141,10 @@ function getHashFromRoute(route: AppRoute) {
   }
 
   return "#home";
+}
+
+function getUrlFromRoute(route: AppRoute) {
+  return `/${getHashFromRoute(route)}`;
 }
 
 function routesEqual(a: AppRoute, b: AppRoute) {
@@ -202,7 +236,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
 }
 
 export default function RootApp() {
-  const [route, setRoute] = useState<AppRoute>(() => getRouteFromHash());
+  const [route, setRoute] = useState<AppRoute>(() => getRouteFromLocation());
   const [selectedVersion, setSelectedVersion] = useState(() => APP_VERSION_OPTIONS[0] ?? "Luna3");
   const [lastBrowseRoute, setLastBrowseRoute] = useState<AppRoute>(() => (route.name === "submit" ? { name: "home" } : route));
   const routeRef = useRef(route);
@@ -211,7 +245,7 @@ export default function RootApp() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      const nextRoute = getRouteFromHash();
+      const nextRoute = getRouteFromLocation();
 
       if (routeRef.current.name === "home" && nextRoute.name !== "home") {
         homeScrollRef.current = window.scrollY;
@@ -238,16 +272,16 @@ export default function RootApp() {
     const previousRoute = previousRouteRef.current;
     previousRouteRef.current = route;
 
-    const currentHashRoute = getRouteFromHash();
-    if (!routesEqual(currentHashRoute, route)) {
-      setRoute(currentHashRoute);
+    const currentLocationRoute = getRouteFromLocation();
+    if (!routesEqual(currentLocationRoute, route)) {
+      setRoute(currentLocationRoute);
       return;
     }
 
     const nextHash = getHashFromRoute(route);
 
-    if (window.location.hash !== nextHash) {
-      window.history.replaceState(null, "", nextHash);
+    if (window.location.pathname !== "/" || window.location.hash !== nextHash) {
+      window.history.replaceState(null, "", getUrlFromRoute(route));
     }
 
     if (route.name === "home") {
@@ -359,8 +393,7 @@ export default function RootApp() {
       ) : null}
 
       {route.name === "detail" ? (
-
-<RecordDetailPage
+        <RecordDetailPage
           embedded
           key={route.runId}
           runId={route.runId}

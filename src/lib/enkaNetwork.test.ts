@@ -169,4 +169,22 @@ describe("enkaNetwork", () => {
       "UIDに対応する公開プロフィールが見つかりませんでした。Enka.Network の公開設定を確認してください。",
     );
   });
+
+  it("reports demo unavailable when the API route returns the SPA HTML fallback", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response("<!doctype html><html><body></body></html>", {
+          status: 200,
+          headers: {
+            "Content-Type": "text/html",
+          },
+        }),
+      ),
+    );
+
+    await expect(fetchEnkaProfile("123456789")).rejects.toThrow(
+      "公開デモではUID連携を利用できません。キャラクターは手動で選択してください。",
+    );
+  });
 });

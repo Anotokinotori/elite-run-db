@@ -4,6 +4,8 @@ import { WEAPON_ID_BY_ENKA_ITEM_ID } from "./weaponCatalog";
 
 const ENKA_CACHE_KEY_PREFIX = "elite-run-db.enkaProfile.";
 const DEFAULT_ENKA_TTL_SECONDS = 300;
+const ENKA_DEMO_UNAVAILABLE_MESSAGE =
+  "公開デモではUID連携を利用できません。キャラクターは手動で選択してください。";
 export const MAX_ENKA_PROFILE_CHARACTERS = 12;
 
 type JsonRecord = Record<string, unknown>;
@@ -196,7 +198,7 @@ async function getResponseErrorMessage(response: Response) {
 
   try {
     if (contentType.includes("text/html")) {
-      return "Enka.Network 側で認証確認が入り、プロフィールを取得できませんでした。少し時間をおいてもう一度お試しください。";
+      return ENKA_DEMO_UNAVAILABLE_MESSAGE;
     }
 
     if (contentType.includes("application/json")) {
@@ -228,6 +230,20 @@ async function getResponseErrorMessage(response: Response) {
   return null;
 }
 
+async function getEnkaPayload(response: Response) {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (contentType.includes("text/html")) {
+    throw new Error(ENKA_DEMO_UNAVAILABLE_MESSAGE);
+  }
+
+  try {
+    return (await response.json()) as JsonRecord;
+  } catch {
+    throw new Error(ENKA_DEMO_UNAVAILABLE_MESSAGE);
+  }
+}
+
 export async function fetchEnkaProfile(uid: string): Promise<EnkaProfile> {
   const normalizedUid = normalizeEnkaUid(uid);
 
@@ -251,7 +267,7 @@ export async function fetchEnkaProfile(uid: string): Promise<EnkaProfile> {
     throw new Error((await getResponseErrorMessage(response)) ?? "Enka.Network からプロフィールを取得できませんでした。");
   }
 
-  const payload = (await response.json()) as JsonRecord;
+  const payload = await getEnkaPayload(response);
   const playerInfo = asRecord(payload.playerInfo) ?? {};
   const detailedAvatars = Array.isArray(payload.avatarInfoList) ? payload.avatarInfoList : [];
   const showcaseAvatars = Array.isArray(playerInfo.showAvatarInfoList) ? playerInfo.showAvatarInfoList : [];
