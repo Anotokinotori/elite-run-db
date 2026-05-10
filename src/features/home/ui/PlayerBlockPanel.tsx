@@ -18,6 +18,19 @@ const BLOCK_GAP = scale(12);
 const SECTION_CARD_AREA_PADDING = { top: scale(10), right: scale(10), bottom: scale(12), left: scale(10) } as const;
 const RANK_BLOCK_WIDTH = CARD_SIZE.outerWidth * 4 + RAIL_GAP * 3 + RAIL_PADDING * 2;
 const SECTION_BLOCK_WIDTH = RANK_BLOCK_WIDTH * 4 + BLOCK_GAP * 3 + SECTION_CARD_AREA_PADDING.left + SECTION_CARD_AREA_PADDING.right;
+const MOBILE_MEDIA_QUERY = "(min-width: 640px)";
+const MOBILE_BLOCK_GAP = scale(8);
+const MOBILE_SECTION_CARD_AREA_PADDING = { top: scale(8), right: scale(8), bottom: scale(8), left: scale(8) } as const;
+const MOBILE_RUN_BLOCK_MIN_HEIGHT = scale(88);
+const MOBILE_RAIL_GAP = scale(1);
+const MOBILE_RAIL_PADDING = scale(0.75);
+const MOBILE_TEXT_AREA_PADDING = { top: scale(13), right: scale(7.5), bottom: scale(11), left: scale(8.4) } as const;
+const MOBILE_TEXT_FONT = {
+  label: scale(16.2),
+  userName: scale(21.6),
+  time: scale(14.8),
+  action: scale(6.9),
+} as const;
 
 const MAGAZINE_FACE_CROP = {
   trimLeftPercent: 10,
@@ -70,12 +83,29 @@ export function PlayerBlockPanel({
   loadingLabel,
   onSelectRun,
 }: PlayerBlockPanelProps) {
+  const [isDesktopLayout, setIsDesktopLayout] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(MOBILE_MEDIA_QUERY).matches : true,
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+    const updateLayout = () => setIsDesktopLayout(mediaQuery.matches);
+
+    updateLayout();
+    mediaQuery.addEventListener("change", updateLayout);
+    return () => mediaQuery.removeEventListener("change", updateLayout);
+  }, []);
+
   return (
     <section
       data-panel-key={panelKey}
       data-top-panel
       className="shrink-0 overflow-hidden"
-      style={{ width: SECTION_BLOCK_WIDTH, minWidth: SECTION_BLOCK_WIDTH }}
+      style={
+        isDesktopLayout
+          ? { width: SECTION_BLOCK_WIDTH, minWidth: SECTION_BLOCK_WIDTH }
+          : { width: "100%", minWidth: "100%" }
+      }
     >
       <header className="relative flex items-stretch bg-[#111116]" style={{ minHeight: scale(44) }}>
         <div className="flex flex-1 items-center" style={{ gap: scale(10), paddingLeft: scale(14), paddingRight: scale(14) }}>
@@ -117,15 +147,17 @@ export function PlayerBlockPanel({
       <div className="h-px bg-white/10" />
 
       <div
-        className="overflow-x-auto"
+        className={isDesktopLayout ? "overflow-x-auto" : "overflow-hidden"}
         style={{
           background: "#f4f3f1",
-          padding: `${SECTION_CARD_AREA_PADDING.top}px ${SECTION_CARD_AREA_PADDING.right}px ${SECTION_CARD_AREA_PADDING.bottom}px ${SECTION_CARD_AREA_PADDING.left}px`,
+          padding: isDesktopLayout
+            ? `${SECTION_CARD_AREA_PADDING.top}px ${SECTION_CARD_AREA_PADDING.right}px ${SECTION_CARD_AREA_PADDING.bottom}px ${SECTION_CARD_AREA_PADDING.left}px`
+            : `${MOBILE_SECTION_CARD_AREA_PADDING.top}px ${MOBILE_SECTION_CARD_AREA_PADDING.right}px ${MOBILE_SECTION_CARD_AREA_PADDING.bottom}px ${MOBILE_SECTION_CARD_AREA_PADDING.left}px`,
         }}
       >
-        <div className="flex items-start" style={{ gap: BLOCK_GAP }}>
+        <div className={isDesktopLayout ? "flex items-start" : "flex flex-col"} style={{ gap: isDesktopLayout ? BLOCK_GAP : MOBILE_BLOCK_GAP }}>
           {items.map((item) => (
-            <PlayerRunBlock key={item.key} item={item} loadingLabel={loadingLabel} onSelectRun={onSelectRun} />
+            <PlayerRunBlock key={item.key} item={item} loadingLabel={loadingLabel} onSelectRun={onSelectRun} isDesktopLayout={isDesktopLayout} />
           ))}
         </div>
       </div>
@@ -137,10 +169,12 @@ function PlayerRunBlock({
   item,
   loadingLabel,
   onSelectRun,
+  isDesktopLayout,
 }: {
   item: PlayerBlockItem;
   loadingLabel: string;
   onSelectRun: (runId: string) => void;
+  isDesktopLayout: boolean;
 }) {
   const cards = buildCharacterCards(item.run, item.accentColor);
   const canOpenDetail = Boolean(item.run);
@@ -153,8 +187,12 @@ function PlayerRunBlock({
 
   return (
     <article
-      className={`flex shrink-0 flex-col overflow-hidden border border-[#cfcfcf] bg-white ${canOpenDetail ? "cursor-pointer transition-transform hover:-translate-y-0.5" : ""}`}
-      style={{ width: RANK_BLOCK_WIDTH, minWidth: RANK_BLOCK_WIDTH }}
+      className={`${isDesktopLayout ? "flex shrink-0 flex-col" : "grid"} overflow-hidden border border-[#cfcfcf] bg-white ${canOpenDetail ? "cursor-pointer transition-transform hover:-translate-y-0.5" : ""}`}
+      style={
+        isDesktopLayout
+          ? { width: RANK_BLOCK_WIDTH, minWidth: RANK_BLOCK_WIDTH }
+          : { width: "100%", minWidth: 0, minHeight: MOBILE_RUN_BLOCK_MIN_HEIGHT, gridTemplateColumns: "4fr 5fr" }
+      }
       role={canOpenDetail ? "button" : undefined}
       tabIndex={canOpenDetail ? 0 : undefined}
       onClick={openDetail}
@@ -167,9 +205,11 @@ function PlayerRunBlock({
         openDetail();
       }}
     >
-      <section className="flex shrink-0" style={{ gap: RAIL_GAP, padding: RAIL_PADDING, background: "#cccccc" }}>
+      {isDesktopLayout ? (
+        <>
+          <section className="flex shrink-0" style={{ gap: RAIL_GAP, padding: RAIL_PADDING, background: "#cccccc" }}>
         {cards.map((card, index) => (
-          <PlayerCharacterCard key={`${item.key}-${card.characterId}-${index}`} card={card} />
+          <PlayerCharacterCard key={`${item.key}-${card.characterId}-${index}`} card={card} variant="desktop" />
         ))}
       </section>
       <section
@@ -212,6 +252,63 @@ function PlayerRunBlock({
           </button>
         </div>
       </section>
+        </>
+      ) : (
+        <>
+          <section
+            className="flex flex-1 items-start"
+            style={{
+              paddingLeft: MOBILE_TEXT_AREA_PADDING.left,
+              paddingRight: MOBILE_TEXT_AREA_PADDING.right,
+              paddingTop: MOBILE_TEXT_AREA_PADDING.top,
+              paddingBottom: MOBILE_TEXT_AREA_PADDING.bottom,
+              background: "#fffcf9",
+            }}
+          >
+            <div className="flex w-full flex-col items-start">
+              <div className="font-black leading-none" style={{ color: item.accentColor, fontSize: MOBILE_TEXT_FONT.label, fontFamily: FONT_FAMILY.headingDisplay }}>
+                {item.label}
+              </div>
+              <div
+                className="max-w-full break-words font-black leading-[0.92] text-black"
+                style={{ marginTop: scale(6.4), fontSize: MOBILE_TEXT_FONT.userName, fontFamily: FONT_FAMILY.headingDisplay }}
+              >
+                {item.run?.userName ?? loadingLabel}
+              </div>
+              <div className="font-extrabold leading-none text-black" style={{ marginTop: scale(7.2), fontSize: MOBILE_TEXT_FONT.time }}>
+                {item.run?.time ?? "--:--"}
+              </div>
+              <button
+                type="button"
+                className="text-left font-extrabold leading-none text-[#b8b8b8] transition-colors hover:text-[#666666] disabled:cursor-default disabled:text-[#d0d0d0]"
+                style={{ marginTop: scale(4.2), fontSize: MOBILE_TEXT_FONT.action }}
+                disabled={item.actionDisabled}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (!item.actionDisabled) {
+                    item.onAction();
+                  }
+                }}
+              >
+                {item.actionLabel} 竊・
+              </button>
+            </div>
+          </section>
+          <section
+            className="grid h-full min-w-0 self-stretch"
+            style={{
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+              gap: MOBILE_RAIL_GAP,
+              padding: MOBILE_RAIL_PADDING,
+              background: "#cccccc",
+            }}
+          >
+            {cards.map((card, index) => (
+              <PlayerCharacterCard key={`${item.key}-${card.characterId}-${index}`} card={card} variant="mobile" />
+            ))}
+          </section>
+        </>
+      )}
     </article>
   );
 }
@@ -239,9 +336,16 @@ function buildCharacterCards(run: HomeRun | null, accentColor: string): Characte
   });
 }
 
-function PlayerCharacterCard({ card }: { card: CharacterCardData }) {
+function PlayerCharacterCard({ card, variant }: { card: CharacterCardData; variant: "desktop" | "mobile" }) {
   return (
-    <div className="relative overflow-hidden bg-[#8f8f91]" style={{ width: CARD_SIZE.outerWidth, height: CARD_SIZE.height, paddingLeft: scale(0.6), paddingRight: scale(0.6) }}>
+    <div
+      className="relative min-w-0 overflow-hidden bg-[#8f8f91]"
+      style={
+        variant === "desktop"
+          ? { width: CARD_SIZE.outerWidth, height: CARD_SIZE.height, paddingLeft: scale(0.6), paddingRight: scale(0.6) }
+          : { width: "100%", height: "100%", paddingLeft: scale(0.4), paddingRight: scale(0.4) }
+      }
+    >
       <div className="relative h-full w-full overflow-hidden" style={{ background: card.cardBackgroundColor }}>
         <CharacterImageLayer card={card} />
       </div>

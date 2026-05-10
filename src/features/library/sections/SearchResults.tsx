@@ -6,6 +6,7 @@ import { appRuns, getAppRunById } from "../../../data/appRuns";
 import { characterDb, type RunRecord } from "../../../data/mockRuns";
 import { getYouTubeVideoId } from "../../../lib/youtube";
 import { formatVersionLabel } from "../../../lib/versionLabels";
+import { HOME_BRACKET_ACCENT_COLORS } from "../../home/config";
 import { getBracketLabel } from "../../home/logic";
 import { SearchIcon } from "../../home/ui/icons";
 import { getPartyBuildItems, postYouTubeCommand } from "../../recordDetail/logic";
@@ -148,9 +149,8 @@ function LibraryRecordCard({
   onToggleWatchLater: (runId: string) => void;
   onSelectRun: (runId: string) => void;
 }) {
-  const versionLabel = formatVersionLabel(run.versionLabel || run.season);
-  const visibleTags = run.tags.slice(0, 5);
   const bracketLabel = formatCompactBracketLabel(getBracketLabel(run.bracket));
+  const visibleTags = Array.from(new Set(run.tags)).slice(0, 4);
   const openDetail = () => onSelectRun(run.id);
   const compareDisabled = !isCandidate && candidateLimitReached;
 
@@ -184,62 +184,49 @@ function LibraryRecordCard({
       tabIndex={0}
       onClick={openDetail}
       onKeyDown={handleKeyDown}
-      className="group cursor-pointer overflow-hidden rounded-[8px] border border-[#dfe3ea] bg-white text-left shadow-[0_12px_28px_rgba(21,27,38,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(21,27,38,0.12)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-[8px] border border-[#dfe3ea] bg-white text-left shadow-[0_10px_24px_rgba(21,27,38,0.06)] transition hover:-translate-y-0.5 hover:border-[#cfd6e2] hover:shadow-[0_18px_34px_rgba(21,27,38,0.11)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
       aria-label={`${run.title} の詳細を見る`}
     >
       <Thumbnail run={run} />
-      <div className="p-4">
-        <h3 className="line-clamp-1 text-[16px] font-black tracking-[-0.03em] text-[#111827]">{run.title}</h3>
-
-        <div className="mt-4 flex items-center gap-2">
-          {run.party.map((member) => {
-            const characterName = characterDb[member.characterId]?.name ?? member.characterId;
-            return (
-              <div key={`${run.id}-${member.characterId}`} className="relative">
-                <CharacterIcon characterId={member.characterId} alt={characterName} fallbackLabel={characterName} size={42} className="border border-white bg-[#f4f4f4] shadow-[0_0_0_1px_rgba(17,24,39,0.08)]" />
-                <span className="absolute -bottom-1 -right-1 rounded-full bg-[#eef1f5] px-1.5 py-0.5 text-[9px] font-black leading-none text-[#6b7280] shadow-[0_0_0_1px_rgba(255,255,255,0.9)]">C{member.cons}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] font-bold text-[#5f6678]">
-          <span className="inline-flex max-w-full items-center gap-1.5 truncate">
-            <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#eef1f5] text-[10px] text-[#6b7280]">{Array.from(run.userName)[0] ?? "?"}</span>
-            <span className="truncate">{run.userName}</span>
+      <div className="flex flex-1 flex-col gap-2.5 px-[11px] pb-[10px] pt-[11px]">
+        <div className="flex min-w-0 items-center gap-2">
+          <LibraryCardCharacterStack run={run} />
+          <span className="h-3 w-px shrink-0 bg-[#d1d5db]" />
+          <span className="min-w-0 flex-1 truncate text-[13px] font-extrabold text-[#111827]">{run.userName}</span>
+          <span className="flex shrink-0 items-center gap-1">
+            <InfoBadge>{run.platform}</InfoBadge>
+            <InfoBadge>{run.ruleset}</InfoBadge>
           </span>
-          <span className="h-3 w-px bg-[#d1d5db]" />
-          <PlatformLabel platform={run.platform} iconClassName="h-[13px] w-[13px]" />
-          <span className="h-3 w-px bg-[#d1d5db]" />
-          <span>{versionLabel}</span>
         </div>
 
-        <div className="mt-4 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[4px] border border-[#e5e7eb] bg-[#f7f8fa] px-3 py-2 text-[11px] font-black text-[#5f6678]">
-          <CostMetric label="Char" value={run.charCost} />
-          <CostMetric label="Weapon" value={run.weaponCost} />
-          <CostMetric label="Bracket" value={bracketLabel} />
+        <h3 className="line-clamp-2 text-[12px] font-semibold leading-[1.45] text-[#374151]">{run.title}</h3>
+
+        <div className="grid min-w-0 grid-cols-3 gap-x-2 rounded-[10px] bg-[#f0f2f5] px-2.5 py-1.5">
+          <CostMetric label="CHAR" value={run.charCost} />
+          <CostMetric label="WEAPON" value={run.weaponCost} />
+          <CostMetric label="BRACKET" value={bracketLabel} />
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           {visibleTags.map((tag) => (
-            <span key={`${run.id}-${tag}`} className="max-w-full truncate rounded-full bg-[#f0f2f5] px-2.5 py-1 text-[11px] font-black text-[#5b6472]">
+            <span key={`${run.id}-${tag}`} className="max-w-full truncate rounded-full bg-[#f0f2f5] px-2 py-0.5 text-[10px] font-bold text-[#6b7280]">
               #{tag}
             </span>
           ))}
         </div>
 
-        <div className="mt-4 flex items-center justify-end gap-4 border-t border-[#edf0f4] pt-3 text-[12px] font-black text-[#374151]">
+        <div className="mt-auto flex items-center justify-between border-t border-[#edf0f4] pt-2 text-[11px] font-extrabold text-[#5f6678]">
           <button
             type="button"
             onClick={handleAddCandidate}
             aria-disabled={compareDisabled || isCandidate}
-            className={`flex items-center gap-1.5 transition ${compareDisabled ? "cursor-not-allowed text-[#a2a8b3]" : "hover:text-[#ff3b1f]"} ${isCandidate ? "text-[#5f6678]" : ""}`}
+            className={`flex items-center gap-1 transition ${compareDisabled ? "cursor-not-allowed text-[#b8bec8]" : "hover:text-[#111827]"} ${isCandidate ? "text-[#111827]" : ""}`}
           >
-            {isCandidate ? <CheckIcon className="h-4 w-4" /> : <PlusIcon className="h-4 w-4" />}
+            {isCandidate ? <CheckIcon className="h-[11px] w-[11px]" /> : <PlusIcon className="h-[11px] w-[11px]" />}
             {isCandidate ? "追加済み" : compareDisabled ? "2件まで" : "比較に追加"}
           </button>
-          <button type="button" onClick={handleToggleWatchLater} aria-pressed={isWatchLater} className="flex items-center gap-1.5 transition hover:text-[#ff3b1f]">
-            <BookmarkIcon className={isWatchLater ? "h-4 w-4 fill-current" : "h-4 w-4"} />
+          <button type="button" onClick={handleToggleWatchLater} aria-pressed={isWatchLater} className={`flex items-center gap-1 transition hover:text-[#111827] ${isWatchLater ? "text-[#111827]" : ""}`}>
+            <BookmarkIcon className={isWatchLater ? "h-[11px] w-[11px] fill-current" : "h-[11px] w-[11px]"} />
             {isWatchLater ? "保存済み" : "あとで見る"}
           </button>
         </div>
@@ -660,26 +647,71 @@ function CompareEmptyState() {
 
 function Thumbnail({ run }: { run: RunRecord }) {
   const thumbnailUrl = getYouTubeThumbnailUrl(run.videoUrl);
+  const versionLabel = formatVersionLabel(run.versionLabel || run.season);
+  const bracketLabel = formatCompactBracketLabel(getBracketLabel(run.bracket));
+  const bracketAccentColor = HOME_BRACKET_ACCENT_COLORS[run.bracket];
 
   return (
     <div className="relative aspect-video overflow-hidden bg-[#111827]">
       {thumbnailUrl ? <img src={thumbnailUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" referrerPolicy="no-referrer" /> : null}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.08)_46%,rgba(0,0,0,0.66)_100%)]" />
-      <div className="absolute bottom-3 left-3 right-3 min-w-0 text-white">
-        <p className="truncate text-[12px] font-black text-white/72">
-          {run.ruleset} / {formatVersionLabel(run.versionLabel || run.season)}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.12)_48%,rgba(0,0,0,0.58)_100%)]" />
+      <div className="absolute left-2.5 top-2.5">
+        <BracketBadge color={bracketAccentColor}>{bracketLabel}</BracketBadge>
+      </div>
+      <div className="absolute bottom-2.5 right-2.5 border border-white/15 bg-black/60 px-2 py-1 text-[9px] font-black uppercase leading-none tracking-[0.08em] text-white/72">
+        {run.time}
+      </div>
+      <div className="absolute bottom-2.5 left-2.5 right-16 min-w-0">
+        <p className="truncate text-[10px] font-black uppercase tracking-[0.12em] text-white/62">
+          {versionLabel}
         </p>
-        <p className="mt-0.5 truncate text-[16px] font-black tracking-[-0.03em]">{run.title}</p>
       </div>
     </div>
+  );
+}
+
+function LibraryCardCharacterStack({ run }: { run: RunRecord }) {
+  return (
+    <div className="flex shrink-0">
+      {run.party.map((member, index) => {
+        const characterName = characterDb[member.characterId]?.name ?? member.characterId;
+        return (
+          <div key={`${run.id}-${member.characterId}`} className={index === 0 ? "relative" : "relative -ml-2"} style={{ zIndex: run.party.length - index }}>
+            <CharacterIcon
+              characterId={member.characterId}
+              alt={characterName}
+              fallbackLabel={characterName}
+              size={30}
+              className="border border-white bg-[#eef1f5] shadow-[0_0_0_1px_rgba(17,24,39,0.08)]"
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function InfoBadge({ children }: { children: string }) {
+  return (
+    <span className="max-w-[76px] truncate border border-[#d8dde6] px-1.5 py-0.5 text-[9px] font-black uppercase leading-none tracking-[0.1em] text-[#7b8493]">
+      {children}
+    </span>
+  );
+}
+
+function BracketBadge({ children, color }: { children: string; color: string }) {
+  return (
+    <span className="max-w-[68px] truncate px-1.5 py-0.5 text-[9px] font-black uppercase leading-none tracking-[0.1em] text-white" style={{ backgroundColor: color }}>
+      {children}
+    </span>
   );
 }
 
 function CostMetric({ label, value }: { label: string; value: string | number }) {
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap">
-      <span className="text-[10px] uppercase tracking-[0.08em] text-[#8d93a3]">{label}</span>
-      <span className="truncate text-[12px] text-[#8d93a3]">{value}</span>
+      <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#6b7280]">{label}</span>
+      <span className="truncate text-[12px] font-black text-[#6b7280]">{value}</span>
     </span>
   );
 }
