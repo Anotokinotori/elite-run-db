@@ -13,7 +13,7 @@ import {
   type WeaponTier,
 } from "../../../data/mockRuns";
 import { formatVersionLabel, versionRank } from "../../../lib/versionLabels";
-import { HOME_BRACKET_ACCENT_COLORS, HOME_ELEMENT_FILTER_OPTIONS, HOME_FILTER_TAG_GROUP_DEFINITIONS, HOME_FILTER_TARGET_OPTIONS } from "../../home/config";
+import { HOME_ELEMENT_FILTER_OPTIONS, HOME_FILTER_TAG_GROUP_DEFINITIONS, HOME_FILTER_TARGET_OPTIONS } from "../../home/config";
 import { cloneHomeFilterState, createEmptyHomeFilterState, updateSelectionGroup } from "../../home/logic";
 import type { CharacterFilterTabKey, HomeFilterState, SelectionTarget } from "../../home/types";
 import { FilterDrawer } from "../../home/ui/FilterDrawer";
@@ -25,8 +25,10 @@ import { cloneLibraryBuildFilterState, cloneLibraryCategoryFilterState, cloneLib
 import { LIBRARY_BUILD_RANGE_LIMITS as BUILD_RANGE_LIMITS, type LibraryBuildFilterState, type LibraryCategoryFilterState, type LibrarySearchFilters, type NumericRange } from "../types";
 
 type LibraryFilterKey = (typeof LIBRARY_FILTER_PANELS)[number]["key"];
+type LibraryFilterPanel = (typeof LIBRARY_FILTER_PANELS)[number];
 type SelectableFilterKey = Exclude<LibraryFilterKey, "search">;
-type IconType = (typeof LIBRARY_FILTER_PANELS)[number]["icon"];
+type SelectableFilterPanel = Extract<LibraryFilterPanel, { key: SelectableFilterKey }>;
+type SearchFilterPanel = Extract<LibraryFilterPanel, { key: "search" }>;
 type CharacterSummaryGroup = "partyCharacters" | "mainAttackers";
 type CharacterSummaryTarget = "include" | "exclude";
 type WeaponSummaryTarget = "include" | "exclude";
@@ -88,27 +90,33 @@ const UI = {
   cardBorder: "#CFCFCF",
 } as const;
 
-const DESKTOP_FILTER_DIM_CLASS = "bg-black/50 group-hover:bg-black/0 group-focus-visible:bg-black/0";
+const FILTER_CARD_DIM_CLASS = "bg-black/[0.58] group-hover:bg-black/[0.36] group-focus-visible:bg-black/[0.36]";
+const FILTER_CARD_DETAILS: Record<SelectableFilterKey, { number: string; subLabel: string }> = {
+  character: { number: "01", subLabel: "PARTY / MAIN" },
+  build: { number: "02", subLabel: "CONST / WEAPON" },
+  category: { number: "03", subLabel: "RULE / VERSION" },
+  tag: { number: "04", subLabel: "TAG CLUSTER" },
+};
 
 const DESKTOP_FILTER_CARD_META: Record<SelectableFilterKey, { imageUrl: string; backgroundColor: string; objectPosition: string }> = {
   character: {
     imageUrl: "https://enka.network/ui/UI_Gacha_AvatarImg_Chasca.png",
-    backgroundColor: HOME_BRACKET_ACCENT_COLORS[4],
+    backgroundColor: "#274060",
     objectPosition: "50% 18%",
   },
   build: {
     imageUrl: "https://enka.network/ui/UI_EquipIcon_Claymore_Wolfmound.png",
-    backgroundColor: HOME_BRACKET_ACCENT_COLORS[3],
+    backgroundColor: "#2c3e3d",
     objectPosition: "50% 44%",
   },
   category: {
     imageUrl: categoryPeriodImageUrl,
-    backgroundColor: HOME_BRACKET_ACCENT_COLORS[2],
+    backgroundColor: "#4a3528",
     objectPosition: "50% 34%",
   },
   tag: {
     imageUrl: "https://static.wikia.nocookie.net/gensin-impact/images/6/65/Item_An_Appellative_Stroke.png/revision/latest?cb=20221207135611",
-    backgroundColor: HOME_BRACKET_ACCENT_COLORS[1],
+    backgroundColor: "#3d2a4a",
     objectPosition: "50% 42%",
   },
 };
@@ -139,12 +147,12 @@ function isSelectableFilterKey(key: LibraryFilterKey): key is SelectableFilterKe
   return key !== "search";
 }
 
-function getNextSelectablePanel(activeKey: SelectableFilterKey | null) {
-  const selectablePanels = LIBRARY_FILTER_PANELS.filter((panel): panel is (typeof LIBRARY_FILTER_PANELS)[number] & { key: SelectableFilterKey } =>
-    isSelectableFilterKey(panel.key),
-  );
-  const activeIndex = activeKey ? selectablePanels.findIndex((panel) => panel.key === activeKey) : -1;
-  return selectablePanels[(activeIndex + 1) % selectablePanels.length] ?? selectablePanels[0];
+function isSelectableFilterPanel(panel: LibraryFilterPanel): panel is SelectableFilterPanel {
+  return isSelectableFilterKey(panel.key);
+}
+
+function isSearchFilterPanel(panel: LibraryFilterPanel): panel is SearchFilterPanel {
+  return panel.key === "search";
 }
 
 function isDefaultRange(value: NumericRange, limit: NumericRange) {
@@ -204,7 +212,6 @@ export function FilterEntrance({
   const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
   const [isWeaponModalOpen, setIsWeaponModalOpen] = useState(false);
   const activeLabel = useMemo(() => LIBRARY_FILTER_PANELS.find((panel) => panel.key === activeKey)?.label ?? "", [activeKey]);
-  const nextMobilePanel = getNextSelectablePanel(activeKey);
 
   const createCurrentSearchFilters = (): LibrarySearchFilters => ({
     characterFilters: cloneHomeFilterState(characterFilters),
@@ -290,9 +297,9 @@ export function FilterEntrance({
         </header>
         <div className="h-px bg-white/10" />
         <div className="p-3 sm:p-4" style={{ background: UI.sectionBody }}>
-          <DesktopFilterCards activeKey={activeKey} onPanelClick={handleDesktopPanelClick} onSearch={handleSearch} />
-          <MobileChipBar activeKey={activeKey} onPanelClick={handleMobilePanelClick} />
-          <div className="sm:hidden">
+          <FilterCardBar activeKey={activeKey} onPanelClick={handleDesktopPanelClick} variant="desktop" className="hidden sm:block" />
+          <FilterCardBar activeKey={activeKey} onPanelClick={handleMobilePanelClick} variant="mobile" className="sm:hidden" />
+          <div className="mt-3 sm:hidden">
             {activeKey === "character" ? (
               <CharacterFilterSummaryPanel filters={characterFilters} onOpenPicker={() => setIsCharacterModalOpen(true)} onRemoveFilter={handleRemoveCharacterFilter} />
             ) : null}
@@ -302,12 +309,6 @@ export function FilterEntrance({
             {activeKey === "category" ? <CategoryFilterPanel filters={categoryFilters} onChange={setCategoryFilters} /> : null}
             {activeKey === "tag" ? <TagFilterPanel selectedTags={selectedTags} onToggleTag={handleToggleTag} /> : null}
           </div>
-          <MobileFilterActions
-            showNext={activeKey !== null}
-            nextLabel={nextMobilePanel.label}
-            onNext={() => setActiveKey(nextMobilePanel.key)}
-            onSearch={handleSearch}
-          />
         </div>
       </div>
       <LibraryFilterModal
@@ -1536,88 +1537,52 @@ function getWeaponTierBadgeClass(tier: WeaponTier) {
   }
 }
 
-function DesktopFilterCards({
+function FilterCardBar({
   activeKey,
   onPanelClick,
-  onSearch,
+  variant,
+  className,
 }: {
   activeKey: SelectableFilterKey | null;
   onPanelClick: (key: LibraryFilterKey) => void;
-  onSearch: () => void;
+  variant: "desktop" | "mobile";
+  className?: string;
 }) {
-  const panels = LIBRARY_FILTER_PANELS.filter((panel): panel is (typeof LIBRARY_FILTER_PANELS)[number] & { key: SelectableFilterKey } =>
-    isSelectableFilterKey(panel.key),
-  );
+  const isMobile = variant === "mobile";
 
   return (
-    <div className="library-desktop-filter-entry hidden sm:block">
-      <div className="grid overflow-hidden border border-black/10 bg-transparent shadow-[0_14px_30px_rgba(15,23,42,0.18)] md:grid-cols-4">
-        {panels.map((panel) => {
-          const meta = DESKTOP_FILTER_CARD_META[panel.key];
-          const isActive = panel.key === activeKey;
+    <div className={[isMobile ? "" : "no-scrollbar overflow-x-auto", className].filter(Boolean).join(" ")} role="group" aria-label={LIBRARY_LABELS.searchTitle}>
+      <div
+        className={
+          isMobile
+            ? "grid grid-cols-1 gap-px overflow-hidden border border-black/25 bg-[#08080c] shadow-[0_14px_30px_rgba(15,23,42,0.18)]"
+            : "grid min-w-[932px] grid-cols-[repeat(4,210px)_92px] gap-px overflow-hidden border border-black/25 bg-[#08080c] shadow-[0_14px_30px_rgba(15,23,42,0.18)] sm:min-w-0 sm:grid-cols-[repeat(4,minmax(0,1fr))_minmax(92px,0.42fr)]"
+        }
+      >
+        {LIBRARY_FILTER_PANELS.map((panel) => {
+          const isSearch = panel.key === "search";
+          const isActive = !isSearch && panel.key === activeKey;
+          const backgroundColor = getFilterCardBackgroundColor(panel);
 
           return (
             <button
               key={panel.key}
               type="button"
-              aria-pressed={isActive}
+              aria-pressed={isSearch ? undefined : isActive}
               onClick={() => onPanelClick(panel.key)}
-              className="library-desktop-filter-card group relative min-h-[160px] overflow-hidden border-b border-white/10 text-[#d9d9d9] outline-none transition md:min-h-[190px] md:border-b-0 md:border-r last:border-b-0 md:last:border-r-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/75"
+              className={[
+                isMobile
+                  ? "group relative h-[58px] overflow-hidden text-[#d9d9d9] outline-none transition focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/75"
+                  : "group relative h-[138px] overflow-hidden text-[#d9d9d9] outline-none transition focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/75 sm:h-[168px] md:h-[190px]",
+                isActive ? "ring-2 ring-inset ring-white/70" : "",
+              ].join(" ")}
               style={
                 {
-                  backgroundColor: "#606060",
+                  backgroundColor,
                 } as CSSProperties
               }
             >
-              <img
-                src={meta.imageUrl}
-                alt=""
-                className="absolute inset-0 h-full w-full scale-[1.08] object-cover opacity-70 transition duration-300 group-hover:scale-[1.13] group-hover:opacity-100 group-focus-visible:scale-[1.13] group-focus-visible:opacity-100"
-                style={{ objectPosition: meta.objectPosition }}
-                loading="lazy"
-              />
-              <span className={`absolute inset-0 transition-colors duration-200 ${DESKTOP_FILTER_DIM_CLASS}`} />
-              <span className="relative z-10 flex h-full min-h-[160px] flex-col items-center justify-center gap-2 px-4 text-center md:min-h-[190px]">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-black/35 text-[#d9d9d9] shadow-[0_10px_24px_rgba(0,0,0,0.28)] backdrop-blur-sm transition duration-300 group-hover:bg-white/90 group-hover:text-[#111116] group-focus-visible:bg-white/90 group-focus-visible:text-[#111116] md:h-11 md:w-11">
-                  <FilterIcon type={panel.icon} className="h-5 w-5 md:h-5 md:w-5" />
-                </span>
-                <span className="text-[14px] font-black leading-tight tracking-[0.02em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] md:text-[16px]">{panel.label}</span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      <button
-        type="button"
-        onClick={onSearch}
-        className="mt-3 flex h-13 w-full items-center justify-center gap-3 rounded-[10px] border border-[#111116] bg-[#111116] px-5 text-[15px] font-black tracking-[0.08em] text-[#d9d9d9] shadow-[0_12px_24px_rgba(17,17,22,0.22)] transition hover:bg-[#2a2a31] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f4f3f1]"
-      >
-        <SearchIcon size={18} className="text-[#d9d9d9]" />
-        <span>{LIBRARY_FILTER_PANELS.find((panel) => panel.key === "search")?.label ?? "検索"}</span>
-      </button>
-    </div>
-  );
-}
-
-function MobileChipBar({ activeKey, onPanelClick }: { activeKey: SelectableFilterKey | null; onPanelClick: (key: LibraryFilterKey) => void }) {
-  return (
-    <div className="sm:hidden">
-      <div className="no-scrollbar flex overflow-x-auto rounded-[8px] border border-[#d2d5dc] bg-white shadow-[0_8px_18px_rgba(21,27,38,0.08)]" aria-label={LIBRARY_LABELS.searchTitle}>
-        {LIBRARY_FILTER_PANELS.filter((panel) => panel.key !== "search").map((panel) => {
-          const isActive = panel.key === activeKey;
-          return (
-            <button
-              key={panel.key}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => onPanelClick(panel.key)}
-              className={[
-                "relative flex h-10 shrink-0 items-center justify-center gap-1.5 border-r border-[#e1e4ea] px-3 text-[12px] font-black transition-colors last:border-r-0 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#111116]/50",
-                isActive ? "min-w-[102px] bg-[#f4f5f7] text-[#111116] shadow-[inset_0_-2px_0_#111116]" : "min-w-[102px] bg-white text-[#333333] hover:bg-[#f7f7f7]",
-              ].join(" ")}
-            >
-              <FilterIcon type={panel.icon} className="size-3.5 text-[#333333]" />
-              <span className="whitespace-nowrap">{panel.label}</span>
+              {renderFilterCardContent(panel, variant)}
             </button>
           );
         })}
@@ -1626,148 +1591,93 @@ function MobileChipBar({ activeKey, onPanelClick }: { activeKey: SelectableFilte
   );
 }
 
-function MobileFilterActions({
-  showNext,
-  nextLabel,
-  onNext,
-  onSearch,
-}: {
-  showNext: boolean;
-  nextLabel: string;
-  onNext: () => void;
-  onSearch: () => void;
-}) {
+function getFilterCardBackgroundColor(panel: LibraryFilterPanel) {
+  return isSelectableFilterPanel(panel) ? DESKTOP_FILTER_CARD_META[panel.key].backgroundColor : "#111116";
+}
+
+function renderFilterCardContent(panel: LibraryFilterPanel, variant: "desktop" | "mobile") {
+  return isSearchFilterPanel(panel) ? <SearchFilterCardContent panel={panel} variant={variant} /> : <SelectableFilterCardContent panel={panel} variant={variant} />;
+}
+
+function SelectableFilterCardContent({ panel, variant }: { panel: SelectableFilterPanel; variant: "desktop" | "mobile" }) {
+  const meta = DESKTOP_FILTER_CARD_META[panel.key];
+  const details = FILTER_CARD_DETAILS[panel.key];
+
+  if (variant === "mobile") {
+    return (
+      <>
+        <img
+          src={meta.imageUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full scale-[1.05] object-cover opacity-[0.62] transition duration-300 group-hover:scale-[1.09] group-hover:opacity-80 group-focus-visible:scale-[1.09] group-focus-visible:opacity-80"
+          style={{ objectPosition: meta.objectPosition }}
+          loading="lazy"
+        />
+        <span className={`absolute inset-0 transition-colors duration-200 ${FILTER_CARD_DIM_CLASS}`} />
+        <span className="relative z-10 flex h-full min-w-0 items-center gap-2.5 px-4 text-left">
+          <span className="shrink-0 text-[18px] font-black leading-none text-[#d9d9d9]/[0.9] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">{details.number}</span>
+          <span className="flex min-w-0 items-baseline gap-2">
+            <span className="shrink-0 whitespace-nowrap text-[16px] font-black leading-none tracking-[0.02em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">{panel.label}</span>
+            <span className="min-w-0 truncate text-[10px] font-black uppercase leading-none tracking-[0.08em] text-[#d9d9d9]/75">{details.subLabel}</span>
+          </span>
+        </span>
+      </>
+    );
+  }
+
   return (
-    <div className={`mt-3 grid gap-2 sm:hidden ${showNext ? "grid-cols-[minmax(0,1fr)_112px]" : "grid-cols-1"}`}>
-      {showNext ? (
-      <button
-        type="button"
-        onClick={onNext}
-        className="flex h-11 min-w-0 items-center justify-center gap-2 rounded-[8px] border border-[#d2d5dc] bg-white px-3 text-[13px] font-black text-[#333333] shadow-[0_6px_14px_rgba(21,27,38,0.06)] transition-colors hover:bg-[#f7f7f7] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
-      >
-        <span className="truncate">次: {nextLabel}</span>
-        <span className="text-[16px] leading-none">›</span>
-      </button>
-      ) : null}
-      <button
-        type="button"
-        onClick={onSearch}
-        className="flex h-11 items-center justify-center rounded-[8px] border border-[#111116] bg-[#111116] px-4 text-[13px] font-black text-white shadow-[0_8px_16px_rgba(17,17,22,0.18)] transition-colors hover:bg-[#2a2a31] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
-      >
-        検索
-      </button>
-    </div>
+    <>
+      <img
+        src={meta.imageUrl}
+        alt=""
+        className="absolute inset-0 h-full w-full scale-[1.08] object-cover opacity-[0.72] transition duration-300 group-hover:scale-[1.13] group-hover:opacity-90 group-focus-visible:scale-[1.13] group-focus-visible:opacity-90"
+        style={{ objectPosition: meta.objectPosition }}
+        loading="lazy"
+      />
+      <span className={`absolute inset-0 transition-colors duration-200 ${FILTER_CARD_DIM_CLASS}`} />
+      <span className="absolute left-4 top-4 z-10 text-[22px] font-black leading-none text-[#d9d9d9]/[0.88] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] sm:left-5 sm:top-5 sm:text-[24px]">
+        {details.number}
+      </span>
+      <span className="relative z-10 flex h-full translate-y-0.5 items-end px-4 pb-5 pt-16 text-left sm:px-5 sm:pb-6">
+        <span className="min-w-0">
+          <span className="block whitespace-nowrap text-[19px] font-black leading-tight tracking-[0.02em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">{panel.label}</span>
+          <span className="mt-1 block text-[11px] font-black uppercase leading-none tracking-[0.08em] text-[#d9d9d9]/75">{details.subLabel}</span>
+        </span>
+      </span>
+    </>
   );
 }
 
-function FilterIcon({ type, className }: { type: IconType; className?: string }) {
-  const commonProps = { className, fill: "none", stroke: "currentColor", strokeWidth: 2.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
-  if (type === "character") {
+function SearchFilterCardContent({ panel, variant }: { panel: SearchFilterPanel; variant: "desktop" | "mobile" }) {
+  if (variant === "mobile") {
     return (
-      <svg viewBox="0 0 24 24" {...commonProps}>
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
+      <>
+        <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),rgba(255,255,255,0)_48%)] opacity-75 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
+        <span className="relative z-10 flex h-full items-center justify-center gap-2.5 px-4 text-center">
+          <SearchIcon size={22} className="text-[#d9d9d9] drop-shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition duration-300 group-hover:text-white group-focus-visible:text-white" />
+          <span className="text-[16px] font-black leading-none tracking-[0.02em] text-white">{panel.label}</span>
+        </span>
+      </>
     );
   }
-  if (type === "weapon") {
-    return (
-      <svg viewBox="0 0 24 24" {...commonProps}>
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-      </svg>
-    );
-  }
-  if (type === "calendar") {
-    return (
-      <svg viewBox="0 0 24 24" {...commonProps}>
-        <line x1="10" x2="14" y1="2" y2="2" />
-        <line x1="12" x2="15" y1="14" y2="11" />
-        <circle cx="12" cy="14" r="8" />
-      </svg>
-    );
-  }
-  if (type === "search") {
-    return (
-      <svg viewBox="0 0 48 48" {...commonProps}>
-        <circle cx="22" cy="22" r="13" />
-        <path d="m32 32 8 8" />
-      </svg>
-    );
-  }
+
   return (
-    <svg viewBox="0 0 24 24" {...commonProps}>
-      <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
-      <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" stroke="none" />
-    </svg>
+    <>
+      <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),rgba(255,255,255,0)_48%)] opacity-75 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
+      <span className="relative z-10 flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
+        <SearchIcon size={38} className="text-[#d9d9d9] drop-shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition duration-300 group-hover:text-white group-focus-visible:text-white" />
+        <span className="text-[22px] font-black leading-none tracking-[0.02em] text-white sm:text-[23px]">{panel.label}</span>
+      </span>
+    </>
   );
 }
 
 function ResponsiveStyle() {
   return (
     <style>{`
-      .library-filter-search-bar { container-type: inline-size; }
-      .library-filter-panel-content {
-        --icon-size: clamp(16px, 2.05cqw, 23px);
-        --arrow-size: clamp(18px, 2.4cqw, 28px);
-        --title-size: clamp(14px, 1.75cqw, 20px);
-        display: grid;
-        grid-template-columns: var(--icon-size) max-content var(--arrow-size);
-        align-items: center;
-        justify-content: center;
-        gap: clamp(9px, 1.05cqw, 14px);
-        height: 100%;
-        width: 100%;
-        box-sizing: border-box;
-        padding-inline: clamp(14px, 1.8cqw, 24px) clamp(18px, 2.4cqw, 30px);
-      }
-      .library-filter-panel-icon { width: var(--icon-size); height: var(--icon-size); display: grid; place-items: center; }
-      .library-filter-panel-title {
-        min-width: 0;
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        justify-content: center;
-        font-size: var(--title-size);
-        line-height: 1.05;
-        font-weight: 900;
-        letter-spacing: 0;
-        white-space: nowrap;
-        word-break: keep-all;
-        overflow-wrap: normal;
-      }
-      .library-filter-panel-title-part { display: inline-block; flex: 0 0 auto; }
-      .library-filter-panel-arrow { display: grid; place-items: center; font-size: var(--arrow-size); line-height: 1; font-weight: 300; }
-      .library-filter-submit-label { font-size: clamp(15px, 1.9cqw, 22px); }
       .library-range-input { pointer-events: none; }
       .library-range-input::-webkit-slider-thumb { pointer-events: auto; }
       .library-range-input::-moz-range-thumb { pointer-events: auto; }
-      @container (max-width: 820px) {
-        .library-filter-panel-content {
-          --icon-size: clamp(14px, 1.85cqw, 19px);
-          --arrow-size: clamp(16px, 1.9cqw, 21px);
-          --title-size: clamp(12px, 1.65cqw, 16px);
-          gap: 5px;
-          padding-inline: 10px 14px;
-        }
-      }
-      @container (max-width: 700px) {
-        .library-filter-panel-content {
-          grid-template-columns: var(--icon-size) minmax(0, 1fr) var(--arrow-size);
-        }
-        .library-filter-panel-title { flex-wrap: wrap; text-align: center; white-space: normal; }
-      }
-      @container (max-width: 640px) {
-        .library-filter-panel-content {
-          grid-template-columns: minmax(0, 1fr) 16px;
-          --title-size: clamp(11px, 2.55cqw, 15px);
-          padding-inline: 8px 10px;
-        }
-        .library-filter-panel-icon { display: none; }
-        .library-filter-panel-arrow { font-size: 20px; }
-      }
     `}</style>
   );
 }
