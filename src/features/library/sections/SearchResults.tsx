@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEve
 
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { CompareViewIcon, PauseIcon, PlayIcon } from "../../../components/UiIcons";
+import { Button, CardShell, EmptyState, IconButton } from "../../../components/ui";
 import { appRuns, getAppRunById } from "../../../data/appRuns";
 import { characterDb, type RunRecord } from "../../../data/mockRuns";
 import { getYouTubeVideoId } from "../../../lib/youtube";
@@ -179,12 +180,13 @@ function LibraryRecordCard({
   };
 
   return (
-    <article
+    <CardShell
       role="button"
       tabIndex={0}
       onClick={openDetail}
       onKeyDown={handleKeyDown}
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-[8px] border border-[#dfe3ea] bg-white text-left shadow-[0_10px_24px_rgba(21,27,38,0.06)] transition hover:-translate-y-0.5 hover:border-[#cfd6e2] hover:shadow-[0_18px_34px_rgba(21,27,38,0.11)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
+      interactive
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-[8px]"
       aria-label={`${run.title} の詳細を見る`}
     >
       <Thumbnail run={run} />
@@ -231,7 +233,7 @@ function LibraryRecordCard({
           </button>
         </div>
       </div>
-    </article>
+    </CardShell>
   );
 }
 
@@ -291,16 +293,18 @@ function CompareCandidatePanel({
 
 function CompareCandidateCard({ run, onSelectRun, onRemove }: { run: RunRecord; onSelectRun: (runId: string) => void; onRemove: (runId: string) => void }) {
   return (
-    <article className="relative overflow-hidden rounded-[8px] border border-[#e2e6ee] bg-[#fbfcfd]">
-      <button
+    <CardShell className="relative overflow-hidden rounded-[8px] bg-[#fbfcfd] shadow-none">
+      <IconButton
         type="button"
         onClick={() => onRemove(run.id)}
         aria-label={`${run.title} を比較候補から削除`}
         title="削除"
-        className="absolute right-2 top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-black/70 text-white shadow transition hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+        variant="overlay"
+        size="sm"
+        className="absolute right-2 top-2 z-10 h-7 w-7 shadow"
       >
         <XIcon className="h-4 w-4" />
-      </button>
+      </IconButton>
       <button type="button" onClick={() => onSelectRun(run.id)} className="block w-full text-left transition hover:bg-[#f7f8fa] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#111116]/40">
         <div className="relative h-[88px] bg-[#111827]">
           <img src={getYouTubeThumbnailUrl(run.videoUrl) ?? ""} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
@@ -324,7 +328,7 @@ function CompareCandidateCard({ run, onSelectRun, onRemove }: { run: RunRecord; 
           </div>
         </div>
       </button>
-    </article>
+    </CardShell>
   );
 }
 
@@ -479,7 +483,7 @@ function ActionRunList({
 }
 
 function ActionEmptyState({ label }: { label: string }) {
-  return <div className="rounded-[8px] border border-dashed border-[#dfe3ea] bg-[#fbfcfd] px-3 py-5 text-center text-[12px] font-bold text-[#8d93a3]">{label}</div>;
+  return <EmptyState title={label} className="rounded-[8px] bg-[#fbfcfd] px-3 py-5 text-[12px]" />;
 }
 
 function formatHistoryDate(value: string) {
@@ -557,13 +561,13 @@ function LibraryCompareDrawer({
             <div className="text-[18px] font-semibold text-[#111827]">比較ビュー</div>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={toggleSync} className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] border border-[#d8dde6] bg-[#f7f8fa] px-4 text-[13px] font-medium text-[#333333] transition hover:bg-[#eef1f5]">
+            <Button type="button" onClick={toggleSync} variant="tonal" size="md" className="h-9 rounded-[42px] px-4 text-[13px]">
               {syncPlaying ? <PauseIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
               <span>{syncPlaying ? "同期停止" : "同時再生"}</span>
-            </button>
-            <button type="button" aria-label="比較ビューを閉じる" onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full border border-[#d8dde6] bg-[#f7f8fa] text-[#333333] transition hover:bg-[#eef1f5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50">
+            </Button>
+            <IconButton type="button" aria-label="比較ビューを閉じる" onClick={onClose} variant="surface">
               <XIcon className="h-4 w-4" />
-            </button>
+            </IconButton>
           </div>
         </div>
         <div className="grid min-h-0 flex-1 grid-cols-2 divide-x divide-[#e5e7eb]">
@@ -635,13 +639,9 @@ function LibraryCompareRunPane({
 
 function CompareEmptyState() {
   return (
-    <div className="px-4 py-8 text-center">
-      <div className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-[#f0f2f5] text-[#7b8493]">
-        <CompareViewIcon className="h-5 w-5" />
-      </div>
-      <p className="mt-3 text-[13px] font-black text-[#111827]">候補なし</p>
-      <p className="mt-1 text-[11px] font-bold leading-5 text-[#8d93a3]">結果カードの下部から追加できます。</p>
-    </div>
+    <EmptyState title="候補なし" icon={<CompareViewIcon className="h-5 w-5" />} className="border-0 bg-transparent px-4 py-8 text-[13px]">
+      結果カードの下部から追加できます。
+    </EmptyState>
   );
 }
 
@@ -722,11 +722,9 @@ function formatCompactBracketLabel(label: string) {
 
 function LibraryEmptyResults() {
   return (
-    <div className="rounded-[16px] border border-dashed border-[#dcdfe6] bg-white py-16 text-center">
-      <SearchIcon size={46} className="mx-auto mb-4 text-[#dcdfe6]" />
-      <h3 className="text-[18px] font-black text-[#606266]">該当する記録がありません</h3>
-      <p className="mt-2 text-[13px] font-bold text-[#909399]">条件を減らすか、検索ワードを変えてください。</p>
-    </div>
+    <EmptyState title="該当する記録がありません" icon={<SearchIcon size={46} />} className="rounded-[16px] bg-white py-16 text-[18px]">
+      条件を減らすか、検索ワードを変えてください。
+    </EmptyState>
   );
 }
 

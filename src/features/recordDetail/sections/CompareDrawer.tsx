@@ -2,9 +2,10 @@
 
 import type { RunRecord } from "../../../data/mockRuns";
 import { PlatformIcon, PauseIcon, PlayIcon } from "../../../components/UiIcons";
+import { Button, IconButton } from "../../../components/ui";
 import { formatVersionLabel } from "../../../lib/versionLabels";
 
-import { DETAIL_ICON_BUTTON_CLASS, DETAIL_MUTED_SURFACE_CLASS } from "../config";
+import { DETAIL_MUTED_SURFACE_CLASS } from "../config";
 import { getPartyBuildItems, postYouTubeCommand } from "../logic";
 import {
   CircleAvatar,
@@ -129,25 +130,26 @@ export function CompareDrawer({
             <div className="text-[16px] font-semibold text-[#111827] md:text-[18px]">比較ビュー</div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <Button
               onClick={onToggleSync}
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] border border-[#d8dde6] bg-[#f7f8fa] px-4 text-[13px] font-medium text-[#333333] transition hover:bg-[#eef1f5]"
+              variant="tonal"
+              size="md"
+              className="h-9 rounded-[42px] px-4 text-[13px]"
             >
               {syncPlaying ? <PauseIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
               <span>{syncPlaying ? "同期停止" : "同時再生"}</span>
-            </button>
-            <button
+            </Button>
+            <IconButton
               type="button"
               aria-label="比較ビューを閉じる"
               onClick={onClose}
-              className={DETAIL_ICON_BUTTON_CLASS}
+              variant="surface"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M6 6l12 12" />
                 <path d="M18 6l-12 12" />
               </svg>
-            </button>
+            </IconButton>
           </div>
         </div>
 
