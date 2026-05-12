@@ -107,19 +107,6 @@ textarea::placeholder {
   }
 }
 
-.hoyo-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid #ebebeb;
-  transition: all 0.3s ease;
-}
-
-.hoyo-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
