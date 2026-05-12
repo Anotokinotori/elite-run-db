@@ -13,6 +13,7 @@ export function Sidebar({
   selectedCompareRunId,
   onToggleMenu,
   onAction,
+  onSelectRun,
 }: {
   compareOpen: boolean;
   partyBuildItems: PartyBuildItem[];
@@ -22,6 +23,7 @@ export function Sidebar({
   selectedCompareRunId: string | null;
   onToggleMenu: (runId: string) => void;
   onAction: (runId: string, action: "like" | "share" | "compare") => void;
+  onSelectRun?: (runId: string) => void;
 }) {
   return (
     <aside className={`flex w-full shrink-0 flex-col gap-[18px] ${compareOpen ? "lg:w-full xl:w-full" : "lg:w-[304px] xl:w-[316px]"}`}>
@@ -56,6 +58,7 @@ export function Sidebar({
                     isCompareSelected={isCompareSelected}
                     onToggleMenu={() => onToggleMenu(match.run.id)}
                     onAction={(action) => onAction(match.run.id, action)}
+                    onOpenDetail={onSelectRun ? () => onSelectRun(match.run.id) : undefined}
                   />
                 );
               })}

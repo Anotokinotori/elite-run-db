@@ -256,14 +256,6 @@ function MoreIcon({ className }: { className?: string }) {
   );
 }
 
-function ChevronDownIcon({ className }: { className?: string }) {
-  return (
-    <ShellIcon className={className}>
-      <path d="m6 9 6 6 6-6" />
-    </ShellIcon>
-  );
-}
-
 function PlusIcon({ className }: { className?: string }) {
   return (
     <ShellIcon className={className}>
@@ -419,24 +411,18 @@ function GlobalDrawer({
 
 function GlobalHeader({
   routeName,
-  version,
-  versionOptions,
   hasUnreadNotifications,
   onMenuClick,
   onTitleClick,
   onNavigate,
   onRequestSubmit,
-  onVersionChange,
 }: {
   routeName: ShellRouteName;
-  version: string;
-  versionOptions: string[];
   hasUnreadNotifications: boolean;
   onMenuClick: () => void;
   onTitleClick: () => void;
   onNavigate: (route: ShellDestination) => void;
   onRequestSubmit: () => void;
-  onVersionChange: (version: string) => void;
 }) {
   const lightChrome = false;
   const utilityButtonClass = lightChrome
@@ -469,25 +455,6 @@ function GlobalHeader({
             </button>
           </h1>
 
-          <div className="relative min-w-0">
-            <select
-              value={version}
-              onChange={(event) => onVersionChange(event.target.value)}
-              className={classNames(
-                "min-w-[104px] appearance-none rounded-full border py-2 pl-4 pr-10 text-[12px] font-normal outline-none transition-colors sm:text-[14px] md:text-[16px]",
-                lightChrome
-                  ? "border-black/30 bg-white text-black hover:border-black/45 focus:border-black/60"
-                  : "border-[#3a3a3a] bg-[#272727] text-[#d9d9d9] hover:border-[#505050] focus:border-[#6a6a6a]",
-              )}
-            >
-              {versionOptions.map((option) => (
-                <option key={option} value={option} className={lightChrome ? "bg-white text-black" : "bg-[#272727] text-[#d9d9d9]"}>
-                  {option}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon className={classNames("pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2", lightChrome ? "text-black/70" : "text-[#8b95a7]")} />
-          </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-4 sm:gap-6">
@@ -540,23 +507,17 @@ function GlobalHeader({
 
 export function AppShell({
   routeName,
-  version,
-  versionOptions,
   hasUnreadNotifications,
   onNavigate,
   onTitleClick,
   onRequestSubmit,
-  onVersionChange,
   children,
 }: {
   routeName: ShellRouteName;
-  version: string;
-  versionOptions: string[];
   hasUnreadNotifications: boolean;
   onNavigate: (route: ShellDestination) => void;
   onTitleClick: () => void;
   onRequestSubmit: () => void;
-  onVersionChange: (version: string) => void;
   children: ReactNode;
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -607,14 +568,11 @@ export function AppShell({
         <div className="flex min-w-0 flex-1 flex-col bg-[#f8f9fb]">
           <GlobalHeader
             routeName={routeName}
-            version={version}
-            versionOptions={versionOptions}
             hasUnreadNotifications={hasUnreadNotifications}
             onMenuClick={() => setIsDrawerOpen(true)}
             onTitleClick={handleTitleClick}
             onNavigate={onNavigate}
             onRequestSubmit={onRequestSubmit}
-            onVersionChange={onVersionChange}
           />
 
           <main className={classNames("min-w-0 flex-1 text-[#333333]", routeName === "home" ? "bg-[#EDECEC]" : lightChrome ? "bg-[#f5f6f8]" : "bg-[#f0f2f5]")}>{children}</main>

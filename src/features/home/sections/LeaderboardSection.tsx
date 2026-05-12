@@ -17,8 +17,11 @@ type LeaderboardSectionProps = {
   leaderboardRef: RefObject<HTMLDivElement | null>;
   leaderboardView: LeaderboardView;
   lastUpdatedDate: string;
+  seasons: readonly string[];
+  activeSeason: string;
   filterBracket: Bracket | null;
   leaderboardRuns: Array<HomeRun | HomeRunWithGroup>;
+  onSeasonChange: (season: string) => void;
   onFilterBracketChange: (bracket: Bracket | null) => void;
   onLeaderboardViewChange: (view: LeaderboardView) => void;
   onSelectRun: (runId: string) => void;
@@ -28,8 +31,11 @@ export function LeaderboardSection({
   leaderboardRef,
   leaderboardView,
   lastUpdatedDate,
+  seasons,
+  activeSeason,
   filterBracket,
   leaderboardRuns,
+  onSeasonChange,
   onFilterBracketChange,
   onLeaderboardViewChange,
   onSelectRun,
@@ -72,14 +78,22 @@ export function LeaderboardSection({
             </div>
           </div>
           <div className="mb-8 flex flex-wrap items-center gap-y-3">
-            <a
-              href="#library"
-              aria-label="記録図書館で記録を探す"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-[#d8dde6] bg-white px-5 text-[13px] font-semibold tracking-[0.01em] text-[#333333] transition-colors hover:bg-[#eef1f5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40"
-            >
-              <SearchIcon size={18} className="shrink-0" />
-              <span>記録を探す</span>
-            </a>
+            <span className="relative">
+              <select
+                value={activeSeason}
+                onChange={(event) => onSeasonChange(event.target.value)}
+                className="h-11 min-w-[112px] appearance-none rounded-full border border-[#d8dde6] bg-white py-2 pl-5 pr-10 text-[13px] font-black text-[#111827] outline-none transition-colors hover:bg-[#eef1f5] focus:border-[#111116] focus:bg-white focus:ring-2 focus:ring-[#111116]/20 md:text-[14px]"
+              >
+                {seasons.map((season) => (
+                  <option key={season} value={season}>
+                    {season}
+                  </option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8493]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </span>
           </div>
           <div className="mb-8 flex items-center justify-between text-[13px] font-semibold md:text-[14px]">
             {HOME_BRACKET_FILTER_OPTIONS.map((item) => (

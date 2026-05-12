@@ -1,4 +1,6 @@
 ﻿import type { SimilarRunMatch } from "../../../lib/getSimilarRuns";
+import type { KeyboardEvent } from "react";
+
 import { characterDb } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { CompareViewIcon, LikeIcon, ShareIcon } from "../../../components/UiIcons";
@@ -20,7 +22,11 @@ function SimilarActionMenu({
   onAction: (action: "like" | "share" | "compare") => void;
 }) {
   return (
-    <div className="relative shrink-0">
+    <div
+      className="relative shrink-0"
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+    >
       <button
         type="button"
         onClick={onToggle}
@@ -73,6 +79,7 @@ export function SimilarRunCard({
   isCompareSelected,
   onToggleMenu,
   onAction,
+  onOpenDetail,
 }: {
   match: SimilarRunMatch;
   liked: boolean;
@@ -81,14 +88,30 @@ export function SimilarRunCard({
   isCompareSelected: boolean;
   onToggleMenu: () => void;
   onAction: (action: "like" | "share" | "compare") => void;
+  onOpenDetail?: () => void;
 }) {
   const visibleReasons = match.reasons.slice(0, 2);
+  const canOpenDetail = Boolean(onOpenDetail);
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (!canOpenDetail || (event.key !== "Enter" && event.key !== " ")) {
+      return;
+    }
+
+    event.preventDefault();
+    onOpenDetail?.();
+  };
 
   return (
     <article
-      className={`rounded-[16px] border p-[14px] transition-colors ${
+      role={canOpenDetail ? "button" : undefined}
+      tabIndex={canOpenDetail ? 0 : undefined}
+      aria-label={canOpenDetail ? `${match.run.title} の詳細を見る` : undefined}
+      onClick={onOpenDetail}
+      onKeyDown={handleKeyDown}
+      className={`rounded-[16px] border p-[14px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40 ${
         isCompareSelected ? "border-[#9aa7ba] bg-[#eef1f5]" : "border-[#e5e7eb] bg-white hover:bg-[#f7f8fa]"
-      }`}
+      } ${canOpenDetail ? "cursor-pointer" : ""}`}
     >
       <div className="flex items-start gap-[10px]">
         <div className="min-w-0 flex-1">
