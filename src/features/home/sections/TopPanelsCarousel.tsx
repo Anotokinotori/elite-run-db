@@ -1,28 +1,28 @@
-import type { CSSProperties, RefObject } from "react";
+import type { RefObject } from "react";
 import type { Bracket } from "../../../data/mockRuns";
 import type { HomeFeaturedCard, HomeRun } from "../types";
 import { FeaturedPlayersPanel } from "./FeaturedPlayersPanel";
 import { TopPlayersPanel } from "./TopPlayersPanel";
 
 type TopPanelsCarouselProps = {
+  viewportRef: RefObject<HTMLDivElement | null>;
   rowRef: RefObject<HTMLDivElement | null>;
-  style: CSSProperties;
   activeIndex: number;
   heroRuns: HomeRun[];
   featuredCards: HomeFeaturedCard[];
-  onTransitionEnd: () => void;
+  onScroll: () => void;
   onJumpTo: (nextIndex: 0 | 1) => void;
   onViewBracket: (bracket: Bracket) => void;
   onSelectRun: (runId: string) => void;
 };
 
 export function TopPanelsCarousel({
+  viewportRef,
   rowRef,
-  style,
   activeIndex,
   heroRuns,
   featuredCards,
-  onTransitionEnd,
+  onScroll,
   onJumpTo,
   onViewBracket,
   onSelectRun,
@@ -35,8 +35,13 @@ export function TopPanelsCarousel({
   return (
     <div className="relative left-1/2 right-1/2 z-10 -mt-40 mb-8 w-screen -translate-x-1/2 overflow-x-clip px-5 md:-mt-72 sm:px-6 lg:px-8">
       <div className="relative w-full">
-        <div className="overflow-hidden">
-          <div ref={rowRef} className="flex gap-5 will-change-transform" style={style} onTransitionEnd={onTransitionEnd}>
+        <div
+          ref={viewportRef}
+          className="top-panels-scroll no-scrollbar overflow-x-auto overscroll-x-contain"
+          style={{ scrollSnapType: "x mandatory" }}
+          onScroll={onScroll}
+        >
+          <div ref={rowRef} className="flex gap-5">
             <TopPlayersPanel panelKey="top-primary" heroRuns={heroRuns} onViewBracket={onViewBracket} onSelectRun={onSelectRun} />
             <FeaturedPlayersPanel panelKey="featured-primary" featuredCards={featuredCards} onViewBracket={onViewBracket} onSelectRun={onSelectRun} />
             <TopPlayersPanel panelKey="top-loop" heroRuns={heroRuns} onViewBracket={onViewBracket} onSelectRun={onSelectRun} />

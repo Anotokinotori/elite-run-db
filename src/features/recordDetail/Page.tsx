@@ -15,11 +15,13 @@ export function RecordDetailPage({
   runId,
   onBack,
   onRequestSubmit,
+  onSelectRun,
   embedded = false,
 }: {
   runId?: string;
   onBack?: () => void;
   onRequestSubmit?: () => void;
+  onSelectRun?: (runId: string) => void;
   embedded?: boolean;
 }) {
   const currentRun = getAppRunById(runId ?? defaultAppRunId) ?? getAppRunById(defaultAppRunId) ?? null;
@@ -212,6 +214,7 @@ export function RecordDetailPage({
             selectedCompareRunId={selectedCompareRunId}
             onToggleMenu={(runKey) => setOpenMenuRunId((previous) => (previous === runKey ? null : runKey))}
             onAction={handleSimilarAction}
+            onSelectRun={onSelectRun}
           />
         </div>
       </main>

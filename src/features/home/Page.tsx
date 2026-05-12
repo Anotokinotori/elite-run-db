@@ -151,12 +151,12 @@ export function HomePage({
         {activeTab === "main" ? (
           <>
             <TopPanelsCarousel
+              viewportRef={topCarousel.viewportRef}
               rowRef={topCarousel.rowRef}
-              style={topCarousel.style}
               activeIndex={topCarousel.index}
               heroRuns={heroRuns}
               featuredCards={featuredCards}
-              onTransitionEnd={topCarousel.handleTransitionEnd}
+              onScroll={topCarousel.handleScroll}
               onJumpTo={topCarousel.jumpTo}
               onViewBracket={handleViewBracket}
               onSelectRun={onSelectRun}
@@ -165,8 +165,11 @@ export function HomePage({
               leaderboardRef={leaderboardRef}
               leaderboardView={leaderboardView}
               lastUpdatedDate={leaderboardLastUpdatedDate}
+              seasons={HOME_SEASONS}
+              activeSeason={activeSeason}
               filterBracket={filterBracket}
               leaderboardRuns={leaderboardRuns}
+              onSeasonChange={setActiveSeason}
               onFilterBracketChange={setFilterBracket}
               onLeaderboardViewChange={setLeaderboardView}
               onSelectRun={onSelectRun}

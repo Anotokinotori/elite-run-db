@@ -5,9 +5,9 @@ import { PlaceholderPage } from "./components/PlaceholderPage";
 import { RecordDetailPage } from "./components/RecordDetailPage";
 import { HomePage } from "./components/HomePage";
 import { SubmitPage } from "./components/SubmitPage";
-import { appRuns, defaultAppRunId, getAppRunById } from "./data/appRuns";
+import { defaultAppRunId, getAppRunById } from "./data/appRuns";
 import { LibraryPage } from "./features/library/Page";
-import { uniqueFormattedVersionLabels } from "./lib/versionLabels";
+import { HOME_SEASONS } from "./features/home/config";
 
 type AppRoute =
   | { name: "home" }
@@ -21,9 +21,6 @@ type AppRoute =
   | { name: "account" };
 
 type ShellDestination = Exclude<AppRoute["name"], "detail">;
-
-const DEFAULT_VERSION_OPTIONS = ["Luna3", "Luna2", "Luna1", "5.8", "5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"];
-const APP_VERSION_OPTIONS = uniqueFormattedVersionLabels([...DEFAULT_VERSION_OPTIONS, ...appRuns.map((run) => run.versionLabel)]);
 
 function safeDecodeRouteValue(value: string) {
   try {
@@ -237,7 +234,7 @@ function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], 
 
 export default function RootApp() {
   const [route, setRoute] = useState<AppRoute>(() => getRouteFromLocation());
-  const [selectedVersion, setSelectedVersion] = useState(() => APP_VERSION_OPTIONS[0] ?? "Luna3");
+  const [selectedVersion, setSelectedVersion] = useState(() => HOME_SEASONS[0] ?? "Luna3");
   const [lastBrowseRoute, setLastBrowseRoute] = useState<AppRoute>(() => (route.name === "submit" ? { name: "home" } : route));
   const routeRef = useRef(route);
   const previousRouteRef = useRef<AppRoute | null>(null);
@@ -365,13 +362,10 @@ export default function RootApp() {
   return (
     <AppShell
       routeName={route.name}
-      version={selectedVersion}
-      versionOptions={APP_VERSION_OPTIONS}
       hasUnreadNotifications={route.name !== "notifications"}
       onNavigate={navigateFromShell}
       onTitleClick={navigateHomeFromTitle}
       onRequestSubmit={() => navigate({ name: "submit" })}
-      onVersionChange={setSelectedVersion}
     >
       <div style={{ display: route.name === "home" ? "block" : "none" }} aria-hidden={route.name !== "home"}>
         <HomePage
@@ -399,6 +393,7 @@ export default function RootApp() {
           runId={route.runId}
           onBack={() => navigate({ name: "home" })}
           onRequestSubmit={() => navigate({ name: "submit" })}
+          onSelectRun={(runId) => navigate({ name: "detail", runId })}
         />
       ) : null}
 

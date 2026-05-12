@@ -105,6 +105,10 @@ textarea::placeholder {
   scrollbar-width: none;
 }
 
+.top-panels-scroll [data-top-panel] {
+  scroll-snap-align: start;
+}
+
 code {
   font-family: "Consolas", "SFMono-Regular", monospace;
 }
