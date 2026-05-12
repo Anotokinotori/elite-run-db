@@ -418,12 +418,14 @@ export function FloatingCta({
   children,
   className,
   icon,
+  leadingIcon,
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement> &
   ButtonHTMLAttributes<HTMLButtonElement> & {
   badge?: ReactNode;
   children: ReactNode;
   icon?: ReactNode;
+  leadingIcon?: ReactNode;
 }) {
   const content = (
     <>
@@ -432,6 +434,7 @@ export function FloatingCta({
           {badge}
         </span>
       ) : null}
+      {leadingIcon}
       <span className="cta-shine-text whitespace-nowrap text-[14px] font-black leading-none sm:text-[15px]">{children}</span>
       {icon}
     </>

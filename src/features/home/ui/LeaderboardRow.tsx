@@ -12,7 +12,7 @@ function classNames(...values: Array<string | false | null | undefined>) {
 function getLeaderboardStats(run: HomeRun | HomeRunWithGroup) {
   return [
     { label: "DEVICE", value: run.platform },
-    { label: "SEASON", value: formatVersionLabel(run.versionLabel || run.season) },
+    { label: "VERSION", value: formatVersionLabel(run.versionLabel || run.season) },
     { label: "BRACKET", value: getBracketLabel(run.bracket as Bracket) },
   ];
 }

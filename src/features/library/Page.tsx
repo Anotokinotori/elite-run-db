@@ -1,4 +1,5 @@
 import { ChevronRightIcon, CrownIcon } from "../../components/UiIcons";
+import { FloatingCta } from "../../components/ui";
 import { useEffect, useState } from "react";
 import { LIBRARY_COLORS, LIBRARY_HERO_IMAGE_URL, LIBRARY_LABELS } from "./config";
 import {
@@ -158,15 +159,14 @@ export function LibraryPage({ onOpenRankings, onSelectRun }: LibraryPageProps) {
 
 function RankingsFloatingCta({ onOpen }: { onOpen: () => void }) {
   return (
-    <button
+    <FloatingCta
       type="button"
       aria-label="全ランキングを見る"
       onClick={onOpen}
-      className="fixed bottom-6 right-6 z-30 flex items-center gap-3 border border-white/25 bg-[#111116] px-3.5 py-3 text-left text-[#d9d9d9] shadow-[0_12px_28px_rgba(0,0,0,0.24)] transition duration-200 hover:-translate-y-0.5 hover:border-white/40 hover:bg-[#17171d] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111116]"
+      leadingIcon={<CrownIcon className="h-[17px] w-[17px] shrink-0 text-white/70" />}
+      icon={<ChevronRightIcon className="h-4 w-4 shrink-0 text-white/70" />}
     >
-      <CrownIcon className="h-[17px] w-[17px] shrink-0 text-white/70" />
-      <span className="cta-shine-text whitespace-nowrap text-[14px] font-black leading-none sm:text-[15px]">全ランキングを見る</span>
-      <ChevronRightIcon className="h-4 w-4 shrink-0 text-white/70" />
-    </button>
+      全ランキングを見る
+    </FloatingCta>
   );
 }

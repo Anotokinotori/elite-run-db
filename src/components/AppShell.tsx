@@ -1,5 +1,7 @@
 ﻿import { type ReactNode, useEffect, useState } from "react";
 
+import { Button, IconButton } from "./ui";
+
 type ShellRouteName =
   | "home"
   | "detail"
@@ -433,14 +435,16 @@ function GlobalHeader({
     <header className={classNames("sticky top-0 z-30 h-[80px] shrink-0 border-b", lightChrome ? "border-[#e5e7eb] bg-white shadow-[0_1px_0_rgba(17,24,39,0.03)]" : "border-[#343434] bg-[#000000]")}>
       <div className="header-font flex h-full items-center justify-between gap-4 px-4 py-4 md:px-6">
         <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-          <button
+          <IconButton
             type="button"
-            className={classNames("transition-colors", lightChrome ? "text-[#333333] hover:text-[#111827]" : "text-[#d9d9d9] hover:text-[#d9d9d9]")}
+            variant={lightChrome ? "ghost" : "dark"}
+            size="lg"
+            className={classNames("border-transparent bg-transparent", lightChrome ? "text-[#333333] hover:text-[#111827]" : "text-[#d9d9d9] hover:bg-[#272727] hover:text-[#d9d9d9]")}
             onClick={onMenuClick}
             aria-label="\u30e1\u30cb\u30e5\u30fc\u3092\u958b\u304f"
           >
             <MenuIcon className="size-7" />
-          </button>
+          </IconButton>
 
           <h1 className="shrink-0">
             <button
@@ -458,11 +462,13 @@ function GlobalHeader({
         </div>
 
         <div className="flex shrink-0 items-center gap-4 sm:gap-6">
-          <button
+          <Button
             type="button"
             onClick={onRequestSubmit}
+            variant="tonal"
+            size="md"
             className={classNames(
-              "flex items-center gap-2 rounded-full px-3 py-2 transition-colors sm:px-4",
+              "px-3 py-2 sm:px-4",
               routeName === "submit"
                 ? "bg-white text-[#111111]"
                 : lightChrome
@@ -472,12 +478,14 @@ function GlobalHeader({
           >
             <PlusIcon className="size-5" />
             <span className="hidden whitespace-nowrap text-[12px] font-normal sm:block md:text-[16px]">{"\u8a18\u9332\u7533\u8acb"}</span>
-          </button>
+          </Button>
 
-          <button
+          <IconButton
             type="button"
             onClick={() => onNavigate("notifications")}
             aria-label="\u901a\u77e5"
+            variant={lightChrome ? "ghost" : "dark"}
+            size="lg"
             className={classNames(
               utilityButtonClass,
               routeName === "notifications" &&
@@ -486,7 +494,7 @@ function GlobalHeader({
           >
             <BellIcon className="size-6 sm:size-7" />
             {hasUnreadNotifications ? <span className={classNames("absolute top-1 right-1 block size-2.5 rounded-full border-2 bg-red-500", lightChrome ? "border-white" : "border-[#000000]")} /> : null}
-          </button>
+          </IconButton>
 
           <button
             type="button"
