@@ -3,6 +3,30 @@
 @import "tailwindcss";
 
 :root {
+  --erds-color-ink: #111827;
+  --erds-color-ink-soft: #333333;
+  --erds-color-chrome-dark: #111116;
+  --erds-color-surface: #ffffff;
+  --erds-color-surface-muted: #f7f8fa;
+  --erds-color-surface-app: #f5f6f8;
+  --erds-color-surface-create: #f6f6f6;
+  --erds-color-border: #d8dde6;
+  --erds-color-border-muted: #e5e7eb;
+  --erds-color-text-muted: #5f6678;
+  --erds-color-text-subtle: #8d93a3;
+  --erds-color-text-create-muted: #9999b1;
+  --erds-color-danger: #d24b5a;
+  --erds-color-like: #ff8ea1;
+  --erds-radius-xs: 4px;
+  --erds-radius-sm: 8px;
+  --erds-radius-md: 12px;
+  --erds-radius-lg: 16px;
+  --erds-radius-xl: 20px;
+  --erds-radius-modal: 24px;
+  --erds-radius-pill: 999px;
+  --erds-shadow-card: 0 10px 24px rgba(21, 27, 38, 0.06);
+  --erds-shadow-raised: 0 18px 34px rgba(21, 27, 38, 0.11);
+  --erds-shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.18);
   color: #000000;
   background-color: #f0f2f5;
   font-family: "Noto Sans JP", "Segoe UI", sans-serif;
