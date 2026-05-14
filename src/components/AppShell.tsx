@@ -468,12 +468,12 @@ function GlobalHeader({
             variant="tonal"
             size="md"
             className={classNames(
-              "px-3 py-2 sm:px-4",
+              "px-3 py-2 shadow-none sm:px-4",
               routeName === "submit"
-                ? "bg-white text-[#111111]"
+                ? "!border-[#4b5a6d] !bg-[#2b3441] !text-[#f5f7fa] hover:!bg-[#334052]"
                 : lightChrome
-                  ? "bg-[#111827] text-white hover:bg-[#263142]"
-                  : "bg-[#272727] text-[#d9d9d9] hover:bg-[#313131]",
+                  ? "!border-[#111827] !bg-[#111827] !text-white hover:!bg-[#263142]"
+                  : "!border-[#343434] !bg-[#24272d] !text-[#d9d9d9] hover:!bg-[#2f3540]",
             )}
           >
             <PlusIcon className="size-5" />
