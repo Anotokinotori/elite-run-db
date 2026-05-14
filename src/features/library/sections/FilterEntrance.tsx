@@ -1,7 +1,6 @@
 import { useEffect, useId, useMemo, useState, type CSSProperties, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
 import { CharacterIcon } from "../../../components/CharacterIcon";
-import { Chip, CountBadge, IconButton, InlineActionButton, InlineCtaButton, StatusBadge, cn } from "../../../components/ui";
 import { WeaponIcon } from "../../../components/WeaponIcon";
 import { appRuns } from "../../../data/appRuns";
 import {
@@ -531,29 +530,6 @@ function LibrarySelectControl({
   );
 }
 
-function SelectableChipButton({
-  active,
-  children,
-  className,
-  onClick,
-}: {
-  active: boolean;
-  children: ReactNode;
-  className?: string;
-  onClick: () => void;
-}) {
-  return (
-    <button type="button" onClick={onClick} className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40">
-      <Chip
-        variant={active ? "active" : "neutral"}
-        className={cn("min-h-8 cursor-pointer px-3 py-1.5 text-[12px] transition-colors", !active && "hover:bg-[#eef1f5] hover:text-[#333333]", className)}
-      >
-        {children}
-      </Chip>
-    </button>
-  );
-}
-
 function ChoiceFilterGroup({
   title,
   options,
@@ -572,9 +548,17 @@ function ChoiceFilterGroup({
         {options.map((option) => {
           const active = value === option;
           return (
-            <SelectableChipButton key={option} active={active} onClick={() => onChange(active ? null : option)} className="min-h-9 font-black">
+            <button
+              key={option}
+              type="button"
+              onClick={() => onChange(active ? null : option)}
+              className={[
+                "min-h-9 rounded-full border px-3 py-1.5 text-[12px] font-black transition-colors",
+                active ? "border-[#111116] bg-[#111116] text-white" : "border-[#dcdcdc] bg-white text-[#333333] hover:bg-[#eeeeee]",
+              ].join(" ")}
+            >
               {option}
-            </SelectableChipButton>
+            </button>
           );
         })}
       </div>
@@ -593,9 +577,17 @@ function TagFilterPanel({ selectedTags, onToggleTag }: { selectedTags: string[];
               {group.tags.map((tag) => {
                 const active = selectedTags.includes(tag);
                 return (
-                  <SelectableChipButton key={`${group.key}-${tag}`} active={active} onClick={() => onToggleTag(tag)} className="min-h-9 py-2">
+                  <button
+                    key={`${group.key}-${tag}`}
+                    type="button"
+                    onClick={() => onToggleTag(tag)}
+                    className={[
+                      "inline-flex min-h-9 items-center rounded-full border px-3 py-2 text-[12px] font-medium transition-colors",
+                      active ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]",
+                    ].join(" ")}
+                  >
                     #{tag}
-                  </SelectableChipButton>
+                  </button>
                 );
               })}
             </div>
@@ -710,9 +702,9 @@ function MaxValueSelector({ title, prefix, value, min = 0, max, onChange }: { ti
         {options.map((option) => {
           const active = value === option;
           return (
-            <SelectableChipButton key={option} active={active} onClick={() => onChange(active ? null : option)} className="h-9 min-w-11 justify-center font-black">
+            <button key={option} type="button" onClick={() => onChange(active ? null : option)} className={["h-9 min-w-11 rounded-full border px-3 text-[12px] font-black transition-colors", active ? "border-[#111116] bg-[#111116] text-white" : "border-[#dcdcdc] bg-white text-[#333333] hover:bg-[#eeeeee]"].join(" ")}>
               {prefix}{option}
-            </SelectableChipButton>
+            </button>
           );
         })}
       </div>
@@ -846,12 +838,12 @@ function LibraryWeaponFilterDrawer({
         <div className="shrink-0 border-b border-[#e5e7eb]">
           <div className="flex items-start justify-between gap-4 px-5 pb-5 pt-8 md:px-6">
             <div className="text-[24px] font-semibold text-[#111827]">武器条件を選択</div>
-            <IconButton type="button" variant="surface" onClick={onClose} aria-label="閉じる">
+            <button type="button" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d8dde6] bg-[#f7f8fa] text-[#5f6678] transition-colors hover:bg-[#eef1f5] hover:text-[#111827]" onClick={onClose} aria-label="閉じる">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 6L18 18" />
                 <path d="M18 6L6 18" />
               </svg>
-            </IconButton>
+            </button>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6 md:px-6">
@@ -875,16 +867,16 @@ function LibraryWeaponFilterDrawer({
             </section>
             <div className="flex flex-wrap gap-2">
               {WEAPON_CLASS_FILTER_OPTIONS.map((option) => (
-                <SelectableChipButton key={option.key} active={classFilter === option.key} onClick={() => setClassFilter(option.key)}>
+                <button key={option.key} type="button" onClick={() => setClassFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${classFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
                   {option.label}
-                </SelectableChipButton>
+                </button>
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
               {WEAPON_TIER_FILTER_OPTIONS.map((option) => (
-                <SelectableChipButton key={option.key} active={tierFilter === option.key} onClick={() => setTierFilter(option.key)}>
+                <button key={option.key} type="button" onClick={() => setTierFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${tierFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
                   {option.label}
-                </SelectableChipButton>
+                </button>
               ))}
             </div>
             <div className="rounded-[16px] bg-[#f6f7f9] p-3">
@@ -902,7 +894,7 @@ function LibraryWeaponFilterDrawer({
                           <WeaponIcon imageUrl={weapon.imageUrl} alt={weapon.name} fallbackLabel={weapon.shortLabel} size={64} className="rounded-[14px] p-1.5" />
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
-                              <StatusBadge className={`h-auto px-2.5 py-1 text-[11px] font-semibold ${getWeaponTierBadgeClass(weapon.tier)}`}>{formatWeaponTierLabel(weapon.tier)}</StatusBadge>
+                              <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${getWeaponTierBadgeClass(weapon.tier)}`}>{formatWeaponTierLabel(weapon.tier)}</div>
                               <div className="text-[12px] text-[#7b7b8d]">{formatWeaponClassLabel(weapon.weaponClass)}</div>
                             </div>
                             <div className="mt-2 text-[15px] font-semibold text-black">{weapon.name}</div>
@@ -910,9 +902,9 @@ function LibraryWeaponFilterDrawer({
                           </div>
                         </div>
                         {isInclude || isExclude ? (
-                          <StatusBadge tone={isExclude ? "warning" : "success"} className="absolute right-2 top-2 h-6 px-2 text-[11px] font-bold">
+                          <span className={["absolute right-2 top-2 flex h-6 items-center rounded-full px-2 text-[11px] font-bold text-white", isExclude ? "bg-[#c27642]" : "bg-[#6bbbd0]"].join(" ")}>
                             {isExclude ? "除外" : "含む"}
-                          </StatusBadge>
+                          </span>
                         ) : null}
                       </button>
                     );
@@ -923,12 +915,12 @@ function LibraryWeaponFilterDrawer({
           </div>
         </div>
         <div className="grid shrink-0 grid-cols-[1fr_minmax(220px,360px)_1fr] items-center gap-3 border-t border-[#e5e7eb] px-5 py-4 md:px-6">
-          <InlineActionButton type="button" className="justify-self-start text-[13px] font-medium underline decoration-[#c8ced8] underline-offset-4" onClick={() => setDraft({ include: [], exclude: [] })}>
+          <button type="button" className="justify-self-start text-[13px] font-medium text-[#5f6678] underline decoration-[#c8ced8] underline-offset-4 hover:text-[#333333]" onClick={() => setDraft({ include: [], exclude: [] })}>
             リセット
-          </InlineActionButton>
-          <InlineCtaButton type="button" onClick={() => onApply(draft)}>
+          </button>
+          <button type="button" className="w-full rounded-full border border-[#111827] bg-[#111827] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#263142]" onClick={() => onApply(draft)}>
             適用する
-          </InlineCtaButton>
+          </button>
           <div aria-hidden="true" />
         </div>
       </div>
@@ -1017,24 +1009,29 @@ function LibraryModalFrame({
       >
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[#ebebeb] px-5 pb-5 pt-6 md:px-6">
           <div className="min-w-0">
-            <StatusBadge className="h-[22px] rounded-none px-3 text-[11px] uppercase tracking-[0.14em] text-[#8d93a3]">FILTER</StatusBadge>
+            <div className="inline-flex h-[22px] items-center border border-[#d8dde6] px-3 text-[11px] font-black uppercase tracking-[0.14em] text-[#8d93a3]">FILTER</div>
             <h3 className="mt-3 text-[24px] font-bold leading-tight text-[#111827] md:text-[30px]">{title}</h3>
           </div>
-          <IconButton type="button" variant="surface" size="lg" onClick={onClose} aria-label="閉じる">
+          <button
+            type="button"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#f2f2f2] text-black transition hover:bg-[#e6e8ec]"
+            onClick={onClose}
+            aria-label="閉じる"
+          >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
               <path d="M6 6L18 18" />
               <path d="M18 6L6 18" />
             </svg>
-          </IconButton>
+          </button>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 md:px-6">{children}</div>
         <footer className="grid shrink-0 grid-cols-[1fr_minmax(190px,340px)_1fr] items-center gap-3 border-t border-[#e5e7eb] px-5 py-4 md:px-6">
-          <InlineActionButton type="button" className="justify-self-start text-[13px] font-medium underline decoration-[#c8ced8] underline-offset-4" onClick={onReset}>
+          <button type="button" className="justify-self-start text-[13px] font-medium text-[#5f6678] underline decoration-[#c8ced8] underline-offset-4 hover:text-[#333333]" onClick={onReset}>
             リセット
-          </InlineActionButton>
-          <InlineCtaButton type="button" onClick={onApply}>
+          </button>
+          <button type="button" className="w-full rounded-full border border-[#111827] bg-[#111827] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#263142]" onClick={onApply}>
             適用する
-          </InlineCtaButton>
+          </button>
           <div aria-hidden="true" />
         </footer>
       </div>
@@ -1186,9 +1183,14 @@ function LibraryCharacterFilterModal({
             </label>
             <div className="flex flex-wrap gap-2">
               {HOME_ELEMENT_FILTER_OPTIONS.map((option) => (
-                <SelectableChipButton key={option.key} active={elementFilter === option.key} onClick={() => setElementFilter((current) => (current === option.key ? null : option.key))}>
+                <button
+                  key={option.key}
+                  type="button"
+                  onClick={() => setElementFilter((current) => (current === option.key ? null : option.key))}
+                  className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${elementFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}
+                >
                   {option.label}
-                </SelectableChipButton>
+                </button>
               ))}
             </div>
             <div className="rounded-[16px] bg-[#f6f7f9] p-3">
@@ -1356,16 +1358,16 @@ function LibraryBuildFilterModal({
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {WEAPON_CLASS_FILTER_OPTIONS.map((option) => (
-                    <SelectableChipButton key={option.key} active={classFilter === option.key} onClick={() => setClassFilter(option.key)}>
+                    <button key={option.key} type="button" onClick={() => setClassFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${classFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
                       {option.label}
-                    </SelectableChipButton>
+                    </button>
                   ))}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {WEAPON_TIER_FILTER_OPTIONS.map((option) => (
-                    <SelectableChipButton key={option.key} active={tierFilter === option.key} onClick={() => setTierFilter(option.key)}>
+                    <button key={option.key} type="button" onClick={() => setTierFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${tierFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
                       {option.label}
-                    </SelectableChipButton>
+                    </button>
                   ))}
                 </div>
                 <div className="max-h-[430px] overflow-y-auto rounded-[16px] bg-white p-3">
@@ -1383,7 +1385,7 @@ function LibraryBuildFilterModal({
                               <WeaponIcon imageUrl={weapon.imageUrl} alt={weapon.name} fallbackLabel={weapon.shortLabel} size={58} className="rounded-[14px] p-1.5" />
                               <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <StatusBadge className={`h-auto px-2.5 py-1 text-[11px] font-semibold ${getWeaponTierBadgeClass(weapon.tier)}`}>{formatWeaponTierLabel(weapon.tier)}</StatusBadge>
+                                  <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${getWeaponTierBadgeClass(weapon.tier)}`}>{formatWeaponTierLabel(weapon.tier)}</div>
                                   <div className="text-[12px] text-[#7b7b8d]">{formatWeaponClassLabel(weapon.weaponClass)}</div>
                                 </div>
                                 <div className="mt-2 text-[14px] font-semibold text-black">{weapon.name}</div>
@@ -1391,9 +1393,9 @@ function LibraryBuildFilterModal({
                               </div>
                             </div>
                             {isInclude || isExclude ? (
-                              <StatusBadge tone={isExclude ? "warning" : "success"} className="absolute right-2 top-2 h-6 px-2 text-[11px] font-bold">
+                              <span className={["absolute right-2 top-2 flex h-6 items-center rounded-full px-2 text-[11px] font-bold text-white", isExclude ? "bg-[#c27642]" : "bg-[#6bbbd0]"].join(" ")}>
                                 {isExclude ? "除外" : "含む"}
-                              </StatusBadge>
+                              </span>
                             ) : null}
                           </button>
                         );
@@ -1469,11 +1471,7 @@ function LibraryTagFilterModal({
 
   return (
     <LibraryModalFrame title={title} onClose={onClose} onReset={() => setDraftTags([])} onApply={() => onApply([...draftTags])}>
-      <div className="mb-4 flex items-center justify-end">
-        <CountBadge className="h-7 px-2.5 text-[11px]" count={draftTags.length}>
-          {draftTags.length}件選択中
-        </CountBadge>
-      </div>
+      <div className="mb-4 flex items-center justify-end text-[12px] font-black text-[#777777]">{draftTags.length}件選択中</div>
       <div className="grid gap-3 lg:grid-cols-2">
         {HOME_FILTER_TAG_GROUP_DEFINITIONS.map((group) => (
           <section key={group.key} className="rounded-[12px] border bg-[#f7f7f7] p-3" style={{ borderColor: UI.panelBorder }}>
@@ -1482,9 +1480,17 @@ function LibraryTagFilterModal({
               {group.tags.map((tag) => {
                 const active = draftTags.includes(tag);
                 return (
-                  <SelectableChipButton key={`${group.key}-${tag}`} active={active} onClick={() => toggleTag(tag)} className="min-h-9 py-2">
+                  <button
+                    key={`${group.key}-${tag}`}
+                    type="button"
+                    onClick={() => toggleTag(tag)}
+                    className={[
+                      "inline-flex min-h-9 items-center rounded-full border px-3 py-2 text-[12px] font-medium transition-colors",
+                      active ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]",
+                    ].join(" ")}
+                  >
                     #{tag}
-                  </SelectableChipButton>
+                  </button>
                 );
               })}
             </div>
