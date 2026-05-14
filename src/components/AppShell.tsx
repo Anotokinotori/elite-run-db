@@ -465,15 +465,11 @@ function GlobalHeader({
           <Button
             type="button"
             onClick={onRequestSubmit}
-            variant="tonal"
+            variant={lightChrome ? "primary" : "dark"}
             size="md"
             className={classNames(
               "px-3 py-2 sm:px-4",
-              routeName === "submit"
-                ? "bg-white text-[#111111]"
-                : lightChrome
-                  ? "bg-[#111827] text-white hover:bg-[#263142]"
-                  : "bg-[#272727] text-[#d9d9d9] hover:bg-[#313131]",
+              routeName === "submit" && (lightChrome ? "ring-2 ring-[#9aa7ba]" : "border-white/25 bg-[#272727] text-[#d9d9d9]"),
             )}
           >
             <PlusIcon className="size-5" />

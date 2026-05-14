@@ -11,7 +11,7 @@ export function cn(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "tonal" | "danger" | "link";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "tonal" | "dark" | "danger" | "link";
 type ButtonSize = "sm" | "md" | "lg" | "create";
 
 const buttonVariantClass: Record<ButtonVariant, string> = {
@@ -19,6 +19,7 @@ const buttonVariantClass: Record<ButtonVariant, string> = {
   secondary: "border border-[#d8dde6] bg-white text-[#333333] hover:bg-[#f7f8fa]",
   ghost: "border border-transparent bg-transparent text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#111827]",
   tonal: "border border-[#d8dde6] bg-[#f7f8fa] text-[#333333] hover:bg-[#eef1f5]",
+  dark: "border border-[#343434] bg-[#272727] text-[#d9d9d9] hover:bg-[#313131]",
   danger: "border border-[#f0ccd3] bg-[#fff4f7] text-[#d24b5a] hover:bg-[#ffeaf0]",
   link: "border border-transparent bg-transparent text-[#4d49fc] hover:text-[#111827]",
 };
@@ -54,6 +55,55 @@ export function Button({
     >
       {children}
     </button>
+  );
+}
+
+type InlineActionVariant = "neutral" | "primary" | "danger" | "success";
+
+const inlineActionVariantClass: Record<InlineActionVariant, string> = {
+  neutral: "text-[#5f6678] hover:text-[#111827]",
+  primary: "text-[#111827] hover:text-[#263142]",
+  danger: "text-[#d24b5a] hover:text-[#111827]",
+  success: "text-[#357f91] hover:text-[#111827]",
+};
+
+export function InlineActionButton({
+  active = false,
+  children,
+  className,
+  variant = "neutral",
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  active?: boolean;
+  children: ReactNode;
+  variant?: InlineActionVariant;
+}) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        "inline-flex min-h-0 items-center justify-center gap-1 rounded-full border border-transparent p-0 text-[11px] font-extrabold leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40 disabled:cursor-not-allowed disabled:text-[#b8bec8] disabled:opacity-70",
+        active ? "text-[#111827]" : inlineActionVariantClass[variant],
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function InlineCtaButton({
+  children,
+  className,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  children: ReactNode;
+}) {
+  return (
+    <Button variant="primary" size="md" className={cn("w-full px-6 py-2.5 text-[13px]", className)} {...props}>
+      {children}
+    </Button>
   );
 }
 
@@ -214,11 +264,13 @@ export function FieldShell({
   );
 }
 
-type ChipVariant = "neutral" | "active" | "include" | "exclude" | "create";
+type ChipVariant = "neutral" | "active" | "tag" | "reason" | "include" | "exclude" | "create";
 
 const chipVariantClass: Record<ChipVariant, string> = {
   neutral: "border-[#d8dde6] bg-white text-[#5f6678]",
   active: "border-transparent bg-[#111827] text-white",
+  tag: "border-[#d8dde6] bg-white text-[#333333]",
+  reason: "border-[#d8dde6] bg-[#eef1f5] text-[#5f6678]",
   include: "border-[#8fc7d8] bg-[#eef9fc] text-[#357f91]",
   exclude: "border-[#efc9b0] bg-[#fff7f2] text-[#b6611e]",
   create: "border-transparent bg-[#f2f2f2] text-[#9999b1]",
@@ -247,12 +299,14 @@ export function Chip({
   );
 }
 
-type BadgeVariant = "neutral" | "dark" | "count" | "warning" | "success";
+type BadgeVariant = "neutral" | "dark" | "count" | "stat" | "overlay" | "warning" | "success";
 
 const badgeVariantClass: Record<BadgeVariant, string> = {
   neutral: "border-[#d8dde6] bg-white text-[#5f6678]",
   dark: "border-white/40 bg-transparent text-[#d9d9d9]",
   count: "border-[#d8dde6] bg-white text-[#5f6678]",
+  stat: "border-transparent bg-[#f0f2f5] text-[#6b7280]",
+  overlay: "border-white/15 bg-black/60 text-white/75",
   warning: "border-[#efc9b0] bg-[#fff7f2] text-[#b6611e]",
   success: "border-[#8fc7d8] bg-[#eef9fc] text-[#357f91]",
 };
@@ -278,6 +332,61 @@ export function Badge({
       {children}
     </span>
   );
+}
+
+export function CountBadge({
+  children,
+  className,
+  count,
+  suffix = "件",
+}: {
+  children?: ReactNode;
+  className?: string;
+  count?: number | string;
+  suffix?: string;
+}) {
+  return (
+    <Badge variant="count" className={className}>
+      {children ?? `${count}${suffix}`}
+    </Badge>
+  );
+}
+
+export function StatusBadge({
+  children,
+  className,
+  tone = "neutral",
+  ...props
+}: HTMLAttributes<HTMLSpanElement> & {
+  children: ReactNode;
+  tone?: "neutral" | "dark" | "warning" | "success" | "overlay";
+}) {
+  return (
+    <Badge variant={tone === "neutral" ? "neutral" : tone} className={className} {...props}>
+      {children}
+    </Badge>
+  );
+}
+
+export function StatBadge({
+  className,
+  label,
+  value,
+}: {
+  className?: string;
+  label: ReactNode;
+  value: ReactNode;
+}) {
+  return (
+    <span className={cn("inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#f0f2f5] px-2.5 py-1 leading-none", className)}>
+      <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#6b7280]">{label}</span>
+      <span className="truncate text-[12px] font-black text-[#6b7280]">{value}</span>
+    </span>
+  );
+}
+
+export function CostBadge(props: { className?: string; label: ReactNode; value: ReactNode }) {
+  return <StatBadge {...props} />;
 }
 
 export function CardShell({

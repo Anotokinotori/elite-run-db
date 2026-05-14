@@ -5,7 +5,7 @@ import { LikeIcon, ShareIcon } from "../../../components/UiIcons";
 import { formatVersionLabel } from "../../../lib/versionLabels";
 
 import { collapsedCopyStyle, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../config";
-import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PillButton, PlatformLabel, SectionTitle, TagChip, VideoFrame } from "../ui";
+import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PillButton, PlatformBadge, SectionTitle, TagChip, VideoFrame } from "../ui";
 
 export function MainColumn({
   currentRun,
@@ -82,7 +82,7 @@ export function MainColumn({
             <div className={`flex min-w-0 gap-x-[16px] text-[13px] text-[#5f6678] md:gap-x-[18px] md:text-[14px] ${compareOpen ? "flex-wrap items-center gap-y-[6px]" : "items-center"}`}>
               <span>ver : {formatVersionLabel(currentRun.versionLabel)}</span>
               <span>{currentRun.postedLabel}</span>
-              <PlatformLabel platform={currentRun.platform} />
+              <PlatformBadge platform={currentRun.platform} />
             </div>
             {canExpandDescription && !descriptionExpanded ? (
               <button

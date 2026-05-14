@@ -3,6 +3,7 @@
 import type { RunRecord } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { PlatformIcon } from "../../../components/UiIcons";
+import { Badge, Button, Chip } from "../../../components/ui";
 import { getYouTubeEmbedUrl } from "../../../lib/youtube";
 
 import { DETAIL_MUTED_SURFACE_CLASS, DETAIL_PANEL_INNER_CLASS, DETAIL_PANEL_SHELL_CLASS } from "../config";
@@ -48,31 +49,30 @@ export function PillButton({
   className?: string;
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center justify-center gap-2 rounded-[42px] px-[14px] py-[7px] text-[14px] font-medium leading-none transition duration-150 hover:-translate-y-[1px] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] md:text-[15px] ${
-        dark || active
-          ? "border border-black/50 bg-black text-white"
-          : "border border-[#d8dde6] bg-[#f7f8fa] text-[#333333] hover:bg-[#eef1f5]"
+      variant={dark || active ? "primary" : "tonal"}
+      size="sm"
+      className={`rounded-[42px] px-[14px] py-[7px] text-[14px] font-medium transition duration-150 hover:-translate-y-[1px] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] md:text-[15px] ${
+        dark || active ? "border-black/50 bg-black text-white" : ""
       } ${className}`}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
 export function TinyBadge({ label, highlighted = false }: { label: string; highlighted?: boolean }) {
   return (
-    <span
-      className={`inline-flex min-w-[38px] items-center justify-center rounded-full px-[9px] py-[5px] text-[11px] font-semibold leading-none md:text-[12px] ${
-        highlighted
-          ? "border border-[#efc9b0] bg-[#fbf1ea] text-[#c27642]"
-          : "border border-[#dde2ea] bg-[#f2f4f7] text-[#5f6678]"
+    <Badge
+      variant={highlighted ? "warning" : "stat"}
+      className={`h-auto min-h-[24px] min-w-[38px] justify-center px-[9px] py-[5px] text-[11px] font-semibold md:text-[12px] ${
+        highlighted ? "bg-[#fbf1ea] text-[#c27642]" : "border border-[#dde2ea] bg-[#f2f4f7]"
       }`}
     >
       {label}
-    </span>
+    </Badge>
   );
 }
 
@@ -120,9 +120,9 @@ export function PartyBuildItemCard({ entry }: { entry: PartyBuildItem }) {
 
 export function SimilarityReasonChip({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#d8dde6] bg-[#eef1f5] px-[10px] py-[5px] text-[11px] font-medium leading-none text-[#5f6678] md:text-[12px]">
+    <Chip variant="reason" className="min-h-0 px-[10px] py-[5px] text-[11px] md:text-[12px]">
       {label}
-    </span>
+    </Chip>
   );
 }
 
@@ -141,11 +141,33 @@ export function PlatformLabel({
   );
 }
 
-export function TagChip({ tag }: { tag: string }) {
+export function PlatformBadge({
+  platform,
+  iconClassName = "h-[13px] w-[13px]",
+}: {
+  platform: RunRecord["platform"];
+  iconClassName?: string;
+}) {
+  return (
+    <Badge variant="neutral" className="h-auto gap-[6px] px-[10px] py-[5px] text-[12px] font-medium text-[#333333] md:text-[13px]">
+      <PlatformIcon platform={platform} className={iconClassName} />
+      <span>{platform}</span>
+    </Badge>
+  );
+}
+
+export function TagChip({ compact = false, tag }: { compact?: boolean; tag: string }) {
   const platformParts = parsePlatformTag(tag);
 
   return (
-    <span className="inline-flex items-center gap-[6px] rounded-[42px] border border-[#d8dde6] bg-white px-[10px] py-[5px] text-[12px] text-[#333333] md:px-[12px] md:py-[6px] md:text-[13px]">
+    <Chip
+      variant="tag"
+      className={
+        compact
+          ? "min-h-0 gap-[5px] px-2 py-0.5 text-[10px] font-bold text-[#6b7280]"
+          : "min-h-0 gap-[6px] rounded-[42px] px-[10px] py-[5px] text-[12px] font-normal md:px-[12px] md:py-[6px] md:text-[13px]"
+      }
+    >
       {platformParts ? (
         <span className="inline-flex items-center gap-[4px]">
           {platformParts.map((platform, index) => (
@@ -154,7 +176,7 @@ export function TagChip({ tag }: { tag: string }) {
         </span>
       ) : null}
       <span>{tag}</span>
-    </span>
+    </Chip>
   );
 }
 
