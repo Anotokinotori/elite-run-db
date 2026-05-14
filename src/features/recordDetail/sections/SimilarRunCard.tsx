@@ -4,7 +4,7 @@ import type { KeyboardEvent } from "react";
 import { characterDb } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { CompareViewIcon, LikeIcon, ShareIcon } from "../../../components/UiIcons";
-import { Button, CardShell, IconButton } from "../../../components/ui";
+import { CardShell, IconButton } from "../../../components/ui";
 
 import { DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../config";
 import { PlatformLabel, SimilarityReasonChip } from "../ui";
@@ -42,18 +42,30 @@ function SimilarActionMenu({
       </IconButton>
       {isOpen ? (
         <div className="absolute right-0 top-full z-20 mt-2 w-[180px] rounded-[16px] border border-[#e5e7eb] bg-white p-2 shadow-[0_20px_40px_rgba(31,41,55,0.14)]">
-          <Button type="button" variant="ghost" size="sm" className="h-10 w-full justify-start rounded-[12px] px-3 text-[13px] font-medium text-[#333333]" onClick={() => onAction("like")}>
+          <button
+            type="button"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6]"
+            onClick={() => onAction("like")}
+          >
             <LikeIcon filled={liked} className={`h-4 w-4 ${liked ? DETAIL_LIKE_ACTIVE_ICON_CLASS : ""}`} />
             <span>{liked ? "いいね解除" : "いいね"}</span>
-          </Button>
-          <Button type="button" variant="ghost" size="sm" className="h-10 w-full justify-start rounded-[12px] px-3 text-[13px] font-medium text-[#333333]" onClick={() => onAction("share")}>
+          </button>
+          <button
+            type="button"
+            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6]"
+            onClick={() => onAction("share")}
+          >
             <ShareIcon className="h-4 w-4" />
             <span>{shared ? "共有解除" : "共有"}</span>
-          </Button>
-          <Button type="button" variant="ghost" size="sm" className="hidden h-10 w-full justify-start rounded-[12px] px-3 text-[13px] font-medium text-[#333333] lg:flex" onClick={() => onAction("compare")}>
+          </button>
+          <button
+            type="button"
+            className="hidden h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6] lg:flex"
+            onClick={() => onAction("compare")}
+          >
             <CompareViewIcon className="h-4 w-4" />
             比較ビュー
-          </Button>
+          </button>
         </div>
       ) : null}
     </div>
