@@ -10,7 +10,7 @@ export const OTHER_RULESET_LABELS = ["Npui-Alt", "Weapon-Alt", "Multi-PUI", "Mul
 
 export const HOME_LABELS = {
   appTitle: "精鋭狩りDB",
-  submitLabel: "記録提出",
+  submitLabel: "記録申請",
   filterTitle: "絞り込み",
   filterResetLabel: "リセット",
   filterApplyLabel: "適用する",

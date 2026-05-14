@@ -6,7 +6,7 @@ import { WeaponIcon } from "../../../components/WeaponIcon";
 import { BRACKET_META } from "../config";
 import { normalizeEnkaUidInput } from "../../../lib/enkaNetwork";
 import type { FieldErrors, SubmitDraft, SubmitPartySlot } from "../types";
-import { FieldError, FieldTitle, MockFieldBox, SearchActionIcon, StepHeroHeader } from "../ui";
+import { CreateFieldBox, FieldError, FieldTitle, SearchActionIcon, StepHeroHeader } from "../ui";
 
 type StepPartyProps = {
   activeCharacter: { name: string } | undefined;
@@ -148,7 +148,7 @@ export function StepParty(props: StepPartyProps) {
                               >
                                 {activeCharacter?.name ?? "キャラ未選択"}
                               </button>
-                              <MockFieldBox className="bg-white">
+                              <CreateFieldBox className="bg-white">
                                 <select
                                   value={activePartySlot.cons}
                                   onChange={(event) => updatePartySlot(activeSlot, { cons: Number(event.target.value) })}
@@ -161,7 +161,7 @@ export function StepParty(props: StepPartyProps) {
                                     </option>
                                   ))}
                                 </select>
-                              </MockFieldBox>
+                              </CreateFieldBox>
                             </div>
                           </div>
 
@@ -212,7 +212,7 @@ export function StepParty(props: StepPartyProps) {
                                 {activeWeapon?.name ?? "武器未選択"}
                               </button>
                               <div className="flex flex-col gap-3">
-                                <MockFieldBox className="bg-white">
+                                <CreateFieldBox className="bg-white">
                                   <select
                                     value={activePartySlot.refine}
                                     onChange={(event) => updatePartySlot(activeSlot, { refine: Number(event.target.value) })}
@@ -225,7 +225,7 @@ export function StepParty(props: StepPartyProps) {
                                       </option>
                                     ))}
                                   </select>
-                                </MockFieldBox>
+                                </CreateFieldBox>
                               </div>
                             </div>
                           </div>

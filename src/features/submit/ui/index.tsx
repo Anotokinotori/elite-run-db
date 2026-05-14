@@ -1,8 +1,9 @@
-import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 import type { Bracket, Platform } from "../../../data/mockRuns";
 import { PlatformIcon } from "../../../components/UiIcons";
-import { BRACKET_META, SUBMIT_SURFACE_SCALE } from "../config";
+import { BackButton, Button, FieldShell } from "../../../components/ui";
+import { BRACKET_META } from "../config";
 import type { SubmitStep } from "../types";
 
 export function FieldError({ message }: { message?: string }) {
@@ -71,16 +72,7 @@ export function StepIndicator({ currentStep, onBack }: { currentStep: SubmitStep
 
   return (
     <div className="mx-auto grid w-full max-w-[980px] items-start gap-4 px-4 md:grid-cols-[auto_minmax(0,1fr)_auto] md:px-0">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-2 self-center rounded-full px-2 py-2 text-[16px] font-medium text-[#666666] transition hover:text-black md:justify-self-start"
-      >
-        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M15 5L8 12L15 19" />
-        </svg>
-        <span>戻る</span>
-      </button>
+      <BackButton label="戻る" showLabel onClick={onBack} className="self-center text-[16px] md:justify-self-start" />
 
       <div className="flex w-full max-w-[664px] flex-col gap-4 justify-self-center">
         <div className="grid grid-cols-[64px_minmax(0,1fr)_64px_minmax(0,1fr)_64px] items-center">
@@ -128,44 +120,6 @@ export function StepIndicator({ currentStep, onBack }: { currentStep: SubmitStep
       </div>
 
       <div className="hidden md:block md:w-[70px]" aria-hidden="true" />
-    </div>
-  );
-}
-
-export function SubmitSurfaceScale({ children }: { children: ReactNode }) {
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const [scaledHeight, setScaledHeight] = useState<number | null>(null);
-
-  useLayoutEffect(() => {
-    const node = contentRef.current;
-
-    if (!node) {
-      return;
-    }
-
-    const updateHeight = () => {
-      setScaledHeight(node.offsetHeight * SUBMIT_SURFACE_SCALE);
-    };
-
-    updateHeight();
-
-    if (typeof ResizeObserver === "undefined") {
-      return;
-    }
-
-    const observer = new ResizeObserver(() => {
-      updateHeight();
-    });
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div className="w-full" style={scaledHeight ? { height: scaledHeight } : undefined}>
-      <div ref={contentRef} style={{ transform: `scale(${SUBMIT_SURFACE_SCALE})`, transformOrigin: "top center" }}>
-        {children}
-      </div>
     </div>
   );
 }
@@ -246,7 +200,7 @@ export function FieldTitle({ children, quiet = false }: { children: ReactNode; q
   );
 }
 
-export function MockFieldBox({
+export function CreateFieldBox({
   children,
   className = "",
   padded = true,
@@ -255,10 +209,14 @@ export function MockFieldBox({
   className?: string;
   padded?: boolean;
 }) {
-  return <div className={`rounded-[8px] bg-[#f6f6f6] ${padded ? "px-4 py-4 md:px-5 md:py-4" : ""} ${className}`}>{children}</div>;
+  return (
+    <FieldShell variant="create" className={`${padded ? "px-4 py-4 md:px-5 md:py-4" : "p-0"} ${className}`}>
+      {children}
+    </FieldShell>
+  );
 }
 
-export function MockChoiceButton({
+export function CreateChoiceButton({
   active,
   children,
   onClick,
@@ -270,15 +228,14 @@ export function MockChoiceButton({
   className?: string;
 }) {
   return (
-    <button
-      type="button"
+    <Button
       onClick={onClick}
-      className={`inline-flex items-center justify-center gap-3 rounded-[42px] px-5 py-4 text-[18px] transition md:text-[24px] ${
-        active ? "bg-[#333333] text-white" : "bg-[#f2f2f2] text-[#9999b1]"
-      } ${className}`}
+      variant={active ? "primary" : "tonal"}
+      size="create"
+      className={`rounded-[42px] ${active ? "bg-[#333333] text-white" : "border-transparent bg-[#f2f2f2] text-[#9999b1]"} ${className}`}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -299,29 +256,30 @@ export function BottomActionButtons({
     <div className="mx-auto flex w-full max-w-[500px] flex-col gap-4">
       {currentStep === 3 ? (
         <div className="flex flex-col gap-4 md:flex-row">
-          <button
-            type="button"
+          <Button
             onClick={onSave}
-            className="inline-flex w-fit items-center justify-center self-start whitespace-nowrap rounded-[8px] border border-[#333333] bg-white px-6 py-4 text-[18px] font-medium text-black md:text-[24px]"
+            variant="secondary"
+            size="create"
+            className="w-fit self-start whitespace-nowrap rounded-[8px] border-[#333333] bg-white text-black"
           >
             下書きで保存
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
             onClick={onSubmit}
-            className="w-full rounded-[8px] bg-[#333333] px-6 py-4 text-[20px] font-medium text-white md:flex-1 md:text-[24px]"
+            size="create"
+            className="w-full rounded-[8px] bg-[#333333] md:flex-1"
           >
             {primaryLabel}
-          </button>
+          </Button>
         </div>
       ) : (
-        <button
-          type="button"
+        <Button
           onClick={onAdvance}
-          className="w-full rounded-[8px] bg-[#333333] px-6 py-4 text-[20px] font-medium text-white md:text-[24px]"
+          size="create"
+          className="w-full rounded-[8px] bg-[#333333]"
         >
           {primaryLabel}
-        </button>
+        </Button>
       )}
     </div>
   );

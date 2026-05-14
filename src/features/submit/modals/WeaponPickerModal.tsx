@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { WeaponIcon } from "../../../components/WeaponIcon";
+import { ModalFrame } from "../../../components/ui";
 import type { WeaponClass, WeaponTier } from "../../../data/mockRuns";
 
 import { WEAPON_OPTIONS } from "../config";
-import { SectionTitle } from "../ui";
 
 const WEAPON_CLASS_FILTER_OPTIONS = [
   { key: "all", label: "すべて" },
@@ -120,28 +120,12 @@ export function WeaponPickerModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[72] flex items-center justify-center bg-black/35 px-4 py-6" onClick={onClose}>
-      <div
-        className="flex h-[720px] max-h-[calc(100vh-48px)] w-full max-w-[760px] flex-col rounded-[24px] border border-[#ebebeb] bg-white p-5 shadow-[0_24px_48px_rgba(0,0,0,0.16)] md:p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <SectionTitle
-          title="武器選択"
-          description="Step 2 の現在スロットに設定する武器を選択します。現在のキャラに合う武器種から優先表示します。"
-          action={
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="閉じる"
-              className="grid h-10 w-10 place-items-center rounded-full bg-[#f2f2f2] text-black"
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <path d="M6 6L18 18" />
-                <path d="M18 6L6 18" />
-              </svg>
-            </button>
-          }
-        />
+    <ModalFrame
+      onClose={onClose}
+      title="武器選択"
+      description="Step 2 の現在スロットに設定する武器を選択します。現在のキャラに合う武器種から優先表示します。"
+      className="h-[720px] max-w-[760px]"
+    >
 
         <div className="mt-6 flex min-h-0 flex-1 flex-col gap-4">
           {compatibleWeaponClass ? (
@@ -245,7 +229,6 @@ export function WeaponPickerModal({
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </ModalFrame>
   );
 }

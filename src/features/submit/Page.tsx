@@ -8,7 +8,7 @@ import { Header } from "./sections/Header";
 import { StepBasic } from "./sections/StepBasic";
 import { StepDetails } from "./sections/StepDetails";
 import { StepParty } from "./sections/StepParty";
-import { StepIndicator, SubmitSurfaceScale } from "./ui";
+import { StepIndicator } from "./ui";
 
 export function SubmitPage({ onBack, embedded = false }: { onBack: () => void; embedded?: boolean }) {
   const [showCharacterPicker, setShowCharacterPicker] = useState(false);
@@ -66,9 +66,8 @@ export function SubmitPage({ onBack, embedded = false }: { onBack: () => void; e
       <main className="min-h-screen bg-white text-[#333333]">
         <Header embedded={embedded} onBack={onBack} />
 
-        <SubmitSurfaceScale>
-          <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6">
-            <StepIndicator currentStep={draft.currentStep} onBack={handleStepBack} />
+        <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6">
+          <StepIndicator currentStep={draft.currentStep} onBack={handleStepBack} />
 
             {draft.currentStep === 1 ? (
               <StepBasic
@@ -115,25 +114,24 @@ export function SubmitPage({ onBack, embedded = false }: { onBack: () => void; e
               />
             ) : null}
 
-            <FooterActions
-              currentStep={draft.currentStep}
-              onSave={saveDraft}
-              onAdvance={() => handleStepAdvance(draft, setCurrentStep)}
-              onSubmit={() =>
-                handleSubmit(draft, {
-                  onSubmitSuccess: () => {
-                    window.alert(
-                      "記録申請を受け付けました。\n\nこのサイトはUI/UX検証用プロトタイプのため、実際には送信・保存されません。入力内容はブラウザの下書きとして残ります。",
-                    );
-                    onBack();
-                  },
-                  saveDraft,
-                  setCurrentStep,
-                })
-              }
-            />
-          </div>
-        </SubmitSurfaceScale>
+          <FooterActions
+            currentStep={draft.currentStep}
+            onSave={saveDraft}
+            onAdvance={() => handleStepAdvance(draft, setCurrentStep)}
+            onSubmit={() =>
+              handleSubmit(draft, {
+                onSubmitSuccess: () => {
+                  window.alert(
+                    "記録申請を受け付けました。\n\nこのサイトはUI/UX検証用プロトタイプのため、実際には送信・保存されません。入力内容はブラウザの下書きとして残ります。",
+                  );
+                  onBack();
+                },
+                saveDraft,
+                setCurrentStep,
+              })
+            }
+          />
+        </div>
       </main>
 
       <CharacterPickerModal

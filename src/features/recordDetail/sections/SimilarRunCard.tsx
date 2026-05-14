@@ -4,8 +4,9 @@ import type { KeyboardEvent } from "react";
 import { characterDb } from "../../../data/mockRuns";
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { CompareViewIcon, LikeIcon, ShareIcon } from "../../../components/UiIcons";
+import { Button, CardShell, IconButton } from "../../../components/ui";
 
-import { DETAIL_ICON_BUTTON_CLASS, DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../config";
+import { DETAIL_LIKE_ACTIVE_ICON_CLASS } from "../config";
 import { PlatformLabel, SimilarityReasonChip } from "../ui";
 
 function SimilarActionMenu({
@@ -27,44 +28,32 @@ function SimilarActionMenu({
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
     >
-      <button
+      <IconButton
         type="button"
         onClick={onToggle}
         aria-label="類似記録の操作"
-        className={DETAIL_ICON_BUTTON_CLASS}
+        variant="surface"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
           <circle cx="12" cy="5" r="1.8" />
           <circle cx="12" cy="12" r="1.8" />
           <circle cx="12" cy="19" r="1.8" />
         </svg>
-      </button>
+      </IconButton>
       {isOpen ? (
         <div className="absolute right-0 top-full z-20 mt-2 w-[180px] rounded-[16px] border border-[#e5e7eb] bg-white p-2 shadow-[0_20px_40px_rgba(31,41,55,0.14)]">
-          <button
-            type="button"
-            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6]"
-            onClick={() => onAction("like")}
-          >
+          <Button type="button" variant="ghost" size="sm" className="h-10 w-full justify-start rounded-[12px] px-3 text-[13px] font-medium text-[#333333]" onClick={() => onAction("like")}>
             <LikeIcon filled={liked} className={`h-4 w-4 ${liked ? DETAIL_LIKE_ACTIVE_ICON_CLASS : ""}`} />
             <span>{liked ? "いいね解除" : "いいね"}</span>
-          </button>
-          <button
-            type="button"
-            className="flex h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6]"
-            onClick={() => onAction("share")}
-          >
+          </Button>
+          <Button type="button" variant="ghost" size="sm" className="h-10 w-full justify-start rounded-[12px] px-3 text-[13px] font-medium text-[#333333]" onClick={() => onAction("share")}>
             <ShareIcon className="h-4 w-4" />
             <span>{shared ? "共有解除" : "共有"}</span>
-          </button>
-          <button
-            type="button"
-            className="hidden h-10 w-full items-center gap-3 rounded-[12px] px-3 text-left text-[13px] font-medium text-[#333333] hover:bg-[#f1f3f6] lg:flex"
-            onClick={() => onAction("compare")}
-          >
+          </Button>
+          <Button type="button" variant="ghost" size="sm" className="hidden h-10 w-full justify-start rounded-[12px] px-3 text-[13px] font-medium text-[#333333] lg:flex" onClick={() => onAction("compare")}>
             <CompareViewIcon className="h-4 w-4" />
             比較ビュー
-          </button>
+          </Button>
         </div>
       ) : null}
     </div>
@@ -103,15 +92,15 @@ export function SimilarRunCard({
   };
 
   return (
-    <article
+    <CardShell
       role={canOpenDetail ? "button" : undefined}
       tabIndex={canOpenDetail ? 0 : undefined}
       aria-label={canOpenDetail ? `${match.run.title} の詳細を見る` : undefined}
       onClick={onOpenDetail}
       onKeyDown={handleKeyDown}
-      className={`rounded-[16px] border p-[14px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40 ${
-        isCompareSelected ? "border-[#9aa7ba] bg-[#eef1f5]" : "border-[#e5e7eb] bg-white hover:bg-[#f7f8fa]"
-      } ${canOpenDetail ? "cursor-pointer" : ""}`}
+      interactive={canOpenDetail}
+      selected={isCompareSelected}
+      className={`rounded-[16px] p-[14px] shadow-none ${!isCompareSelected ? "hover:bg-[#f7f8fa]" : ""}`}
     >
       <div className="flex items-start gap-[10px]">
         <div className="min-w-0 flex-1">
@@ -147,6 +136,6 @@ export function SimilarRunCard({
           </div>
         </div>
       </div>
-    </article>
+    </CardShell>
   );
 }

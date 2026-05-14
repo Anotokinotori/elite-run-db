@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 
+import { SelectControl } from "../../../components/ui";
 import type { Bracket } from "../../../data/mockRuns";
 import {
   HOME_BRACKET_ACCENT_COLORS,
@@ -78,22 +79,16 @@ export function LeaderboardSection({
             </div>
           </div>
           <div className="mb-8 flex flex-wrap items-center gap-y-3">
-            <span className="relative">
-              <select
-                value={activeSeason}
-                onChange={(event) => onSeasonChange(event.target.value)}
-                className="h-11 min-w-[112px] appearance-none rounded-full border border-[#d8dde6] bg-white py-2 pl-5 pr-10 text-[13px] font-black text-[#111827] outline-none transition-colors hover:bg-[#eef1f5] focus:border-[#111116] focus:bg-white focus:ring-2 focus:ring-[#111116]/20 md:text-[14px]"
-              >
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-black uppercase tracking-[0.12em] text-[#8d93a3]">Version</span>
+              <SelectControl value={activeSeason} onChange={(event) => onSeasonChange(event.target.value)} aria-label="Version">
                 {seasons.map((season) => (
                   <option key={season} value={season}>
                     {season}
                   </option>
                 ))}
-              </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8493]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </span>
+              </SelectControl>
+            </div>
           </div>
           <div className="mb-8 flex items-center justify-between text-[13px] font-semibold md:text-[14px]">
             {HOME_BRACKET_FILTER_OPTIONS.map((item) => (

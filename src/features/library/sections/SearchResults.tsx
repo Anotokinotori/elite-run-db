@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEve
 
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { CompareViewIcon, PauseIcon, PlayIcon } from "../../../components/UiIcons";
+import { Button, CardShell, CostBadge, CountBadge, EmptyState, IconButton, InlineActionButton, StatusBadge } from "../../../components/ui";
 import { appRuns, getAppRunById } from "../../../data/appRuns";
 import { characterDb, type RunRecord } from "../../../data/mockRuns";
 import { getYouTubeVideoId } from "../../../lib/youtube";
@@ -10,7 +11,7 @@ import { HOME_BRACKET_ACCENT_COLORS } from "../../home/config";
 import { getBracketLabel } from "../../home/logic";
 import { SearchIcon } from "../../home/ui/icons";
 import { getPartyBuildItems, postYouTubeCommand } from "../../recordDetail/logic";
-import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PartyBuildItemCard, PlatformLabel, SidebarPanel, SidebarSectionHeader, TagChip, VideoFrame } from "../../recordDetail/ui";
+import { CircleAvatar, DETAIL_MUTED_SURFACE_CLASS, PartyBuildItemCard, PlatformBadge, PlatformLabel, SidebarPanel, SidebarSectionHeader, TagChip, VideoFrame } from "../../recordDetail/ui";
 import { LIBRARY_COMPARE_CANDIDATE_LIMIT, type LibraryActionAccordionKey, type LibrarySearchHistoryEntry } from "../logic/actionStorage";
 import { filterLibraryRuns, hasActiveLibrarySearchFilters } from "../logic/searchResults";
 import type { LibrarySearchFilters } from "../types";
@@ -72,7 +73,7 @@ export function LibrarySearchResults({
         </h2>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <span className="text-[20px] font-black tracking-[-0.03em] text-[#111827] md:text-[24px]">{heading}</span>
-          <span className="inline-flex h-8 items-center rounded-full border border-[#d8dde6] bg-white px-3 text-[12px] font-black text-[#5f6678]">{visibleRuns.length}件</span>
+          <CountBadge count={visibleRuns.length} />
         </div>
         <p className="mt-2 max-w-[560px] text-[12px] font-bold leading-5 text-[#7b8493] md:text-[13px]">{lead}</p>
       </div>
@@ -179,12 +180,13 @@ function LibraryRecordCard({
   };
 
   return (
-    <article
+    <CardShell
       role="button"
       tabIndex={0}
       onClick={openDetail}
       onKeyDown={handleKeyDown}
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-[8px] border border-[#dfe3ea] bg-white text-left shadow-[0_10px_24px_rgba(21,27,38,0.06)] transition hover:-translate-y-0.5 hover:border-[#cfd6e2] hover:shadow-[0_18px_34px_rgba(21,27,38,0.11)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
+      interactive
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-[8px]"
       aria-label={`${run.title} の詳細を見る`}
     >
       <Thumbnail run={run} />
@@ -209,29 +211,28 @@ function LibraryRecordCard({
 
         <div className="flex flex-wrap gap-1">
           {visibleTags.map((tag) => (
-            <span key={`${run.id}-${tag}`} className="max-w-full truncate rounded-full bg-[#f0f2f5] px-2 py-0.5 text-[10px] font-bold text-[#6b7280]">
-              #{tag}
-            </span>
+            <TagChip key={`${run.id}-${tag}`} tag={`#${tag}`} compact />
           ))}
         </div>
 
         <div className="mt-auto flex items-center justify-between border-t border-[#edf0f4] pt-2 text-[11px] font-extrabold text-[#5f6678]">
-          <button
+          <InlineActionButton
             type="button"
             onClick={handleAddCandidate}
             aria-disabled={compareDisabled || isCandidate}
-            className={`flex items-center gap-1 transition ${compareDisabled ? "cursor-not-allowed text-[#b8bec8]" : "hover:text-[#111827]"} ${isCandidate ? "text-[#111827]" : ""}`}
+            active={isCandidate}
+            className={compareDisabled ? "cursor-not-allowed text-[#b8bec8]" : ""}
           >
             {isCandidate ? <CheckIcon className="h-[11px] w-[11px]" /> : <PlusIcon className="h-[11px] w-[11px]" />}
             {isCandidate ? "追加済み" : compareDisabled ? "2件まで" : "比較に追加"}
-          </button>
-          <button type="button" onClick={handleToggleWatchLater} aria-pressed={isWatchLater} className={`flex items-center gap-1 transition hover:text-[#111827] ${isWatchLater ? "text-[#111827]" : ""}`}>
+          </InlineActionButton>
+          <InlineActionButton type="button" onClick={handleToggleWatchLater} aria-pressed={isWatchLater} active={isWatchLater}>
             <BookmarkIcon className={isWatchLater ? "h-[11px] w-[11px] fill-current" : "h-[11px] w-[11px]"} />
             {isWatchLater ? "保存済み" : "あとで見る"}
-          </button>
+          </InlineActionButton>
         </div>
       </div>
-    </article>
+    </CardShell>
   );
 }
 
@@ -255,7 +256,7 @@ function CompareCandidatePanel({
       <header className="border-b border-[#eef1f5] p-4">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-[15px] font-black text-[#111827]">比較候補の記録</h3>
-          <span className="shrink-0 text-[11px] font-black text-[#5b6472]">{candidates.length}/{LIBRARY_COMPARE_CANDIDATE_LIMIT}件</span>
+          <CountBadge className="h-7 px-2.5 text-[11px]" count={`${candidates.length}/${LIBRARY_COMPARE_CANDIDATE_LIMIT}`} />
         </div>
         <p className="mt-2 text-[11px] font-bold leading-5 text-[#7b8493]">比較したい記録だけをここに一時保存します。</p>
       </header>
@@ -269,18 +270,20 @@ function CompareCandidatePanel({
         <CompareEmptyState />
       )}
       <div className="grid grid-cols-2 border-t border-[#eef1f5]">
-        <button type="button" onClick={onClear} disabled={candidates.length === 0} className="h-11 border-r border-[#eef1f5] text-[12px] font-black text-[#7b8493] transition hover:bg-[#fafbfc] hover:text-[#ff3b1f] disabled:cursor-not-allowed disabled:text-[#c1c7d0] disabled:hover:bg-transparent">
+        <Button type="button" variant="ghost" size="sm" onClick={onClear} disabled={candidates.length === 0} className="h-11 rounded-none border-r border-[#eef1f5] text-[12px] font-black text-[#7b8493] hover:bg-[#fafbfc] hover:text-[#d24b5a] disabled:text-[#c1c7d0] disabled:hover:bg-transparent">
           候補をクリア
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={onOpenCompare}
           disabled={!canOpenCompare}
-          className="hidden h-11 items-center justify-center gap-1.5 text-[12px] font-black text-[#111827] transition hover:bg-[#fafbfc] hover:text-[#ff3b1f] disabled:cursor-not-allowed disabled:text-[#c1c7d0] disabled:hover:bg-transparent lg:flex"
+          className="hidden h-11 rounded-none text-[12px] font-black text-[#111827] hover:bg-[#fafbfc] hover:text-[#d24b5a] disabled:text-[#c1c7d0] disabled:hover:bg-transparent lg:flex"
         >
           比較画面を開く
           <ChevronIcon className="h-4 w-4" />
-        </button>
+        </Button>
         <button type="button" disabled className="h-11 text-[12px] font-black text-[#c1c7d0] lg:hidden">
           PC専用
         </button>
@@ -291,21 +294,23 @@ function CompareCandidatePanel({
 
 function CompareCandidateCard({ run, onSelectRun, onRemove }: { run: RunRecord; onSelectRun: (runId: string) => void; onRemove: (runId: string) => void }) {
   return (
-    <article className="relative overflow-hidden rounded-[8px] border border-[#e2e6ee] bg-[#fbfcfd]">
-      <button
+    <CardShell className="relative overflow-hidden rounded-[8px] bg-[#fbfcfd] shadow-none">
+      <IconButton
         type="button"
         onClick={() => onRemove(run.id)}
         aria-label={`${run.title} を比較候補から削除`}
         title="削除"
-        className="absolute right-2 top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-black/70 text-white shadow transition hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+        variant="overlay"
+        size="sm"
+        className="absolute right-2 top-2 z-10 h-7 w-7 shadow"
       >
         <XIcon className="h-4 w-4" />
-      </button>
+      </IconButton>
       <button type="button" onClick={() => onSelectRun(run.id)} className="block w-full text-left transition hover:bg-[#f7f8fa] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#111116]/40">
         <div className="relative h-[88px] bg-[#111827]">
           <img src={getYouTubeThumbnailUrl(run.videoUrl) ?? ""} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" referrerPolicy="no-referrer" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.05),rgba(0,0,0,0.68))]" />
-          <span className="absolute bottom-2 right-2 rounded-full bg-white px-2 py-1 text-[11px] font-black text-black shadow">{run.time}</span>
+          <StatusBadge tone="neutral" className="absolute bottom-2 right-2 h-auto px-2 py-1 text-[11px] text-black shadow">{run.time}</StatusBadge>
         </div>
         <div className="p-3">
           <p className="line-clamp-1 text-[12px] font-black text-[#111827]">{run.title}</p>
@@ -324,7 +329,7 @@ function CompareCandidateCard({ run, onSelectRun, onRemove }: { run: RunRecord; 
           </div>
         </div>
       </button>
-    </article>
+    </CardShell>
   );
 }
 
@@ -423,15 +428,16 @@ function SearchHistoryList({
               {entry.summary} / {formatHistoryDate(entry.createdAt)}
             </p>
           </button>
-          <button
+          <IconButton
             type="button"
             onClick={() => onRemove(entry.signature)}
             aria-label={`${entry.label} を検索履歴から削除`}
             title="削除"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#7b8493] transition hover:bg-[#eef1f5] hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40"
+            variant="ghost"
+            size="sm"
           >
             <XIcon className="h-4 w-4" />
-          </button>
+          </IconButton>
         </div>
       ))}
     </div>
@@ -463,15 +469,16 @@ function ActionRunList({
               {run.userName} / {run.time}
             </p>
           </button>
-          <button
+          <IconButton
             type="button"
             onClick={() => onRemove(run.id)}
             aria-label={`${run.title} をリストから削除`}
             title="削除"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#7b8493] transition hover:bg-[#eef1f5] hover:text-[#111827] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/40"
+            variant="ghost"
+            size="sm"
           >
             <XIcon className="h-4 w-4" />
-          </button>
+          </IconButton>
         </div>
       ))}
     </div>
@@ -479,7 +486,7 @@ function ActionRunList({
 }
 
 function ActionEmptyState({ label }: { label: string }) {
-  return <div className="rounded-[8px] border border-dashed border-[#dfe3ea] bg-[#fbfcfd] px-3 py-5 text-center text-[12px] font-bold text-[#8d93a3]">{label}</div>;
+  return <EmptyState title={label} className="rounded-[8px] bg-[#fbfcfd] px-3 py-5 text-[12px]" />;
 }
 
 function formatHistoryDate(value: string) {
@@ -557,13 +564,13 @@ function LibraryCompareDrawer({
             <div className="text-[18px] font-semibold text-[#111827]">比較ビュー</div>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={toggleSync} className="inline-flex h-9 items-center justify-center gap-2 rounded-[42px] border border-[#d8dde6] bg-[#f7f8fa] px-4 text-[13px] font-medium text-[#333333] transition hover:bg-[#eef1f5]">
+            <Button type="button" onClick={toggleSync} variant="tonal" size="md" className="h-9 rounded-[42px] px-4 text-[13px]">
               {syncPlaying ? <PauseIcon className="h-4 w-4" /> : <PlayIcon className="h-4 w-4" />}
               <span>{syncPlaying ? "同期停止" : "同時再生"}</span>
-            </button>
-            <button type="button" aria-label="比較ビューを閉じる" onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full border border-[#d8dde6] bg-[#f7f8fa] text-[#333333] transition hover:bg-[#eef1f5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50">
+            </Button>
+            <IconButton type="button" aria-label="比較ビューを閉じる" onClick={onClose} variant="surface">
               <XIcon className="h-4 w-4" />
-            </button>
+            </IconButton>
           </div>
         </div>
         <div className="grid min-h-0 flex-1 grid-cols-2 divide-x divide-[#e5e7eb]">
@@ -590,7 +597,7 @@ function LibraryCompareRunPane({
 
   return (
     <div className="min-h-0 overflow-y-auto bg-[#f5f6f8] px-3 py-3">
-      <div className="mb-3 inline-flex rounded-full border border-[#d8dde6] bg-white px-3 py-1 text-[12px] font-black text-[#5f6678]">{label}</div>
+      <StatusBadge className="mb-3 h-auto px-3 py-1 text-[12px]">{label}</StatusBadge>
       <VideoFrame title={run.title} videoUrl={run.videoUrl} iframeRef={iframeRef} mute={muted} />
       <div className="mt-4 flex flex-col gap-[12px]">
         <div className="text-[18px] font-bold leading-tight text-[#111827]">{run.title}</div>
@@ -599,9 +606,7 @@ function LibraryCompareRunPane({
             <CircleAvatar label={run.userName} size={40} />
             <div className="truncate text-[18px] font-bold leading-none text-[#111827]">{run.userName}</div>
           </div>
-          <div className="inline-flex shrink-0 items-center gap-[6px] rounded-[42px] border border-[#d8dde6] bg-white px-[10px] py-[5px] text-[13px] text-[#333333]">
-            <PlatformLabel platform={run.platform} iconClassName="h-[13px] w-[13px]" />
-          </div>
+          <PlatformBadge platform={run.platform} />
         </div>
         <div className={`w-full ${DETAIL_MUTED_SURFACE_CLASS} p-[12px]`}>
           <div className="flex items-center gap-x-[18px] overflow-x-auto whitespace-nowrap text-[14px] text-[#5f6678]">
@@ -635,13 +640,9 @@ function LibraryCompareRunPane({
 
 function CompareEmptyState() {
   return (
-    <div className="px-4 py-8 text-center">
-      <div className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-[#f0f2f5] text-[#7b8493]">
-        <CompareViewIcon className="h-5 w-5" />
-      </div>
-      <p className="mt-3 text-[13px] font-black text-[#111827]">候補なし</p>
-      <p className="mt-1 text-[11px] font-bold leading-5 text-[#8d93a3]">結果カードの下部から追加できます。</p>
-    </div>
+    <EmptyState title="候補なし" icon={<CompareViewIcon className="h-5 w-5" />} className="border-0 bg-transparent px-4 py-8 text-[13px]">
+      結果カードの下部から追加できます。
+    </EmptyState>
   );
 }
 
@@ -693,27 +694,22 @@ function LibraryCardCharacterStack({ run }: { run: RunRecord }) {
 
 function InfoBadge({ children }: { children: string }) {
   return (
-    <span className="max-w-[76px] truncate border border-[#d8dde6] px-1.5 py-0.5 text-[9px] font-black uppercase leading-none tracking-[0.1em] text-[#7b8493]">
+    <StatusBadge className="h-auto max-w-[76px] rounded-none px-1.5 py-0.5 text-[9px] uppercase tracking-[0.1em] text-[#7b8493]">
       {children}
-    </span>
+    </StatusBadge>
   );
 }
 
 function BracketBadge({ children, color }: { children: string; color: string }) {
   return (
-    <span className="max-w-[68px] truncate px-1.5 py-0.5 text-[9px] font-black uppercase leading-none tracking-[0.1em] text-white" style={{ backgroundColor: color }}>
+    <StatusBadge tone="overlay" className="h-auto max-w-[68px] rounded-none border-0 px-1.5 py-0.5 text-[9px] uppercase tracking-[0.1em] text-white" style={{ backgroundColor: color }}>
       {children}
-    </span>
+    </StatusBadge>
   );
 }
 
 function CostMetric({ label, value }: { label: string; value: string | number }) {
-  return (
-    <span className="inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap">
-      <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-[#6b7280]">{label}</span>
-      <span className="truncate text-[12px] font-black text-[#6b7280]">{value}</span>
-    </span>
-  );
+  return <CostBadge className="bg-transparent px-0 py-0" label={label} value={value} />;
 }
 
 function formatCompactBracketLabel(label: string) {
@@ -722,11 +718,9 @@ function formatCompactBracketLabel(label: string) {
 
 function LibraryEmptyResults() {
   return (
-    <div className="rounded-[16px] border border-dashed border-[#dcdfe6] bg-white py-16 text-center">
-      <SearchIcon size={46} className="mx-auto mb-4 text-[#dcdfe6]" />
-      <h3 className="text-[18px] font-black text-[#606266]">該当する記録がありません</h3>
-      <p className="mt-2 text-[13px] font-bold text-[#909399]">条件を減らすか、検索ワードを変えてください。</p>
-    </div>
+    <EmptyState title="該当する記録がありません" icon={<SearchIcon size={46} />} className="rounded-[16px] bg-white py-16 text-[18px]">
+      条件を減らすか、検索ワードを変えてください。
+    </EmptyState>
   );
 }
 
