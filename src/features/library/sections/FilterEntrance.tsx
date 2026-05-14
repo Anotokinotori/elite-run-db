@@ -20,19 +20,32 @@ import { FilterDrawer } from "../../home/ui/FilterDrawer";
 import { SearchIcon } from "../../home/ui/icons";
 import categoryPeriodImageUrl from "../assets/library-category-period.png";
 import { LIBRARY_FILTER_PANELS, LIBRARY_LABELS } from "../config";
+import { useLibraryFilterEntrance } from "../hooks/useLibraryFilterEntrance";
 import type { LibraryFilterRestoreRequest } from "../logic/actionStorage";
-import { cloneLibraryBuildFilterState, cloneLibraryCategoryFilterState, cloneLibrarySearchFilters } from "../logic/searchFilters";
-import { LIBRARY_BUILD_RANGE_LIMITS as BUILD_RANGE_LIMITS, type LibraryBuildFilterState, type LibraryCategoryFilterState, type LibrarySearchFilters, type NumericRange } from "../types";
-
-type LibraryFilterKey = (typeof LIBRARY_FILTER_PANELS)[number]["key"];
-type LibraryFilterPanel = (typeof LIBRARY_FILTER_PANELS)[number];
-type SelectableFilterKey = Exclude<LibraryFilterKey, "search">;
-type SelectableFilterPanel = Extract<LibraryFilterPanel, { key: SelectableFilterKey }>;
-type SearchFilterPanel = Extract<LibraryFilterPanel, { key: "search" }>;
-type CharacterSummaryGroup = "partyCharacters" | "mainAttackers";
-type CharacterSummaryTarget = "include" | "exclude";
-type WeaponSummaryTarget = "include" | "exclude";
-type LibraryBuildFilterTab = "cost" | "weapon";
+import {
+  cloneLibraryBuildFilterState,
+  cloneLibraryCategoryFilterState,
+  createEmptyLibraryBuildFilterState,
+  createEmptyLibraryCategoryFilterState,
+  isSearchFilterPanel,
+  isSelectableFilterPanel,
+} from "../logic/searchFilters";
+import {
+  LIBRARY_BUILD_RANGE_LIMITS as BUILD_RANGE_LIMITS,
+  type CharacterSummaryGroup,
+  type CharacterSummaryTarget,
+  type LibraryBuildFilterState,
+  type LibraryBuildFilterTab,
+  type LibraryCategoryFilterState,
+  type LibraryFilterKey,
+  type LibraryFilterPanel,
+  type LibrarySearchFilters,
+  type NumericRange,
+  type SearchFilterPanel,
+  type SelectableFilterKey,
+  type SelectableFilterPanel,
+  type WeaponSummaryTarget,
+} from "../types";
 
 const CHARACTER_FILTER_MODAL_TABS: { key: CharacterFilterTabKey; label: string }[] = [
   { key: "partyCharacters", label: "編成キャラ" },
@@ -121,79 +134,6 @@ const DESKTOP_FILTER_CARD_META: Record<SelectableFilterKey, { imageUrl: string; 
   },
 };
 
-function createEmptyBuildFilterState(): LibraryBuildFilterState {
-  return {
-    costBracket: null,
-    charCostRange: { ...BUILD_RANGE_LIMITS.charCost },
-    weaponCostRange: { ...BUILD_RANGE_LIMITS.weaponCost },
-    fiveStarWeaponCountRange: { ...BUILD_RANGE_LIMITS.fiveStarWeaponCount },
-    maxConstellation: null,
-    maxFiveStarRefinement: null,
-    weaponIds: { include: [], exclude: [] },
-  };
-}
-
-function createEmptyCategoryFilterState(): LibraryCategoryFilterState {
-  return {
-    ruleset: "",
-    version: "",
-    playStyle: null,
-    food: null,
-    device: null,
-  };
-}
-
-function isSelectableFilterKey(key: LibraryFilterKey): key is SelectableFilterKey {
-  return key !== "search";
-}
-
-function isSelectableFilterPanel(panel: LibraryFilterPanel): panel is SelectableFilterPanel {
-  return isSelectableFilterKey(panel.key);
-}
-
-function isSearchFilterPanel(panel: LibraryFilterPanel): panel is SearchFilterPanel {
-  return panel.key === "search";
-}
-
-function isDefaultRange(value: NumericRange, limit: NumericRange) {
-  return value.min === limit.min && value.max === limit.max;
-}
-
-function getFirstActivePanelFromFilters(filters: LibrarySearchFilters): SelectableFilterKey | null {
-  const characterCount =
-    filters.characterFilters.partyCharacters.includeIds.length +
-    filters.characterFilters.partyCharacters.excludeIds.length +
-    filters.characterFilters.mainAttackers.includeIds.length +
-    filters.characterFilters.mainAttackers.excludeIds.length;
-
-  if (characterCount > 0) {
-    return "character";
-  }
-
-  if (
-    filters.buildFilters.costBracket !== null ||
-    !isDefaultRange(filters.buildFilters.charCostRange, BUILD_RANGE_LIMITS.charCost) ||
-    !isDefaultRange(filters.buildFilters.weaponCostRange, BUILD_RANGE_LIMITS.weaponCost) ||
-    !isDefaultRange(filters.buildFilters.fiveStarWeaponCountRange, BUILD_RANGE_LIMITS.fiveStarWeaponCount) ||
-    filters.buildFilters.maxConstellation !== null ||
-    filters.buildFilters.maxFiveStarRefinement !== null ||
-    filters.buildFilters.weaponIds.include.length > 0 ||
-    filters.buildFilters.weaponIds.exclude.length > 0
-  ) {
-    return "build";
-  }
-
-  if (filters.categoryFilters.ruleset || filters.categoryFilters.version || filters.categoryFilters.playStyle || filters.categoryFilters.food || filters.categoryFilters.device) {
-    return "category";
-  }
-
-  if (filters.selectedTags.length > 0) {
-    return "tag";
-  }
-
-  return null;
-}
-
 export function FilterEntrance({
   onModalOpenChange,
   onSearch,
@@ -203,81 +143,7 @@ export function FilterEntrance({
   onSearch?: (filters: LibrarySearchFilters) => void;
   restoreRequest?: LibraryFilterRestoreRequest | null;
 }) {
-  const [activeKey, setActiveKey] = useState<SelectableFilterKey | null>(null);
-  const [desktopModalKey, setDesktopModalKey] = useState<SelectableFilterKey | null>(null);
-  const [characterFilters, setCharacterFilters] = useState<HomeFilterState>(() => createEmptyHomeFilterState());
-  const [buildFilters, setBuildFilters] = useState<LibraryBuildFilterState>(() => createEmptyBuildFilterState());
-  const [categoryFilters, setCategoryFilters] = useState<LibraryCategoryFilterState>(() => createEmptyCategoryFilterState());
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
-  const [isWeaponModalOpen, setIsWeaponModalOpen] = useState(false);
-  const activeLabel = useMemo(() => LIBRARY_FILTER_PANELS.find((panel) => panel.key === activeKey)?.label ?? "", [activeKey]);
-
-  const createCurrentSearchFilters = (): LibrarySearchFilters => ({
-    characterFilters: cloneHomeFilterState(characterFilters),
-    buildFilters: cloneLibraryBuildFilterState(buildFilters),
-    categoryFilters: cloneLibraryCategoryFilterState(categoryFilters),
-    selectedTags: [...selectedTags],
-  });
-
-  const handleSearch = () => {
-    onSearch?.(createCurrentSearchFilters());
-  };
-
-  const handleDesktopPanelClick = (key: LibraryFilterKey) => {
-    if (key === "search") {
-      handleSearch();
-      return;
-    }
-
-    if (isSelectableFilterKey(key)) {
-      setActiveKey(key);
-      setDesktopModalKey(key);
-    }
-  };
-
-  const handleMobilePanelClick = (key: LibraryFilterKey) => {
-    if (key === "search") {
-      handleSearch();
-      return;
-    }
-
-    if (isSelectableFilterKey(key)) {
-      setActiveKey(key);
-    }
-  };
-
-  const handleRemoveCharacterFilter = (group: CharacterSummaryGroup, target: CharacterSummaryTarget, characterId: string) => {
-    const key = target === "include" ? "includeIds" : "excludeIds";
-    setCharacterFilters((current) => ({
-      ...current,
-      [group]: {
-        ...current[group],
-        [key]: current[group][key].filter((id) => id !== characterId),
-      },
-    }));
-  };
-
-  const handleToggleTag = (tag: string) => {
-    setSelectedTags((current) => (current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]));
-  };
-
-  useEffect(() => {
-    onModalOpenChange?.(desktopModalKey !== null || isCharacterModalOpen || isWeaponModalOpen);
-  }, [desktopModalKey, isCharacterModalOpen, isWeaponModalOpen, onModalOpenChange]);
-
-  useEffect(() => {
-    if (!restoreRequest) {
-      return;
-    }
-
-    const restoredFilters = cloneLibrarySearchFilters(restoreRequest.filters);
-    setCharacterFilters(restoredFilters.characterFilters);
-    setBuildFilters(restoredFilters.buildFilters);
-    setCategoryFilters(restoredFilters.categoryFilters);
-    setSelectedTags(restoredFilters.selectedTags);
-    setActiveKey(getFirstActivePanelFromFilters(restoredFilters));
-  }, [restoreRequest]);
+  const filterEntranceState = useLibraryFilterEntrance({ onModalOpenChange, onSearch, restoreRequest });
 
   return (
     <section className="relative z-10 mx-auto -mt-24 max-w-[1340px] px-4 md:-mt-56 lg:px-8" style={{ color: UI.textMain }}>
@@ -291,55 +157,55 @@ export function FilterEntrance({
             <h2 className="shrink-0 text-[15px] font-black leading-none tracking-[0.04em] text-[#d9d9d9] sm:text-[19px]">{LIBRARY_LABELS.searchTitle}</h2>
             <span className="hidden h-[3px] w-[3px] shrink-0 rounded-full bg-white/25 sm:block" />
             <span className="truncate text-[11px] font-normal uppercase leading-none tracking-[0.08em] text-[#d9d9d9] sm:text-[12px]">
-              {activeLabel || LIBRARY_LABELS.searchSummaryFallback}
+              {filterEntranceState.activeLabel || LIBRARY_LABELS.searchSummaryFallback}
             </span>
           </div>
         </header>
         <div className="h-px bg-white/10" />
         <div className="p-3 sm:p-4" style={{ background: UI.sectionBody }}>
-          <FilterCardBar activeKey={activeKey} onPanelClick={handleDesktopPanelClick} variant="desktop" className="hidden sm:block" />
-          <FilterCardBar activeKey={activeKey} onPanelClick={handleMobilePanelClick} variant="mobile" className="sm:hidden" />
+          <FilterCardBar activeKey={filterEntranceState.activeKey} onPanelClick={filterEntranceState.handleDesktopPanelClick} variant="desktop" className="hidden sm:block" />
+          <FilterCardBar activeKey={filterEntranceState.activeKey} onPanelClick={filterEntranceState.handleMobilePanelClick} variant="mobile" className="sm:hidden" />
           <div className="mt-3 sm:hidden">
-            {activeKey === "character" ? (
-              <CharacterFilterSummaryPanel filters={characterFilters} onOpenPicker={() => setIsCharacterModalOpen(true)} onRemoveFilter={handleRemoveCharacterFilter} />
+            {filterEntranceState.activeKey === "character" ? (
+              <CharacterFilterSummaryPanel filters={filterEntranceState.characterFilters} onOpenPicker={() => filterEntranceState.setIsCharacterModalOpen(true)} onRemoveFilter={filterEntranceState.handleRemoveCharacterFilter} />
             ) : null}
-            {activeKey === "build" ? (
-              <BuildFilterControlsPanel filters={buildFilters} onChange={setBuildFilters} onOpenWeaponPicker={() => setIsWeaponModalOpen(true)} />
+            {filterEntranceState.activeKey === "build" ? (
+              <BuildFilterControlsPanel filters={filterEntranceState.buildFilters} onChange={filterEntranceState.setBuildFilters} onOpenWeaponPicker={() => filterEntranceState.setIsWeaponModalOpen(true)} />
             ) : null}
-            {activeKey === "category" ? <CategoryFilterPanel filters={categoryFilters} onChange={setCategoryFilters} /> : null}
-            {activeKey === "tag" ? <TagFilterPanel selectedTags={selectedTags} onToggleTag={handleToggleTag} /> : null}
+            {filterEntranceState.activeKey === "category" ? <CategoryFilterPanel filters={filterEntranceState.categoryFilters} onChange={filterEntranceState.setCategoryFilters} /> : null}
+            {filterEntranceState.activeKey === "tag" ? <TagFilterPanel selectedTags={filterEntranceState.selectedTags} onToggleTag={filterEntranceState.handleToggleTag} /> : null}
           </div>
         </div>
       </div>
       <LibraryFilterModal
-        activeKey={desktopModalKey}
-        characterFilters={characterFilters}
-        buildFilters={buildFilters}
-        categoryFilters={categoryFilters}
-        selectedTags={selectedTags}
-        onClose={() => setDesktopModalKey(null)}
+        activeKey={filterEntranceState.desktopModalKey}
+        characterFilters={filterEntranceState.characterFilters}
+        buildFilters={filterEntranceState.buildFilters}
+        categoryFilters={filterEntranceState.categoryFilters}
+        selectedTags={filterEntranceState.selectedTags}
+        onClose={() => filterEntranceState.setDesktopModalKey(null)}
         onApplyCharacter={(filters) => {
-          setCharacterFilters(filters);
-          setDesktopModalKey(null);
+          filterEntranceState.setCharacterFilters(filters);
+          filterEntranceState.setDesktopModalKey(null);
         }}
         onApplyBuild={(filters) => {
-          setBuildFilters(filters);
-          setDesktopModalKey(null);
+          filterEntranceState.setBuildFilters(filters);
+          filterEntranceState.setDesktopModalKey(null);
         }}
         onApplyCategory={(filters) => {
-          setCategoryFilters(filters);
-          setDesktopModalKey(null);
+          filterEntranceState.setCategoryFilters(filters);
+          filterEntranceState.setDesktopModalKey(null);
         }}
         onApplyTags={(tags) => {
-          setSelectedTags(tags);
-          setDesktopModalKey(null);
+          filterEntranceState.setSelectedTags(tags);
+          filterEntranceState.setDesktopModalKey(null);
         }}
       />
       <FilterDrawer
-        isOpen={isCharacterModalOpen}
-        onClose={() => setIsCharacterModalOpen(false)}
-        onApply={setCharacterFilters}
-        initialFilters={characterFilters}
+        isOpen={filterEntranceState.isCharacterModalOpen}
+        onClose={() => filterEntranceState.setIsCharacterModalOpen(false)}
+        onApply={filterEntranceState.setCharacterFilters}
+        initialFilters={filterEntranceState.characterFilters}
         characters={selectableCharacters}
         tagGroups={[]}
         title="キャラ・編成を絞り込む"
@@ -357,12 +223,12 @@ export function FilterEntrance({
         emptyTagResultLabel=""
       />
       <LibraryWeaponFilterDrawer
-        isOpen={isWeaponModalOpen}
-        initialWeaponIds={buildFilters.weaponIds}
-        onClose={() => setIsWeaponModalOpen(false)}
+        isOpen={filterEntranceState.isWeaponModalOpen}
+        initialWeaponIds={filterEntranceState.buildFilters.weaponIds}
+        onClose={() => filterEntranceState.setIsWeaponModalOpen(false)}
         onApply={(weaponIds) => {
-          setBuildFilters((current) => ({ ...current, weaponIds }));
-          setIsWeaponModalOpen(false);
+          filterEntranceState.setBuildFilters((current) => ({ ...current, weaponIds }));
+          filterEntranceState.setIsWeaponModalOpen(false);
         }}
       />
     </section>
@@ -1297,7 +1163,7 @@ function LibraryBuildFilterModal({
   };
 
   const reset = () => {
-    setDraft(createEmptyBuildFilterState());
+    setDraft(createEmptyLibraryBuildFilterState());
     setActiveBuildTab("cost");
     setActiveTarget("include");
     setQuery("");
@@ -1434,7 +1300,7 @@ function LibraryCategoryFilterModal({
   };
 
   return (
-    <LibraryModalFrame title={title} onClose={onClose} onReset={() => setDraft(createEmptyCategoryFilterState())} onApply={() => onApply(cloneLibraryCategoryFilterState(draft))}>
+    <LibraryModalFrame title={title} onClose={onClose} onReset={() => setDraft(createEmptyLibraryCategoryFilterState())} onApply={() => onApply(cloneLibraryCategoryFilterState(draft))}>
       <div className="grid gap-3 lg:grid-cols-2">
         <LibrarySelectControl title="カテゴリ" value={draft.ruleset} options={RULESET_OPTIONS} placeholder="カテゴリを選択" onChange={(value) => update("ruleset", value)} />
         <LibrarySelectControl title="期間・バージョン" value={draft.version} options={VERSION_OPTIONS} placeholder="期間を選択" onChange={(value) => update("version", value)} />
@@ -1596,7 +1462,15 @@ function getFilterCardBackgroundColor(panel: LibraryFilterPanel) {
 }
 
 function renderFilterCardContent(panel: LibraryFilterPanel, variant: "desktop" | "mobile") {
-  return isSearchFilterPanel(panel) ? <SearchFilterCardContent panel={panel} variant={variant} /> : <SelectableFilterCardContent panel={panel} variant={variant} />;
+  if (isSearchFilterPanel(panel)) {
+    return <SearchFilterCardContent panel={panel} variant={variant} />;
+  }
+
+  if (isSelectableFilterPanel(panel)) {
+    return <SelectableFilterCardContent panel={panel} variant={variant} />;
+  }
+
+  return null;
 }
 
 function SelectableFilterCardContent({ panel, variant }: { panel: SelectableFilterPanel; variant: "desktop" | "mobile" }) {

@@ -1,5 +1,16 @@
 import { cloneHomeFilterState, createEmptyHomeFilterState } from "../../home/logic";
-import { LIBRARY_BUILD_RANGE_LIMITS, type LibraryBuildFilterState, type LibraryCategoryFilterState, type LibrarySearchFilters } from "../types";
+import {
+  LIBRARY_BUILD_RANGE_LIMITS,
+  type LibraryBuildFilterState,
+  type LibraryCategoryFilterState,
+  type LibraryFilterKey,
+  type LibraryFilterPanel,
+  type LibrarySearchFilters,
+  type NumericRange,
+  type SearchFilterPanel,
+  type SelectableFilterKey,
+  type SelectableFilterPanel,
+} from "../types";
 
 export function createEmptyLibraryBuildFilterState(): LibraryBuildFilterState {
   return {
@@ -56,4 +67,55 @@ export function cloneLibrarySearchFilters(filters: LibrarySearchFilters): Librar
     categoryFilters: cloneLibraryCategoryFilterState(filters.categoryFilters),
     selectedTags: [...filters.selectedTags],
   };
+}
+
+export function isSelectableFilterKey(key: LibraryFilterKey): key is SelectableFilterKey {
+  return key !== "search";
+}
+
+export function isSelectableFilterPanel(panel: LibraryFilterPanel): panel is SelectableFilterPanel {
+  return isSelectableFilterKey(panel.key);
+}
+
+export function isSearchFilterPanel(panel: LibraryFilterPanel): panel is SearchFilterPanel {
+  return panel.key === "search";
+}
+
+export function isDefaultRange(value: NumericRange, limit: NumericRange) {
+  return value.min === limit.min && value.max === limit.max;
+}
+
+export function getFirstActivePanelFromFilters(filters: LibrarySearchFilters): SelectableFilterKey | null {
+  const characterCount =
+    filters.characterFilters.partyCharacters.includeIds.length +
+    filters.characterFilters.partyCharacters.excludeIds.length +
+    filters.characterFilters.mainAttackers.includeIds.length +
+    filters.characterFilters.mainAttackers.excludeIds.length;
+
+  if (characterCount > 0) {
+    return "character";
+  }
+
+  if (
+    filters.buildFilters.costBracket !== null ||
+    !isDefaultRange(filters.buildFilters.charCostRange, LIBRARY_BUILD_RANGE_LIMITS.charCost) ||
+    !isDefaultRange(filters.buildFilters.weaponCostRange, LIBRARY_BUILD_RANGE_LIMITS.weaponCost) ||
+    !isDefaultRange(filters.buildFilters.fiveStarWeaponCountRange, LIBRARY_BUILD_RANGE_LIMITS.fiveStarWeaponCount) ||
+    filters.buildFilters.maxConstellation !== null ||
+    filters.buildFilters.maxFiveStarRefinement !== null ||
+    filters.buildFilters.weaponIds.include.length > 0 ||
+    filters.buildFilters.weaponIds.exclude.length > 0
+  ) {
+    return "build";
+  }
+
+  if (filters.categoryFilters.ruleset || filters.categoryFilters.version || filters.categoryFilters.playStyle || filters.categoryFilters.food || filters.categoryFilters.device) {
+    return "category";
+  }
+
+  if (filters.selectedTags.length > 0) {
+    return "tag";
+  }
+
+  return null;
 }
