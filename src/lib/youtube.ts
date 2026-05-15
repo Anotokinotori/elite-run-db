@@ -1,3 +1,6 @@
+const YOUTUBE_THUMBNAIL_BASE_URL = "https://i.ytimg.com/vi";
+const YOUTUBE_DEFAULT_THUMBNAIL_FILE = "hqdefault.jpg";
+
 export function getYouTubeVideoId(videoUrl: string) {
   try {
     const parsed = new URL(videoUrl);
@@ -27,6 +30,11 @@ export function getYouTubeVideoId(videoUrl: string) {
 
 export function isYouTubeUrl(videoUrl: string) {
   return getYouTubeVideoId(videoUrl) !== null;
+}
+
+export function getYouTubeThumbnailUrl(videoUrl: string) {
+  const videoId = getYouTubeVideoId(videoUrl);
+  return videoId ? `${YOUTUBE_THUMBNAIL_BASE_URL}/${videoId}/${YOUTUBE_DEFAULT_THUMBNAIL_FILE}` : null;
 }
 
 export function getYouTubeEmbedUrl(

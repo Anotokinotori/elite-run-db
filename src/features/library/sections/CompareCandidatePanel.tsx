@@ -1,9 +1,9 @@
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { CardShell, IconButton } from "../../../components/ui";
 import { characterDb, type RunRecord } from "../../../data/mockRuns";
+import { getYouTubeThumbnailUrl } from "../../../lib/youtube";
 import { formatVersionLabel } from "../../../lib/versionLabels";
 import { LIBRARY_COMPARE_CANDIDATE_LIMIT } from "../logic/actionStorage";
-import { getYouTubeThumbnailUrl } from "../logic/searchResultDisplay";
 import { ChevronIcon, CompareEmptyState, XIcon } from "../ui/searchResultsUi";
 
 export function CompareCandidatePanel({

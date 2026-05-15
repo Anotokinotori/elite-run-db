@@ -18,3 +18,15 @@ export const LIBRARY_FILTER_PANELS = [
   { key: "tag", label: "タグ", icon: "tag" },
   { key: "search", label: "検索", icon: "search" },
 ] as const;
+
+export const LIBRARY_RECORD_CARD_VISIBLE_TAG_LIMIT = 4;
+export const LIBRARY_RECORD_CARD_ACTION_ICON_CLASS = "h-[11px] w-[11px]";
+
+export const LIBRARY_RECORD_CARD_LABELS = {
+  compareAdded: "追加済み",
+  compareLimited: "2件まで",
+  compareAvailable: "比較に追加",
+  watchSaved: "保存済み",
+  watchIdle: "あとで見る",
+  detailAriaLabel: (title: string) => `${title} の詳細を見る`,
+} as const;
