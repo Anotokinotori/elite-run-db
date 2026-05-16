@@ -1,5 +1,7 @@
 ﻿@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -122,6 +124,249 @@ textarea::placeholder {
 
 code {
   font-family: "Consolas", "SFMono-Regular", monospace;
+}
+
+.lp-page {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #fffaf9;
+  color: #040205;
+  font-family: "Noto Sans JP", "Segoe UI", sans-serif;
+}
+
+.lp-hero-title {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(560px, 66vw, 789px);
+  overflow: hidden;
+  background: #fffaf9;
+}
+
+.lp-hero-title__right-bg {
+  position: absolute;
+  inset: 0 0 0 max(10vw, calc(50% - 476.5px));
+  z-index: 0;
+  background: rgba(217, 217, 217, 0.2);
+  clip-path: polygon(clamp(120px, 19.5vw, 233px) 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.lp-hero-title__stage {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 1195px);
+  height: clamp(560px, 66vw, 789px);
+  max-height: 789px;
+  margin: 0 auto;
+}
+
+.lp-hero-title__heading {
+  position: absolute;
+  top: 9.25%;
+  left: 4.85%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  width: min(25.5%, 322px);
+  margin: 0;
+  font-family: "Montserrat", "Space Grotesk", "Noto Sans JP", sans-serif;
+  font-size: clamp(70px, 9.7vw, 116px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.lp-hero-title__heading span {
+  display: block;
+}
+
+.lp-hero-title__heading-accent {
+  color: #f32c16;
+}
+
+.lp-hero-title__lead {
+  position: absolute;
+  top: 62.1%;
+  left: 5.2%;
+  z-index: 3;
+  width: min(31.5%, 376px);
+  margin: 0;
+  font-family: "Zen Kaku Gothic New", "Noto Sans JP", sans-serif;
+  font-size: clamp(20px, 1.9vw, 24px);
+  font-weight: 500;
+  line-height: clamp(34px, 3.75vw, 48px);
+  letter-spacing: 0;
+  font-feature-settings: "palt" 1;
+}
+
+.lp-hero-title__lead-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.lp-hero-title__lead-kana {
+  display: inline-block;
+  width: 0.72em;
+  font-size: 0.72em;
+  line-height: 1;
+  text-align: center;
+  vertical-align: 0.08em;
+}
+
+.lp-hero-title__lead-punctuation {
+  display: inline-block;
+  width: 0.46em;
+  overflow: visible;
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.lp-hero-title__visual-wrap {
+  position: absolute;
+  top: -2%;
+  right: 0;
+  bottom: 8%;
+  left: 30%;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lp-hero-title__visual {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+}
+
+.lp-hero-title__actions {
+  position: absolute;
+  right: 2.7%;
+  top: 52.47%;
+  z-index: 4;
+  display: flex;
+  width: min(34.15%, 408px);
+  flex-direction: column;
+  gap: clamp(12px, 1.35vw, 16px);
+}
+
+.lp-hero-title__action {
+  position: relative;
+  display: grid;
+  height: clamp(64px, 7.03vw, 84px);
+  grid-template-columns: minmax(0, 1fr) clamp(16px, 1.67vw, 20px);
+  align-items: center;
+  gap: clamp(6px, 1.1vw, 13px);
+  background: #040205;
+  padding: 0 clamp(18px, 2.34vw, 28px) 0 clamp(20px, 2.68vw, 32px);
+  color: #fffaf9;
+  font-size: clamp(26px, 3.68vw, 44px);
+  font-weight: 900;
+  line-height: clamp(29px, 3.68vw, 44px);
+  box-shadow: clamp(14px, 1.75vw, 22px) clamp(14px, 1.75vw, 22px) 0 #ffffff;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.lp-hero-title__action:hover {
+  background: #18151a;
+  transform: translateY(-1px);
+}
+
+.lp-hero-title__action:focus-visible {
+  outline: 3px solid #6b8cff;
+  outline-offset: 4px;
+}
+
+.lp-hero-title__arrow {
+  flex: 0 0 auto;
+  font-family: "Space Grotesk", "Noto Sans JP", sans-serif;
+  font-size: clamp(27px, 2.67vw, 32px);
+  font-weight: 700;
+  line-height: clamp(33px, 3.25vw, 39px);
+  text-align: center;
+}
+
+.lp-hero-title__action-label {
+  color: #f5f5f5;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .lp-hero-title {
+    min-height: auto;
+  }
+
+  .lp-hero-title__right-bg {
+    inset: 33% 0 13%;
+    clip-path: polygon(18% 0, 100% 0, 82% 100%, 0 100%);
+  }
+
+  .lp-hero-title__stage {
+    display: flex;
+    width: 100%;
+    height: auto;
+    min-height: 100svh;
+    max-height: none;
+    flex-direction: column;
+    gap: 20px;
+    padding: clamp(28px, 7vw, 44px) clamp(18px, 5vw, 28px) 28px;
+  }
+
+  .lp-hero-title__heading {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: min(100%, 340px);
+    font-size: clamp(72px, 21vw, 104px);
+    line-height: 0.98;
+  }
+
+  .lp-hero-title__lead {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: min(100%, 420px);
+    font-size: clamp(16px, 4.35vw, 20px);
+    line-height: 1.55;
+  }
+
+  .lp-hero-title__lead-line {
+    white-space: nowrap;
+  }
+
+  .lp-hero-title__visual-wrap {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: min(100%, 480px);
+    height: clamp(230px, 72vw, 420px);
+    align-self: center;
+    margin-top: -2px;
+  }
+
+  .lp-hero-title__actions {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: min(100%, 420px);
+    align-self: center;
+    gap: 12px;
+  }
+
+  .lp-hero-title__action {
+    height: 66px;
+    padding: 0 18px 0 20px;
+    font-size: clamp(18px, 5.1vw, 22px);
+    line-height: 1.25;
+  }
 }
 
 .checkbox-wrapper-5 .check {

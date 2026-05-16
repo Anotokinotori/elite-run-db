@@ -2,17 +2,19 @@ import { type KeyboardEvent, type MouseEvent } from "react";
 
 import { CardShell } from "../../../components/ui";
 import type { RunRecord } from "../../../data/mockRuns";
-import { getBracketLabel } from "../../home/logic";
-import { formatCompactBracketLabel } from "../logic/searchResultDisplay";
+import { LIBRARY_RECORD_CARD_ACTION_ICON_CLASS } from "../config";
+import { getLibraryRecordCardDisplay } from "../logic/recordCardDisplay";
+import { BookmarkIcon } from "./searchResultsUi";
 import {
-  BookmarkIcon,
   CheckIcon,
-  CostMetric,
-  InfoBadge,
+  LibraryRecordActionButton,
+  LibraryRecordCostMetric,
+  LibraryRecordInfoBadge,
+  LibraryRecordTagPill,
+  LibraryRecordThumbnail,
   LibraryCardCharacterStack,
   PlusIcon,
-  Thumbnail,
-} from "./searchResultsUi";
+} from "./recordCardParts";
 
 export function LibraryRecordCard({
   run,
@@ -31,10 +33,12 @@ export function LibraryRecordCard({
   onToggleWatchLater: (runId: string) => void;
   onSelectRun: (runId: string) => void;
 }) {
-  const bracketLabel = formatCompactBracketLabel(getBracketLabel(run.bracket));
-  const visibleTags = Array.from(new Set(run.tags)).slice(0, 4);
+  const display = getLibraryRecordCardDisplay(run, {
+    candidateLimitReached,
+    isCandidate,
+    isWatchLater,
+  });
   const openDetail = () => onSelectRun(run.id);
-  const compareDisabled = !isCandidate && candidateLimitReached;
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key !== "Enter" && event.key !== " ") {
@@ -48,7 +52,7 @@ export function LibraryRecordCard({
   const handleAddCandidate = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
 
-    if (compareDisabled) {
+    if (display.compareAction.disabled) {
       return;
     }
 
@@ -68,50 +72,49 @@ export function LibraryRecordCard({
       onKeyDown={handleKeyDown}
       interactive
       className="group flex cursor-pointer flex-col overflow-hidden rounded-[8px]"
-      aria-label={`${run.title} の詳細を見る`}
+      aria-label={display.detailAriaLabel}
     >
-      <Thumbnail run={run} />
+      <LibraryRecordThumbnail run={run} bracketLabel={display.bracketLabel} />
       <div className="flex flex-1 flex-col gap-2.5 px-[11px] pb-[10px] pt-[11px]">
         <div className="flex min-w-0 items-center gap-2">
           <LibraryCardCharacterStack run={run} />
           <span className="h-3 w-px shrink-0 bg-[#d1d5db]" />
           <span className="min-w-0 flex-1 truncate text-[13px] font-extrabold text-[#111827]">{run.userName}</span>
           <span className="flex shrink-0 items-center gap-1">
-            <InfoBadge>{run.platform}</InfoBadge>
-            <InfoBadge>{run.ruleset}</InfoBadge>
+            <LibraryRecordInfoBadge>{run.platform}</LibraryRecordInfoBadge>
+            <LibraryRecordInfoBadge>{run.ruleset}</LibraryRecordInfoBadge>
           </span>
         </div>
 
         <h3 className="line-clamp-2 text-[12px] font-semibold leading-[1.45] text-[#374151]">{run.title}</h3>
 
         <div className="grid min-w-0 grid-cols-3 gap-x-2 rounded-[10px] bg-[#f0f2f5] px-2.5 py-1.5">
-          <CostMetric label="CHAR" value={run.charCost} />
-          <CostMetric label="WEAPON" value={run.weaponCost} />
-          <CostMetric label="BRACKET" value={bracketLabel} />
+          <LibraryRecordCostMetric label="CHAR" value={run.charCost} />
+          <LibraryRecordCostMetric label="WEAPON" value={run.weaponCost} />
+          <LibraryRecordCostMetric label="BRACKET" value={display.bracketLabel} />
         </div>
 
         <div className="flex flex-wrap gap-1">
-          {visibleTags.map((tag) => (
-            <span key={`${run.id}-${tag}`} className="max-w-full truncate rounded-full bg-[#f0f2f5] px-2 py-0.5 text-[10px] font-bold text-[#6b7280]">
-              #{tag}
-            </span>
+          {display.visibleTags.map((tag) => (
+            <LibraryRecordTagPill key={`${run.id}-${tag}`} tag={tag} />
           ))}
         </div>
 
         <div className="mt-auto flex items-center justify-between border-t border-[#edf0f4] pt-2 text-[11px] font-extrabold text-[#5f6678]">
-          <button
+          <LibraryRecordActionButton
             type="button"
             onClick={handleAddCandidate}
-            aria-disabled={compareDisabled || isCandidate}
-            className={`flex items-center gap-1 transition ${compareDisabled ? "cursor-not-allowed text-[#b8bec8]" : "hover:text-[#111827]"} ${isCandidate ? "text-[#111827]" : ""}`}
+            aria-disabled={display.compareAction.disabled || display.compareAction.state === "added"}
+            active={display.compareAction.state === "added"}
+            disabledTone={display.compareAction.disabled}
           >
-            {isCandidate ? <CheckIcon className="h-[11px] w-[11px]" /> : <PlusIcon className="h-[11px] w-[11px]" />}
-            {isCandidate ? "追加済み" : compareDisabled ? "2件まで" : "比較に追加"}
-          </button>
-          <button type="button" onClick={handleToggleWatchLater} aria-pressed={isWatchLater} className={`flex items-center gap-1 transition hover:text-[#111827] ${isWatchLater ? "text-[#111827]" : ""}`}>
-            <BookmarkIcon className={isWatchLater ? "h-[11px] w-[11px] fill-current" : "h-[11px] w-[11px]"} />
-            {isWatchLater ? "保存済み" : "あとで見る"}
-          </button>
+            {display.compareAction.state === "added" ? <CheckIcon className={LIBRARY_RECORD_CARD_ACTION_ICON_CLASS} /> : <PlusIcon className={LIBRARY_RECORD_CARD_ACTION_ICON_CLASS} />}
+            {display.compareAction.label}
+          </LibraryRecordActionButton>
+          <LibraryRecordActionButton type="button" onClick={handleToggleWatchLater} aria-pressed={isWatchLater} active={display.watchAction.state === "saved"}>
+            <BookmarkIcon className={display.watchAction.state === "saved" ? `${LIBRARY_RECORD_CARD_ACTION_ICON_CLASS} fill-current` : LIBRARY_RECORD_CARD_ACTION_ICON_CLASS} />
+            {display.watchAction.label}
+          </LibraryRecordActionButton>
         </div>
       </div>
     </CardShell>
