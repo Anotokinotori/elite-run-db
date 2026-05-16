@@ -7,9 +7,11 @@ import { HomePage } from "./components/HomePage";
 import { SubmitPage } from "./components/SubmitPage";
 import { defaultAppRunId, getAppRunById } from "./data/appRuns";
 import { LibraryPage } from "./features/library/Page";
+import { LpPage } from "./features/lp/Page";
 import { HOME_SEASONS } from "./features/home/config";
 
 type AppRoute =
+  | { name: "lp" }
   | { name: "home" }
   | { name: "detail"; runId: string }
   | { name: "submit" }
@@ -20,7 +22,7 @@ type AppRoute =
   | { name: "notifications" }
   | { name: "account" };
 
-type ShellDestination = Exclude<AppRoute["name"], "detail">;
+type ShellDestination = Exclude<AppRoute["name"], "detail" | "lp">;
 
 function safeDecodeRouteValue(value: string) {
   try {
@@ -36,6 +38,10 @@ function getRouteFromRouteValue(rawValue: string): AppRoute | null {
 
   if (!normalizedRouteValue || normalizedRouteValue === "home" || normalizedRouteValue === "index.html") {
     return { name: "home" };
+  }
+
+  if (normalizedRouteValue === "lp") {
+    return { name: "lp" };
   }
 
   if (normalizedRouteValue === "submit") {
@@ -105,6 +111,10 @@ function getRouteFromLocation(): AppRoute {
 }
 
 function getHashFromRoute(route: AppRoute) {
+  if (route.name === "lp") {
+    return "#lp";
+  }
+
   if (route.name === "submit") {
     return "#submit";
   }
@@ -156,7 +166,7 @@ function routesEqual(a: AppRoute, b: AppRoute) {
   return true;
 }
 
-function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], "home" | "detail" | "submit"> }) {
+function RoutePlaceholder({ routeName }: { routeName: Exclude<AppRoute["name"], "lp" | "home" | "detail" | "submit"> }) {
   if (routeName === "chat") {
     return (
       <PlaceholderPage
@@ -358,6 +368,10 @@ export default function RootApp() {
 
     navigate({ name: "home" });
   };
+
+  if (route.name === "lp") {
+    return <LpPage />;
+  }
 
   return (
     <AppShell
