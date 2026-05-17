@@ -6,6 +6,8 @@ import { FilterEntrance } from "./sections/FilterEntrance";
 import { LibraryHero } from "./sections/Hero";
 import { LibrarySearchResults } from "./sections/SearchResults";
 
+const FLOATING_CTA_CLASS = "w-[236px] justify-between";
+
 type LibraryPageProps = {
   onOpenRankings: () => void;
   onSelectRun: (runId: string) => void;
@@ -55,11 +57,17 @@ function RankingsFloatingCta({ onOpen }: { onOpen: () => void }) {
     <FloatingCta
       type="button"
       aria-label="全ランキングを見る"
+      className={FLOATING_CTA_CLASS}
       onClick={onOpen}
-      leadingIcon={<CrownIcon className="h-[17px] w-[17px] shrink-0 text-white/70" />}
+      badge={
+        <>
+          <CrownIcon className="h-[11px] w-[11px] shrink-0" />
+          Ranking
+        </>
+      }
       icon={<ChevronRightIcon className="h-4 w-4 shrink-0 text-white/70" />}
     >
-      全ランキングを見る
+      全ランキング
     </FloatingCta>
   );
 }

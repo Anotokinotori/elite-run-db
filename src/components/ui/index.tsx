@@ -435,7 +435,7 @@ export function FloatingCta({
         </span>
       ) : null}
       {leadingIcon}
-      <span className="cta-shine-text whitespace-nowrap text-[14px] font-black leading-none sm:text-[15px]">{children}</span>
+      <span className="cta-shine-text shrink-0 whitespace-nowrap text-[14px] font-black leading-none sm:text-[15px]">{children}</span>
       {icon}
     </>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { forwardRef, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type Ref } from "react";
 
 import { SelectControl } from "../../../components/ui";
 import { appRuns } from "../../../data/appRuns";
@@ -119,24 +119,42 @@ function createJaggedConcavePath({
   return `${topEdge} L ${width} ${height} L 0 ${height} Z`;
 }
 
-function JaggedConcaveDivider({ fill = SECTION_BACKGROUND, height = DIVIDER_HEIGHT, seed = 14 }: { fill?: string; height?: number; seed?: number }) {
+function JaggedConcaveDivider({
+  className = "",
+  edgeY = 18,
+  fill = SECTION_BACKGROUND,
+  height = DIVIDER_HEIGHT,
+  jagged = 15,
+  points = 30,
+  sag = 48,
+  seed = 14,
+}: {
+  className?: string;
+  edgeY?: number;
+  fill?: string;
+  height?: number;
+  jagged?: number;
+  points?: number;
+  sag?: number;
+  seed?: number;
+}) {
   const path = useMemo(
     () =>
       createJaggedConcavePath({
         width: 1440,
         height,
-        points: 30,
+        points,
         seed,
-        edgeY: 18,
-        sag: 48,
-        jagged: 15,
+        edgeY,
+        sag,
+        jagged,
       }),
-    [height, seed],
+    [edgeY, height, jagged, points, sag, seed],
   );
 
   return (
-    <div className="leading-none">
-      <svg viewBox={`0 0 1440 ${height}`} preserveAspectRatio="none" className="block h-[140px] w-full" aria-hidden="true">
+    <div className={`leading-none ${className}`}>
+      <svg viewBox={`0 0 1440 ${height}`} preserveAspectRatio="none" className="block w-full" style={{ height }} aria-hidden="true">
         <path d={path} fill={fill} />
       </svg>
     </div>
@@ -323,6 +341,116 @@ function useUniformScale(baseWidth: number) {
   return { containerRef, scale };
 }
 
+function createScrollRevealStyle(isVisible: boolean, delayMs = 0): CSSProperties {
+  return {
+    filter: isVisible ? "blur(0)" : "blur(12px)",
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? "translate3d(0, 0, 0)" : "translate3d(0, 42px, 0)",
+    transition: `opacity 900ms cubic-bezier(0.22, 1, 0.36, 1) ${delayMs}ms, transform 900ms cubic-bezier(0.22, 1, 0.36, 1) ${delayMs}ms, filter 900ms cubic-bezier(0.22, 1, 0.36, 1) ${delayMs}ms`,
+    willChange: "opacity, transform, filter",
+  };
+}
+
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIsVisible(true);
+      return;
+    }
+
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    if (element.getBoundingClientRect().top < window.innerHeight * 0.7) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) {
+          return;
+        }
+
+        setIsVisible(true);
+        observer.disconnect();
+      },
+      {
+        root: null,
+        rootMargin: "0px 0px -30% 0px",
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return { isVisible, ref };
+}
+
+function useRankingRowsReveal(triggerKey?: string) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (isVisible || typeof window === "undefined") {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIsVisible(true);
+      return;
+    }
+
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    if (element.getBoundingClientRect().top < window.innerHeight * 0.7) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) {
+          return;
+        }
+
+        setIsVisible(true);
+        observer.disconnect();
+      },
+      {
+        root: null,
+        rootMargin: "0px 0px -30% 0px",
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [isVisible, triggerKey]);
+
+  return { isVisible, ref };
+}
+
 function CharacterImageLayer({ card }: { card: CharacterCardData }) {
   const [imageIndex, setImageIndex] = useState(0);
   const [isHidden, setIsHidden] = useState(false);
@@ -468,9 +596,21 @@ function HeroSummaryPanel({ section }: { section: RankSectionData }) {
   );
 }
 
-function RankRow({ section, scale }: { section: RankSectionData; scale: number }) {
+function RankRow({
+  delayMs = 0,
+  isVisible,
+  section,
+  scale,
+  triggerRef,
+}: {
+  delayMs?: number;
+  isVisible: boolean;
+  section: RankSectionData;
+  scale: number;
+  triggerRef?: Ref<HTMLDivElement>;
+}) {
   return (
-    <div className="relative mx-auto" style={createScaledFrameStyle(scale)}>
+    <div ref={triggerRef} className="relative mx-auto" style={{ ...createScaledFrameStyle(scale), ...createScrollRevealStyle(isVisible, delayMs) }}>
       <div className="absolute left-0 top-0 origin-top-left" style={createScaleTransformStyle(scale)}>
         <div className="flex h-full w-full overflow-hidden border border-[#cfcfcf] bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.02)]">
           <HeroSummaryPanel section={section} />
@@ -483,13 +623,14 @@ function RankRow({ section, scale }: { section: RankSectionData; scale: number }
 
 function RankingsBlock({ sections }: { sections: RankSectionData[] }) {
   const { containerRef, scale } = useUniformScale(BASE_LAYOUT.width);
+  const { isVisible, ref: firstRowRef } = useRankingRowsReveal(sections[0]?.key);
 
   return (
     <div className="w-full overflow-hidden">
       <div ref={containerRef} className={`mx-auto w-full ${BASE_LAYOUT.maxWidthClassName}`}>
         <div className="flex flex-col items-start" style={createStackStyle(scale)}>
-          {sections.map((section) => (
-            <RankRow key={section.key} section={section} scale={scale} />
+          {sections.map((section, index) => (
+            <RankRow key={section.key} delayMs={index * 90} isVisible={isVisible} section={section} scale={scale} triggerRef={index === 0 ? firstRowRef : undefined} />
           ))}
         </div>
       </div>
@@ -516,26 +657,27 @@ function RecordsHeader({
   selectedCategory: LpRankingCategory;
   onCategoryChange: (category: LpRankingCategory) => void;
 }) {
+  const { isVisible, ref } = useScrollReveal();
+
   return (
-    <div className="mx-auto mb-8 max-w-[1368px] md:mb-10">
+    <div ref={ref} className="mx-auto mb-8 max-w-[1368px] md:mb-10" style={createScrollRevealStyle(isVisible)}>
       <div className="mb-8 text-center">
         <h2
           id="lp-records-title"
-          className="max-w-full overflow-hidden whitespace-nowrap text-[43px] font-normal leading-[40px] text-black md:text-[50px] lg:text-[69px] lg:leading-[62px] [font-family:'Bebas_Neue','Arial_Narrow','Space_Grotesk',sans-serif]"
+          className="max-w-full whitespace-nowrap pt-1 text-[43px] font-normal leading-[1.08] text-black md:text-[50px] lg:text-[69px] [font-family:'Bebas_Neue','Arial_Narrow','Space_Grotesk',sans-serif]"
         >
           Records Sneak Peek
         </h2>
-        <p className="mt-2 text-sm font-medium text-neutral-500">実際の記録をカテゴリ別にプレビュー</p>
+        <p className="mt-2 text-sm font-medium text-neutral-500">実際の記録をチラ見せ！</p>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
+      <div className="flex items-end justify-between gap-4">
+        <div className="min-w-0">
           <h3 className="font-['Montserrat',sans-serif] text-2xl font-black tracking-tight text-black md:text-3xl">Rankings-{selectedCategory}</h3>
           <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-neutral-500">Category Ranking</p>
         </div>
 
-        <label className="flex w-full flex-col gap-2 md:w-auto md:min-w-[176px]">
-          <span className="text-[11px] font-black uppercase tracking-[0.16em] text-[#7d7d7d]">Category</span>
+        <label className="shrink-0">
           <SelectControl
             className="min-w-[144px] border-black/25 text-black"
             value={selectedCategory}
@@ -554,7 +696,7 @@ function RecordsHeader({
   );
 }
 
-export function TopRecordsSection() {
+export const TopRecordsSection = forwardRef<HTMLElement>(function TopRecordsSection(_props, ref) {
   const [selectedCategory, setSelectedCategory] = useState<LpRankingCategory>("NPUI");
   const activeSeason = HOME_SEASONS[0] ?? "Luna3";
   const heroRuns = useMemo<HomeRun[]>(
@@ -568,12 +710,13 @@ export function TopRecordsSection() {
   const sections = useMemo(() => buildRankSections(categoryRuns, heroRuns), [categoryRuns, heroRuns]);
 
   return (
-    <section className="relative z-20 -mt-[140px]" aria-labelledby="lp-records-title">
-      <JaggedConcaveDivider fill={SECTION_BACKGROUND} seed={14} />
+    <section ref={ref} className="relative z-20 -mt-[96px] md:-mt-[140px]" aria-labelledby="lp-records-title">
+      <JaggedConcaveDivider className="block md:hidden" edgeY={10} fill={SECTION_BACKGROUND} height={96} jagged={10} points={28} sag={22} seed={18} />
+      <JaggedConcaveDivider className="hidden md:block" fill={SECTION_BACKGROUND} seed={14} />
       <div className="bg-[#e9e9e9] px-4 pb-16 pt-8 text-neutral-950 md:px-8 md:pb-20">
         <RecordsHeader selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
         {sections.length > 0 ? <RankingsBlock sections={sections} /> : <EmptyRecordsState category={selectedCategory} />}
       </div>
     </section>
   );
-}
+});

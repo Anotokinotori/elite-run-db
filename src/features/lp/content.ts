@@ -69,7 +69,7 @@ export const LP_FEATURE_CARDS: LpFeatureCard[] = [
       accent: "全ランキング",
       after: "を見る",
     },
-    body: ["全てのコスト階級や、ルールを一覧でランキングを見る順に表示することができます。", "ランキングで表示することに特化しています。"],
+    body: ["全てのコスト階級や、ルールを一覧でランキング","を見る順に表示することができます。", "ランキングで表示することに特化しています。"],
     href: "#home",
     accentColor: "#d09a02",
     characterImage: section2Card02CharacterImage,

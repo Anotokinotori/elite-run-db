@@ -39,6 +39,8 @@ import { Shell } from "./sections/Shell";
 import { TopPanelsCarousel } from "./sections/TopPanelsCarousel";
 import type { HomeRun, HomeRunWithGroup, LeaderboardView } from "./types";
 
+const FLOATING_CTA_CLASS = "w-[236px] justify-between";
+
 type HomePageProps = {
   onRequestSubmit: () => void;
   onSelectRun: (runId: string) => void;
@@ -192,10 +194,11 @@ function RecordLibraryFloatingCta() {
     <FloatingCta
       href="#library"
       aria-label="記録図書館で記録を探す"
+      className={FLOATING_CTA_CLASS}
       badge={
         <>
           <SearchIcon size={11} className="shrink-0" />
-          Library
+          Search
         </>
       }
       icon={<ChevronRightIcon className="h-4 w-4 shrink-0 text-white/70" />}

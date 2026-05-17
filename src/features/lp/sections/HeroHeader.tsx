@@ -170,9 +170,6 @@ export function HeroHeader() {
         </p>
       </div>
 
-      <div className="absolute left-5 top-5 rounded-full border border-white/65 bg-white/15 px-4 py-1.5 text-xs font-bold uppercase text-white/95 backdrop-blur-sm md:left-8 md:top-8 md:text-sm">
-        ELITE RUN ARCHIVE
-      </div>
     </section>
   );
 }
