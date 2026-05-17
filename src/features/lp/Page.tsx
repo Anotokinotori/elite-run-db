@@ -1,6 +1,7 @@
 import { useRef } from "react";
 
-import { LpFloatingCtaStack, useLpFloatingCtaVisibility } from "./FloatingCtaStack";
+import { LpFloatingCtaStack } from "./FloatingCtaStack";
+import { useLpFloatingCtaVisibility } from "./hooks";
 import { HeroHeader } from "./sections/HeroHeader";
 import { TopRecordsSection } from "./sections/TopRecordsSection";
 import { WhatYouCanDoSection } from "./sections/WhatYouCanDoSection";

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 
 export type ElementSize = {
   width: number;
@@ -141,4 +141,91 @@ export function useOneShotReveal<TElement extends HTMLElement = HTMLDivElement>(
   }, [initialViewportRatio, isVisible, rootMargin, threshold, triggerKey]);
 
   return { isVisible, ref };
+}
+
+const LP_CTA_DELAY_MS = 640;
+
+export function useLpFloatingCtaVisibility(section2Ref: RefObject<HTMLElement | null>, section3Ref: RefObject<HTMLElement | null>) {
+  const isReady = useDelayedCtaReady();
+  const isSuppressed = useLpCtaSuppression(section2Ref, section3Ref);
+
+  return isReady && !isSuppressed;
+}
+
+function useDelayedCtaReady() {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIsReady(true);
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      setIsReady(true);
+    }, LP_CTA_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, []);
+
+  return isReady;
+}
+
+function useLpCtaSuppression(section2Ref: RefObject<HTMLElement | null>, section3Ref: RefObject<HTMLElement | null>) {
+  const [isSuppressed, setIsSuppressed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let animationFrame = 0;
+
+    const updateSuppression = () => {
+      animationFrame = 0;
+
+      const section2 = section2Ref.current;
+      if (!section2) {
+        setIsSuppressed(false);
+        return;
+      }
+
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      const section2Rect = section2.getBoundingClientRect();
+      const section3Rect = section3Ref.current?.getBoundingClientRect();
+      const isSection2ContentArea = section2Rect.top < viewportHeight * 0.72 && section2Rect.bottom > viewportHeight * 0.22;
+      const isSection3Area = section3Rect ? section3Rect.top < viewportHeight * 0.78 : false;
+
+      setIsSuppressed(isSection2ContentArea && !isSection3Area);
+    };
+
+    const requestUpdate = () => {
+      if (animationFrame !== 0) {
+        return;
+      }
+
+      animationFrame = window.requestAnimationFrame(updateSuppression);
+    };
+
+    updateSuppression();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+
+    return () => {
+      if (animationFrame !== 0) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, [section2Ref, section3Ref]);
+
+  return isSuppressed;
 }
