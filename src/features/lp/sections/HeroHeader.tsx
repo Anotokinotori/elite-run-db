@@ -129,6 +129,7 @@ export function HeroHeader() {
   const rowHeight = heroSize.height / 2;
   const panelWidth = rowHeight * 0.28;
   const columns = Math.max(16, Math.ceil(heroSize.width / panelWidth) + 8);
+  const contentScale = Math.min(1.24, Math.max(0.84, heroSize.height / 860));
   const heroStyle = {
     "--lp-panel-height": `${rowHeight}px`,
     "--lp-panel-width": `${panelWidth}px`,
@@ -137,7 +138,7 @@ export function HeroHeader() {
   return (
     <section
       ref={heroRef}
-      className="relative h-[860px] min-h-[620px] w-screen max-w-full overflow-hidden bg-neutral-900 text-white shadow-2xl max-md:h-[720px] max-md:min-h-[620px]"
+      className="relative h-[100svh] min-h-[620px] w-screen max-w-full overflow-hidden bg-neutral-900 text-white shadow-2xl"
       style={heroStyle}
       aria-label="Elite Run DB landing hero"
     >
@@ -157,17 +158,25 @@ export function HeroHeader() {
       />
 
       <div className="absolute left-1/2 top-[46%] flex w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center px-4 text-center">
-        <p className="mb-2 text-[clamp(1.15rem,3.4vw,1.65rem)] font-black tracking-[0.05em] text-white md:text-[1.65rem]">
-          ランキングも、参考探しも、
-        </p>
+        <div
+          className="flex flex-col items-center"
+          style={{
+            transform: `scale(${contentScale})`,
+            transformOrigin: "center center",
+          }}
+        >
+          <p className="mb-2 text-[clamp(1.15rem,3.4vw,1.65rem)] font-black tracking-[0.05em] text-white md:text-[1.65rem]">
+            ランキングも、参考探しも、
+          </p>
 
-        <h1 className="select-none whitespace-nowrap text-[clamp(2.6rem,10.8vw,3.8rem)] font-black uppercase leading-[0.82] tracking-[-0.09em] text-white sm:text-[clamp(3.8rem,12vw,6.4rem)] md:text-[6.4rem]">
-          Elite Run DB
-        </h1>
+          <h1 className="select-none whitespace-nowrap text-[clamp(2.6rem,10.8vw,3.8rem)] font-black uppercase leading-[0.82] tracking-[-0.09em] text-white sm:text-[clamp(3.8rem,12vw,6.4rem)] md:text-[6.4rem]">
+            Elite Run DB
+          </h1>
 
-        <p className="mt-3 text-[clamp(1.45rem,4.8vw,2.35rem)] font-black tracking-[0.08em] text-white md:text-[2.35rem]">
-          記録をもっと探しやすく
-        </p>
+          <p className="mt-3 text-[clamp(1.45rem,4.8vw,2.35rem)] font-black tracking-[0.08em] text-white md:text-[2.35rem]">
+            記録をもっと探しやすく
+          </p>
+        </div>
       </div>
 
     </section>

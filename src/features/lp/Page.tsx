@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { LpFloatingCtaStack } from "./FloatingCtaStack";
 import { useLpFloatingCtaVisibility } from "./hooks";
 import { HeroHeader } from "./sections/HeroHeader";
+import { SectionNavBand } from "./sections/SectionNavBand";
 import { TopRecordsSection } from "./sections/TopRecordsSection";
 import { WhatYouCanDoSection } from "./sections/WhatYouCanDoSection";
 
@@ -14,6 +15,7 @@ export function LpPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#f3eee4] text-[#111116]">
       <HeroHeader />
+      <SectionNavBand />
       <WhatYouCanDoSection ref={section2Ref} />
       <TopRecordsSection ref={section3Ref} />
       <LpFloatingCtaStack isVisible={isCtaVisible} />
