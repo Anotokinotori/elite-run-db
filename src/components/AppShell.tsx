@@ -1,19 +1,8 @@
 ﻿import { type ReactNode, useEffect, useState } from "react";
 
+import type { ShellDestination, ShellRouteName } from "../app/routes";
+
 import { Button, IconButton } from "./ui";
-
-type ShellRouteName =
-  | "home"
-  | "detail"
-  | "submit"
-  | "chat"
-  | "library"
-  | "exchange"
-  | "event"
-  | "notifications"
-  | "account";
-
-type ShellDestination = Exclude<ShellRouteName, "detail">;
 
 type IconProps = {
   className?: string;
