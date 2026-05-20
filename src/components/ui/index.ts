@@ -1,5 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
-
 export * from "./cn";
 export * from "./Button";
 export * from "./IconButton";
