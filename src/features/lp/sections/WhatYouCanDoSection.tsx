@@ -9,7 +9,7 @@ const HEADER_TO_CARDS_GAP = 39;
 const CARD_BODY_HEIGHT = 304;
 const CTA_HEIGHT = 48;
 const CARD_HEIGHT = CARD_BODY_HEIGHT + CTA_HEIGHT;
-const CARD_GAP = 140;
+const CARD_GAP = 180;
 const CTA_BAND_BACKGROUND = "#333333";
 const SECTION3_OVERLAP_HEIGHT = 104;
 const LAST_CHARACTER_EXTENSION = 180;
@@ -374,7 +374,7 @@ function FeatureCard({ delayMs = 0, feature, isVisible }: { delayMs?: number; fe
       tabIndex={isVisible ? undefined : -1}
     >
       <div
-        className="absolute inset-0 z-20 flex flex-col overflow-hidden bg-[#fffcf9] shadow-[0_24px_80px_rgba(0,0,0,0.22)] transition-[box-shadow,filter,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.004] group-hover:shadow-[0_26px_86px_rgba(0,0,0,0.24)] group-focus-visible:brightness-[1.004] group-focus-visible:shadow-[0_26px_86px_rgba(0,0,0,0.24)] motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-[1.004] motion-safe:group-focus-visible:-translate-y-1 motion-safe:group-focus-visible:scale-[1.004]"
+        className="absolute inset-0 z-20 flex flex-col overflow-hidden rounded-[4px] bg-[#fffcf9] shadow-[0_24px_80px_rgba(0,0,0,0.22)] transition-[box-shadow,filter,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:brightness-[1.004] group-hover:shadow-[0_26px_86px_rgba(0,0,0,0.24)] group-focus-visible:brightness-[1.004] group-focus-visible:shadow-[0_26px_86px_rgba(0,0,0,0.24)] motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:scale-[1.004] motion-safe:group-focus-visible:-translate-y-1 motion-safe:group-focus-visible:scale-[1.004]"
         style={{
           height: CARD_BODY_HEIGHT + CTA_HEIGHT,
         }}
