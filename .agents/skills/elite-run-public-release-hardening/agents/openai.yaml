@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elite Run Release Hardening"
+  short_description: "Check public release hardening for Elite Run DB"
+  default_prompt: "Review Elite Run DB before public release for secrets, RLS, env, and data exposure."

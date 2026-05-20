@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elite Run RLS Security"
+  short_description: "Check Elite Run Supabase RLS exposure rules"
+  default_prompt: "Review Supabase RLS changes for Elite Run DB exposure risks."
