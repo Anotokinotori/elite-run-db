@@ -104,6 +104,19 @@ Do not explode the codebase into dozens of files unless the task explicitly asks
 
 ---
 
+## Codex Skills
+
+- If UI or screen behavior changes, use `webapp-testing` to check the main pages, submit flow, compare view, responsive layout, and console errors.
+- If GitHub Actions or CI checks fail, use `gh-fix-ci`.
+- Before claiming implementation is complete, use `verification-before-completion` to choose and run the needed checks.
+- Before large design changes, DB design, moderation flow, or domain-term changes, use `grill-with-docs`.
+- If touching Supabase, RLS, Auth, DB migrations, Storage, or Edge Functions, use `supabase` and `supabase-postgres-best-practices`.
+- If touching public release, admin features, authz/authn, moderation, or audit logs, use `security-threat-model`.
+- If adding a new external Skill, use `skill-scanner` first.
+- If reviewing Elite Run DB RLS, moderation, or release exposure risks, use the matching repo-local `elite-run-*` Skill.
+
+---
+
 ## What is allowed to stay dummy for now
 
 These may remain dummy / UI-state only:

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elite Run Moderation Security"
+  short_description: "Check moderation audit and status-transition safety"
+  default_prompt: "Review Elite Run admin moderation changes for auditability and data exposure."
