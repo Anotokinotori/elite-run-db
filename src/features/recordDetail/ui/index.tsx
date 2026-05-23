@@ -47,14 +47,17 @@ export function PillButton({
   onClick?: () => void;
   className?: string;
 }) {
+  const inactiveSurfaceStyle = !dark && !active ? { backgroundColor: "#FFFCF9" } : undefined;
+
   return (
     <button
       type="button"
       onClick={onClick}
+      style={inactiveSurfaceStyle}
       className={`inline-flex items-center justify-center gap-2 rounded-[42px] px-[14px] py-[7px] text-[14px] font-medium leading-none transition duration-150 hover:-translate-y-[1px] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)] md:text-[15px] ${
         dark || active
           ? "border border-black/50 bg-black text-white"
-          : "border border-[#d8dde6] bg-[#f7f8fa] text-[#333333] hover:bg-[#eef1f5]"
+          : "border border-[#d8dde6] bg-[#FFFCF9] text-[#333333] hover:bg-[#FFFCF9]"
       } ${className}`}
     >
       {children}
@@ -84,7 +87,6 @@ export function SidebarPanel({ children }: { children: ReactNode }) {
   return (
     <section className={`w-full ${DETAIL_PANEL_SHELL_CLASS}`}>
       <div className={`${DETAIL_PANEL_INNER_CLASS} p-[16px]`}>
-        <div className="pointer-events-none absolute -left-[30%] -top-[44%] h-[220px] w-[220px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.72),rgba(232,224,210,0.24)_48%,rgba(255,255,255,0)_72%)] blur-[72px]" />
         <div className="relative z-[1]">{children}</div>
       </div>
     </section>
@@ -102,7 +104,7 @@ export function SidebarSectionHeader({ title, meta }: { title: ReactNode; meta?:
 
 export function PartyBuildItemCard({ entry }: { entry: PartyBuildItem }) {
   return (
-    <div className="rounded-[16px] border border-[#e5e7eb] bg-[#f7f8fa] p-[12px] md:p-[14px]">
+    <div className="rounded-[16px] border border-[#e5e7eb] bg-[#FFFCF9] p-[12px] md:p-[14px]">
       <div className="flex items-start gap-[12px] md:gap-[14px]">
         <CharacterIcon characterId={entry.characterId} alt={entry.characterName} fallbackLabel={entry.characterName} size={56} />
         <div className="min-w-0 flex-1">

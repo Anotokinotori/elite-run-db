@@ -518,8 +518,8 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const lightChrome = routeName === "home" || routeName === "detail";
   const useDarkChrome = true;
+  const shellBackgroundClass = routeName === "submit" ? "bg-white" : "bg-[#EDECEC]";
 
   useEffect(() => {
     if (!isDrawerOpen) {
@@ -548,7 +548,7 @@ export function AppShell({
   };
 
   return (
-    <div className="relative min-h-screen bg-[#f8f9fb] font-['Noto_Sans_JP',sans-serif] text-[#333333]">
+    <div className={classNames("relative min-h-screen font-['Noto_Sans_JP',sans-serif] text-[#333333]", shellBackgroundClass)}>
       {isDrawerOpen ? (
         <div className="fixed inset-0 z-40 bg-[rgba(0,0,0,0.5)] transition-opacity" onClick={() => setIsDrawerOpen(false)} />
       ) : null}
@@ -562,7 +562,7 @@ export function AppShell({
       />
 
       <div className="flex min-h-screen">
-        <div className="flex min-w-0 flex-1 flex-col bg-[#f8f9fb]">
+        <div className={classNames("flex min-w-0 flex-1 flex-col", shellBackgroundClass)}>
           <GlobalHeader
             routeName={routeName}
             hasUnreadNotifications={hasUnreadNotifications}
@@ -572,7 +572,7 @@ export function AppShell({
             onRequestSubmit={onRequestSubmit}
           />
 
-          <main className={classNames("min-w-0 flex-1 text-[#333333]", routeName === "home" ? "bg-[#EDECEC]" : lightChrome ? "bg-[#f5f6f8]" : "bg-[#f0f2f5]")}>{children}</main>
+          <main className={classNames("min-w-0 flex-1 text-[#333333]", shellBackgroundClass)}>{children}</main>
         </div>
       </div>
     </div>

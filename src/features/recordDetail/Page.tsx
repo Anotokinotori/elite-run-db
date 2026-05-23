@@ -171,7 +171,7 @@ export function RecordDetailPage({
 
   return (
     <>
-      <main className={`bg-[#f5f6f8] text-[#333333] transition-[width] duration-300 ${mainSurfaceClass}`}>
+      <main className={`bg-[#EDECEC] text-[#333333] transition-[width] duration-300 ${mainSurfaceClass}`}>
         <Header
           embedded={embedded}
           forceMobileLayout={forceMobileLayout}
