@@ -320,7 +320,7 @@ function FeatureCardBody({ feature, layout }: { feature: LpFeatureCard; layout: 
         </div>
 
         <div
-          className="max-w-[900px] pl-[52px] pr-2 text-[24px] font-bold leading-[40px] tracking-[1.2px] text-[#333333]"
+          className="max-w-[900px] pl-[52px] pr-2 text-[24px] font-bold leading-[40px] tracking-[1.2px] text-[#333333] max-[640px]:max-w-[760px] max-[640px]:text-[34px] max-[640px]:leading-[48px] max-[640px]:tracking-[1.4px]"
           style={{ fontFamily: '"Zen Kaku Gothic New", "Noto Sans JP", sans-serif' }}
         >
           {feature.body.map((line) => (

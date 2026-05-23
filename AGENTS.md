@@ -1,330 +1,463 @@
 # AGENTS.md
 
 ## Project
-Elite Run DB prototype for Genshin elite-hunting run records.
 
-This repository is in the **UI / flow integration phase**.
-The immediate goal is to make the app usable end-to-end with coherent screens and interactions.
-This repository is **not yet** in the full architecture-refactor phase.
+Elite Run DB is a UI/UX prototype for Genshin Impact elite-hunting RTA records.
 
----
+The product goal is not just to show a fastest-time leaderboard.
+The goal is to make elite-hunting records easier to find, compare, understand, and preserve by showing routes, teams, costs, versions, categories, and record context in a useful way.
 
-## Current phase priority
-
-### Priority order
-1. Integrate and stabilize the main user-facing screens and flows
-2. Preserve the current prototype behavior where possible
-3. Add missing UI/interaction logic required by the spec
-4. Only do **minimal necessary component extraction**
-5. Leave large-scale file structure refactors for a later dedicated task
-
-### Important
-Do **not** perform a broad feature-based rearchitecture yet.
-Do **not** spend the task budget on “clean architecture” unless the current task explicitly asks for it.
-Do **not** convert the whole repo into a polished long-term structure during UI integration tasks.
+This is an unofficial fan-made prototype.
 
 ---
 
-## Source of truth
+## Current Phase
 
-Before making changes, read these files first:
+This repository is currently in the **public-demo UI stabilization and design validation phase**.
 
-### Core spec
-- `docs/specs/elite-run-db-integration-spec.md`
+The main goal is to complete a coherent public-facing prototype before implementing real backend, authentication, admin, and review systems.
 
-### UI mocks / design references
-- `docs/mocks/record-detail.mock.tsx`
-- `docs/mocks/compare-view.mock.tsx`
-- `docs/mocks/submit-step1.mock.tsx`
-- `docs/mocks/submit-step2.mock.tsx`
-- `docs/mocks/submit-step2-uid-modal.mock.tsx`
-- `docs/mocks/submit-step3.mock.tsx`
+Current priorities are:
 
-### Legacy prototype reference
-- `docs/mocks/submit-page-ui-prototype.html`
+1. Complete and stabilize the LP / landing experience.
+2. Improve the Library / record search experience.
+3. Add or refine large Library discovery features.
+4. Unify modal and overlay UI quality.
+5. Preserve the existing product world, visual direction, and navigation.
+6. Prepare the codebase so future DB/auth/admin work can be added safely.
+7. Avoid backend-driven simplification of the current UI concept.
 
-Most files under `docs/` are **reference materials**, not production code.
-Use them to understand layout, hierarchy, and interaction intent.
-- `docs/mocks/submit-page-ui-prototype.html` is a legacy prototype reference only.
-- Do not treat files under `docs/` as the real implementation target unless a task explicitly says otherwise.
-- Build the real app in the actual source tree under `src/`.
-- Use the HTML prototype to understand existing flow, data shape, and interaction intent, then migrate those ideas into the real app code.
+Backend, auth, admin, reviewer, moderation, and security work are important, but they should be implemented after the main UI direction and core user experience are more stable.
 
 ---
 
-## Repository intent
+## Product Direction
 
-This repo should become a maintainable React frontend later, but **right now** the focus is:
+The app has two different public-facing roles:
 
-- get the Record Detail flow working
-- get the Compare View working
-- get the Submission flow working
-- get UID-based character selection working
-- get local draft persistence working
+- **Ranking / Home**: a shared competitive stage for comparing records under common conditions.
+- **Library / Search**: a research and discovery space for finding useful records based on characters, teams, costs, versions, tags, and player context.
 
-The current phase should move the app forward inside `src/`, using the legacy HTML prototype only as a migration reference.
+Do not collapse these two roles into one generic search page or one generic leaderboard.
 
-Do not keep expanding the real implementation inside `docs/`.
+The UI should support both:
+
+- the competitive appeal of elite-hunting RTA
+- the research value of diverse records, off-meta teams, low-cost runs, and past-version context
 
 ---
 
-## Implementation rules
+## Current Architecture
 
-### General
-- Prefer incremental integration over rewrite
-- Reuse existing code patterns when possible
-- Reuse current asset-loading / image-handling patterns already used in the prototype
-- Do not leave parallel dead-end implementations if you can integrate into the existing flow
-- Do not keep raw Figma `FrameXX` names in production code
-- Replace them with meaningful component names
+The real app lives under `src/`.
 
-### Mock fidelity
-- When a task says to follow a mock, prioritize reproducing the mock's visual layout as closely as practical
-- Correct behavior matters, but visual fidelity also matters and should not be traded away casually
-- Do not replace mock-specific layout with a more generic UI just to improve cross-page consistency or reduce implementation effort unless the human explicitly allows that deviation
-- Match spacing, sizing, alignment, density, hierarchy, and relative positioning as closely as practical
-- If extra UI is required for functionality that the mock did not show, attach it beneath or adjacent to the most semantically related mock element instead of redesigning the layout around it
-- If the implementation must deviate from the mock for a concrete reason, explicitly say so and keep the deviation as small as possible
+Current important areas include:
 
-### Componentization
-Minimal necessary componentization is encouraged.
-Good examples:
-- `RecordDetailPage`
-- `CompareDrawer`
-- `SubmitFlow`
-- `UidCharacterPickerModal`
+- `src/app`
+  - app-level route types, route parsing, navigation behavior, and placeholders
+- `src/features/home`
+  - ranking / home experience
+- `src/features/library`
+  - record search and discovery experience
+- `src/features/lp`
+  - landing page
+- `src/features/recordDetail`
+  - record detail page
+- `src/features/submit`
+  - record submission flow
+- `src/components/ui`
+  - shared UI primitives
+- `src/data`
+  - mock app/run data
+- `src/lib`
+  - shared logic and helpers
+- `docs/mocks`
+  - design references and generated mock code
+- `docs/specs`
+  - product, integration, and migration notes
+- `.agents/skills`
+  - repo-local Codex Skills
 
-Do not explode the codebase into dozens of files unless the task explicitly asks for architecture refactoring.
+When changing a feature, prefer keeping feature-specific code inside that feature directory unless there is a clear reason to extract shared logic.
 
-### State
-- Prefer predictable local/component state
-- Prefer derived values for computed UI like cost/bracket
-- Keep logic replaceable for future DB/API integration
-- Avoid overengineering global state unless clearly needed
+---
+
+## Source of Truth
+
+Before implementing, inspect the relevant current source files first.
+
+For product and project intent, read:
+
+- `README.md`
+- relevant issues / PR descriptions
+- relevant files under `docs/specs/`
+
+For UI/design tasks, read:
+
+- the relevant current implementation under `src/features/...`
+- the relevant mock or reference under `docs/mocks/...` if one exists
+- screenshots or visual references provided by the human, if any
+
+For DB-related planning tasks, read:
+
+- `docs/specs/db-migration-roadmap.md`
+
+For Codex Skills and agent-skill operations, read:
+
+- `docs/codex-skills.md`
+- relevant repo-local Skills under `.agents/skills/...`
+
+Do not assume old mock files are always up to date.
+Prefer the current implementation and the most recent issue/PR/task description when there is conflict.
 
 ---
 
 ## Codex Skills
 
-- If UI or screen behavior changes, use `webapp-testing` to check the main pages, submit flow, compare view, responsive layout, and console errors.
-- If GitHub Actions or CI checks fail, use `gh-fix-ci`.
-- Before claiming implementation is complete, use `verification-before-completion` to choose and run the needed checks.
-- Before large design changes, DB design, moderation flow, or domain-term changes, use `grill-with-docs`.
-- If touching Supabase, RLS, Auth, DB migrations, Storage, or Edge Functions, use `supabase` and `supabase-postgres-best-practices`.
-- If touching public release, admin features, authz/authn, moderation, or audit logs, use `security-threat-model`.
-- If adding a new external Skill, use `skill-scanner` first.
-- If reviewing Elite Run DB RLS, moderation, or release exposure risks, use the matching repo-local `elite-run-*` Skill.
+This repository uses Codex Skills as task-specific guidance.
+
+Read `docs/codex-skills.md` before changing Skill setup, adding repo-local Skills, installing external Skills, or changing Skill trigger rules.
+
+Use Skills when they match the task.
+Do not claim that a Skill was used if it is not installed, not available, or not actually used in the current Codex environment.
+
+Skill trigger rules:
+
+- If UI or screen behavior changes, use `webapp-testing` when available to check main pages, submit flow, compare view, responsive layout, screenshots, and console errors.
+- If GitHub Actions or CI checks fail, use `gh-fix-ci` when available.
+- Before claiming implementation is complete, use `verification-before-completion` when available to choose and run the needed checks.
+- Before large design changes, DB design, moderation flow, or domain-term changes, use `grill-with-docs` when available.
+- If touching Supabase, RLS, Auth, DB migrations, Storage, Edge Functions, or public record queries, use `supabase`, `supabase-postgres-best-practices`, and the repo-local `elite-run-supabase-rls-security` Skill when relevant.
+- If touching admin features, moderation, review status, approval/rejection/unpublish flows, reviewer/admin permissions, or audit logs, use `security-threat-model` and `elite-run-admin-moderation-security` when relevant.
+- If touching public release, preview/public deployment, Vercel/Supabase env changes, robots/noindex behavior, or exposing real submission data, use `security-threat-model`, `verification-before-completion`, and `elite-run-public-release-hardening` when relevant.
+- If adding a new external Skill, use `skill-scanner` first and follow `docs/codex-skills.md`.
+
+Do not vendor external Skill bodies into this repository unless a task explicitly asks for it and the source, license, and modification notes are documented.
 
 ---
 
-## What is allowed to stay dummy for now
+## Figma / Mock Workflow
 
-These may remain dummy / UI-state only:
-- like actions
-- share actions
-- comment posting
-- actual submit persistence to backend
+Design work may come from several sources:
 
-These should still look and behave coherently in the UI, but do not need backend persistence yet.
+- Figma-generated React code placed under `docs/mocks`
+- manually written mock files under `docs/mocks`
+- screenshots or reference UI images provided by the human
+- simple screens designed directly in implementation by Codex
 
----
+Files under `docs/mocks` are **reference materials**, not production code.
 
-## What should be implemented now
+Use mock files to understand:
 
-### Record Detail
-- redesigned detail screen integration
-- expandable summary / tags (“もっと見る”)
-- similar runs section
-- similar run action menu
+- layout
+- spacing
+- hierarchy
+- visual rhythm
+- interaction intent
+- content structure
 
-### Compare View
-- desktop-only compare entry from similar-run action menu
-- right-side slide-over compare panel
-- left pane = current record
-- right pane = selected similar run
-- right pane updates when another compare action is triggered
-- independent scrolling for left and right panes
-- YouTube synchronized play/pause only
+Do not treat mock files as the final implementation target unless the task explicitly says so.
 
-### Submission flow
-- Step 1: basic info
-- Step 2: party/build info
-- Step 2 UID character picker modal
-- Step 3: detail info / guidelines
-- local draft save/restore via browser storage
-- guideline modal shell
-- validation messages under fields
+Build real app changes under `src/`.
 
-### UID integration
-Use Enka.Network as the intended data source.
-Best effort autofill target:
-- showcased characters
-- constellation
-- weapon
-- refinement
+When implementing from a Figma/mock reference:
+
+- preserve the intended visual hierarchy and layout as closely as practical
+- do not replace a distinctive design with a generic SaaS-like UI
+- do not simplify the worldbuilding or visual identity just to make implementation easier
+- if the mock is not technically suitable, adapt it carefully while preserving the design intent
+- if a deviation is necessary, explain the reason in the PR body
+
+For simple screens, Codex may design directly without a mock if the human request allows it.
+For important LP, Library, modal, or large feature screens, prefer using mocks or visual references.
 
 ---
 
-## Compare View rules
+## Implementation Principles
 
-- Compare View is **desktop only**
-- Do not expose compare action on mobile
-- The center divider is only visual; the important part is independent scroll behavior
-- Sync play button only needs to synchronize play/pause
-- Seek sync and speed sync are not required now
+Prefer incremental, scoped changes.
 
----
+Do:
 
-## Submission flow rules
+- keep changes focused on the requested task
+- preserve existing UI behavior unless the task explicitly asks to change it
+- preserve current visual direction and product intent
+- make code easier to read and maintain
+- keep logic replaceable for future DB/API integration
+- use feature-local types and helpers for large new features
+- add tests for pure logic when practical
+- document non-obvious tradeoffs in the PR body
 
-### Step count
-The real top-level submission flow is exactly **3 steps**:
-1. Basic Info
-2. Party / Build
-3. Detail Info / Guidelines
+Avoid:
 
-### Step 2 internal slots
-Any `1 / 2 / 3 / 4` controls inside Step 2 refer to the **four party member slots**, not top-level steps.
-
-### UID modal behavior
-The UID picker should mimic Spiral Abyss character selection semantics as closely as practical:
-- left side: up to 12 profile characters
-- right side: 4 used-character slots
-- tapping a left-side character selects it
-- selected characters get a numeric order overlay on the upper part of the icon
-- 5th selection does nothing if 4 are already selected
-- to replace, the user clears a used-character slot first
-- duplicate character selection is not allowed
-
-### Cost / bracket
-- recalculate live during editing
-- do not wait until final submit
-
-### Main attacker
-- optional in normal cases
-- single-select normally
-- multiplayer may allow multiple selection
-- user-declared, not auto-inferred
-
-### Search tags
-- predefined candidates only for now
-- no freeform tag creation yet
-
-### Notes field
-Use one free-text field for summary / notes / comments.
-
-### Guidelines
-- guideline agreement is required for actual submit
-- draft save is allowed without agreement
-
-### Draft save
-Use browser-local persistence.
-Restoring previous submission draft state is desired even after a dummy “submit”.
+- broad rewrites without explicit task scope
+- changing unrelated screens
+- replacing product-specific UI with generic UI
+- mixing large visual redesign and data architecture changes in one PR
+- introducing backend/auth/admin assumptions into unrelated UI tasks
+- deleting mock data or mock flows before replacement paths exist
 
 ---
 
-## Similar-run heuristic logic
+## Refactor Rules
 
-Full clustering is not required.
-Implement a pragmatic replaceable heuristic.
+Refactoring is allowed when it directly improves maintainability or prepares the app for planned work.
 
-Preferred signals:
-- same ruleset/category
-- same season
-- same main attacker or overlapping core characters
-- character overlap matters more than weapon overlap
+Good refactors include:
 
-Keep this isolated in a helper/module so it can be replaced later.
+- splitting oversized files by responsibility
+- moving route parsing or navigation side effects out of page components
+- isolating pure logic into testable modules
+- extracting feature-local helpers
+- splitting shared UI primitives into clear files
+- removing dead-end duplicate implementations
 
----
+Do not refactor just to make the architecture look more abstract.
 
-## Mobile / responsive rules
+Avoid introducing heavy architecture patterns unless they solve a concrete current problem.
 
-- Compare View is hidden on mobile
-- Submission Step 2 may rely on horizontal scrolling rather than a large redesign
-- Keep the UI usable, even if not fully elegant yet
-- Do not redesign the product beyond the provided design direction unless necessary
+Preserve current behavior and visual output during refactor-only tasks.
 
 ---
 
-## Temporary copy / placeholders
+## UI / Design Rules
 
-Strings containing `SVD` are temporary placeholders.
-Do not “fix” or rename them globally unless the task explicitly asks for copy replacement.
+This project should not look like a generic SaaS dashboard.
 
-Examples:
-- `検索SVD`
-- `PC+PCのSVD`
-- `〇のSVD`
+The UI should support the world and culture of elite-hunting RTA:
 
-These will be replaced later.
+- competitive
+- research-oriented
+- record-focused
+- visually distinctive
+- useful for comparing teams, routes, costs, and versions
+
+For Library/search UI:
+
+- preserve the existing search/filter content unless the task says otherwise
+- design changes may be large, but the search meaning should remain clear
+- large discovery features should be feature-local and not hardwired into unrelated pages
+
+For modals:
+
+- unify visual quality and interaction patterns where practical
+- do not change field meaning or flow unless explicitly requested
+- avoid one-off modal styles that cannot scale to future auth/admin/review flows
+
+For LP:
+
+- communicate the appeal and value of elite-hunting RTA
+- do not make the LP feel like only a generic product sales page
+- include unofficial/fan-made positioning when working on public-facing final copy
 
 ---
 
-## Git / change management
+## Large Feature Rules
 
-Branch policy for this repository:
-- `main` is the protected release branch conceptually. Do not use it as the working branch for normal implementation tasks.
-- `develop` is the integration branch for day-to-day work.
-- For each implementation task, start from the latest `develop` and create a dedicated working branch such as `feat/<short-slug>` or `fix/<short-slug>`.
+Large user-facing features should be developed as isolated feature slices.
+
+A good large feature PR should usually include:
+
+- feature-local types
+- feature-local mock/view data if needed
+- UI components scoped to the feature
+- pure logic separated from visual components when practical
+- clear PR explanation of what changed and why
+
+For large Library features, do not directly scatter logic across unrelated files.
+
+Expected future Library-scale features may include things like:
+
+- version meta team discovery
+- owned-character-based search
+- cost efficiency map
+
+These should not force premature DB implementation, but they should be written in a way that can later receive real data through adapters or API results.
+
+---
+
+## Data / DB Preparation Rules
+
+The app is still mock-data based.
+
+Do not implement real DB/auth/admin work unless the task explicitly asks for it.
+
+For now:
+
+- keep mock data available
+- do not delete `mockRuns` or equivalent data without a replacement
+- do not reshape the entire app around a guessed DB schema
+- do not simplify the UI because a future DB may be difficult
+- keep UI display types separate from future DB storage types where practical
+
+When DB work is explicitly requested:
+
+- follow the relevant issue and `docs/specs/db-migration-roadmap.md`
+- use the matching Codex Skills and security guardrails listed in the Codex Skills section
+- do not use the UI display model as the DB schema directly
+- prefer adapters between DB payloads and UI view models
+- migrate one area at a time
+- start with the smallest safe data loop
+
+---
+
+## Auth / Admin / Review Rules
+
+Auth, admin, reviewer, moderation, review status, and security-sensitive flows are planned future work.
+
+Do not casually add fake production-like auth or admin behavior during unrelated UI work.
+
+When these areas are implemented later:
+
+- follow the relevant issue or design document
+- use the matching Codex Skills and security guardrails listed in the Codex Skills section
+- design the data and permission model first
+- keep public and privileged surfaces clearly separated
+- avoid leaking admin/reviewer assumptions into public UI code
+- add explicit empty/loading/error/permission states
+- preserve auditability and review status concepts
+
+Placeholder pages may exist, but do not treat them as final admin/account implementations.
+
+---
+
+## Routing Rules
+
+Route behavior is app-level infrastructure.
+
+When changing routes:
+
+- inspect `src/app/routes.ts`
+- inspect `src/app/useAppNavigation.ts`
+- preserve existing hash URL behavior unless the task explicitly changes it
+- preserve home state retention and scroll restoration unless explicitly changed
+- keep route parsing and navigation side effects separated from page rendering
+- add or update route tests for pure route logic
+
+Do not introduce a routing library unless the task explicitly asks for it or the PR explains why it is necessary.
+
+---
+
+## Shared UI Rules
+
+Shared UI primitives live under `src/components/ui`.
+
+Use shared primitives when they fit.
+
+Do not force all product-specific UI into generic primitives.
+
+Good shared UI candidates:
+
+- buttons
+- badges
+- chips
+- cards
+- panels
+- modal frames
+- drawer frames
+- empty states
+- form shells
+
+Keep product-specific layouts inside feature directories.
+
+If a primitive needs a new variant, make sure it is genuinely reusable and does not damage existing screens.
+
+---
+
+## Testing / Verification
+
+Use the smallest useful verification first.
+
+For most implementation tasks, run:
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
+
+For logic-heavy changes, add or update targeted tests.
+
+For visual-only changes, still run typecheck/build if the environment supports it.
+
+If any verification step is skipped, explain why in the final summary or PR body.
+
+Known warnings should not be hidden.
+If a warning is pre-existing, state that clearly.
+
+Before claiming work is complete, prefer using `verification-before-completion` when available.
+
+---
+
+## Git / Change Management
+
+Branch policy:
+
+- `main` is the conceptual release branch.
+- `develop` is the day-to-day integration branch.
+- Create task branches from the latest `develop`.
+- Open PRs back into `develop` for normal work.
 - Do not implement directly on `main`.
-- Do not open pull requests directly into `main` for normal feature work.
-- Normal task flow is: `develop` -> task branch -> pull request back into `develop`.
-- Only use `main` as the merge target for explicit release or promotion tasks requested by the human.
+- Do not open normal feature PRs directly into `main`.
+- Do not change repository-wide git settings.
+- Do not create unrelated commits.
 
-If the required branches do not exist yet:
-- create `develop` from the current integration baseline
-- push it to origin
-- then branch off from `develop`
+Before editing:
 
-Do not assume the human has already checked out the correct branch.
-Check the current branch first when a coding task begins.
-If needed, switch to `develop`, update it, and create a dedicated task branch before editing.
-Do not change repository-wide git settings.
-Do not create unrelated commits.
+- check the current branch
+- update from `develop` if needed
+- create a dedicated task branch
+
 Keep changes scoped to the requested task.
 
-If the environment supports tests/build:
-- run the smallest relevant verification first
-- for refactor / logic tasks, prefer running `npm run lint`, `npm run test`, `npm run typecheck`, then `npm run build`
-- prefer targeted checks before expensive full checks
-- if something is skipped, state that clearly in the final summary
+---
 
-When creating a pull request:
-- write the pull request title and body in Japanese unless the human explicitly asks for another language
-- include what changed
-- include why the code was written that way
-- include the intent behind non-obvious implementation choices or tradeoffs
-- do not rely on the human to ask for implementation rationale separately every time
+## Pull Request Expectations
+
+PR title and body should be written in Japanese unless the human explicitly asks otherwise.
+
+The PR body should include:
+
+- what changed
+- why it changed
+- how the implementation was split
+- what behavior was preserved
+- non-obvious tradeoffs
+- verification commands and results
+- known warnings or skipped checks
+- any relevant Skills used, if available and actually used
+
+Do not rely on the human to ask for implementation rationale afterward.
 
 ---
 
-## Prompting expectations for future tasks
+## What Not To Do
 
-When responding to a task in this repo:
-- first inspect relevant source files
-- read the spec and mocks
-- make a brief implementation plan internally
-- then implement in small, coherent edits
+Do not:
 
-Good tasks in this repo are usually:
-- one UI flow
-- one interaction cluster
-- one integration slice
-- one refactor slice
-
-Avoid trying to solve every future architecture concern in a single pass.
+- turn the app into a generic CRUD dashboard
+- redesign unrelated screens during a scoped task
+- remove distinctive visual direction for convenience
+- introduce real backend/auth/admin functionality without explicit request
+- convert all mocks into production code blindly
+- delete mock data before a safe replacement exists
+- mix DB migration, UI redesign, and routing overhaul in one task
+- vendor external Skills into the repo without explicit approval and source/license notes
+- claim a Skill, test, or verification step was used if it was not
+- hide uncertainty or skipped verification
+- make broad architecture changes without explaining the reason
 
 ---
 
-## Definition of success for current phase
+## Definition of Success for This Phase
 
-The current phase is successful if:
-- the main UI flows exist and connect properly
-- the visual direction matches the provided mocks
-- the interactions match the spec closely enough
-- local draft persistence works
-- UID picker flow works or is scaffolded cleanly
-- compare view works on desktop
-- dummy behaviors are clearly isolated
-- future refactor remains possible without major rewrites
+This phase is successful when:
+
+- the public demo feels coherent and intentional
+- LP communicates the appeal and value of elite-hunting RTA
+- Ranking and Library have clearly different roles
+- Library/search feels useful and visually aligned with the project world
+- major modals and overlays no longer feel like unrelated temporary UI
+- large discovery features can be added without breaking existing flows
+- the code remains ready for future DB/auth/admin/review work
+- the project can be shown to external reviewers for feedback
+- feedback can be reflected without rewriting the whole app
