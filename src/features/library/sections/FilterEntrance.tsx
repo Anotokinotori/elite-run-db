@@ -176,6 +176,11 @@ const FILTER_ENTRANCE_DESKTOP_LAYOUT = {
   gap: 12,
 } as const;
 
+const FILTER_ENTRANCE_MAX_SCALE = {
+  mobile: 1,
+  desktop: 1.16,
+} as const;
+
 export function FilterEntrance({
   onModalOpenChange,
   onSearch,
@@ -188,9 +193,20 @@ export function FilterEntrance({
   const filterEntranceState = useLibraryFilterEntrance({ onModalOpenChange, onSearch, restoreRequest });
 
   return (
-    <section className="relative z-10 mx-auto -mt-24 max-w-[1340px] px-4 md:-mt-56 lg:px-8" style={{ color: UI.textMain }}>
+    <section className="relative z-10 mx-auto max-w-[1340px] px-4 pt-10 md:pt-14 lg:px-8" style={{ color: UI.textMain }}>
       <ResponsiveStyle />
-      <FilterEntranceShowcase activeKey={filterEntranceState.activeKey} onPanelClick={filterEntranceState.handleDesktopPanelClick} />
+      <div className="mb-7 text-center md:mb-9">
+        <h1 className="max-w-full overflow-hidden whitespace-nowrap pt-1 text-[43px] font-normal leading-[1.08] text-black md:text-[50px] lg:text-[69px] [font-family:'Bebas_Neue','Arial_Narrow','Space_Grotesk',sans-serif]">
+          RECORDS SERCH
+        </h1>
+        <p className="mt-2 text-sm font-medium text-neutral-500">条件を選んで記録を探す。</p>
+      </div>
+      <FilterEntranceShowcase
+        activeKey={filterEntranceState.activeKey}
+        activeSelectionCounts={filterEntranceState.activeSelectionCounts}
+        hasActiveSearchFilters={filterEntranceState.hasActiveSearchFilters}
+        onPanelClick={filterEntranceState.handleDesktopPanelClick}
+      />
       <LibraryFilterModal
         activeKey={filterEntranceState.desktopModalKey}
         characterFilters={filterEntranceState.characterFilters}
@@ -219,11 +235,24 @@ export function FilterEntrance({
   );
 }
 
-function FilterEntranceShowcase({ activeKey, onPanelClick }: { activeKey: SelectableFilterKey | null; onPanelClick: (key: LibraryFilterKey) => void }) {
+function FilterEntranceShowcase({
+  activeKey,
+  activeSelectionCounts,
+  hasActiveSearchFilters,
+  onPanelClick,
+}: {
+  activeKey: SelectableFilterKey | null;
+  activeSelectionCounts: Record<SelectableFilterKey, number>;
+  hasActiveSearchFilters: boolean;
+  onPanelClick: (key: LibraryFilterKey) => void;
+}) {
   const scaleAreaRef = useRef<HTMLDivElement | null>(null);
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const layout = isDesktop ? FILTER_ENTRANCE_DESKTOP_LAYOUT : FILTER_ENTRANCE_MOBILE_LAYOUT;
-  const scale = useFitScale(scaleAreaRef, layout.width, 1);
+  const maxScale = isDesktop ? FILTER_ENTRANCE_MAX_SCALE.desktop : FILTER_ENTRANCE_MAX_SCALE.mobile;
+  const scale = useFitScale(scaleAreaRef, layout.width, maxScale);
+  const activeSelectionTotal = Object.values(activeSelectionCounts).reduce((sum, count) => sum + count, 0);
+  const searchButtonLabel = `${activeSelectionTotal}件の条件で絞り込む`;
   const scaledStageStyle = useMemo<CSSProperties>(
     () => ({
       width: layout.width,
@@ -237,7 +266,7 @@ function FilterEntranceShowcase({ activeKey, onPanelClick }: { activeKey: Select
   );
 
   return (
-    <div className="mx-auto w-full max-w-[828px]" role="group" aria-label={LIBRARY_LABELS.searchTitle}>
+    <div className="mx-auto w-full max-w-[960px]" role="group" aria-label={LIBRARY_LABELS.searchTitle}>
       <div ref={scaleAreaRef} className="w-full">
         <div className="relative mx-auto overflow-visible" style={{ width: layout.width * scale, height: layout.height * scale }}>
           <div className="absolute" style={scaledStageStyle}>
@@ -256,6 +285,7 @@ function FilterEntranceShowcase({ activeKey, onPanelClick }: { activeKey: Select
                 <FilterEntranceSummaryCard
                   key={item.key}
                   item={item}
+                  selectionCount={activeSelectionCounts[item.key]}
                   isActive={activeKey === item.key}
                   isDesktop={isDesktop}
                   onClick={() => onPanelClick(item.key)}
@@ -265,38 +295,45 @@ function FilterEntranceShowcase({ activeKey, onPanelClick }: { activeKey: Select
           </div>
         </div>
       </div>
-      <div className="mt-[26px] flex w-full justify-center sm:mt-[30px]">
-        <button
-          type="button"
-          className="group mx-auto flex w-fit items-center justify-center gap-[16px] text-[#050505] transition duration-200 hover:-translate-y-[1px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
-          aria-label="この条件で絞り込む"
-          onClick={() => onPanelClick("search")}
-        >
-          <span className="font-['Inter','Noto_Sans_JP',sans-serif] text-[18px] font-black leading-none tracking-[0] sm:text-[19px]">
-            この条件で絞り込む
-          </span>
-          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-black text-white transition duration-200 group-hover:scale-[1.04] group-hover:bg-[#1a1a1a]">
-            <DownArrowIcon />
-          </span>
-        </button>
-      </div>
+      {hasActiveSearchFilters ? (
+        <div className="mt-[26px] flex w-full justify-center sm:mt-[30px]">
+          <button
+            type="button"
+            className="library-filter-submit group mx-auto flex w-fit items-center justify-center gap-[16px] text-[#050505] transition duration-200 hover:-translate-y-[1px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
+            aria-label={searchButtonLabel}
+            onClick={() => onPanelClick("search")}
+          >
+            <span className="library-filter-submit-label font-['Inter','Noto_Sans_JP',sans-serif] text-[18px] font-black leading-none tracking-[0] sm:text-[19px]">
+              {searchButtonLabel}
+            </span>
+            <span className="library-filter-submit-icon flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-black text-white transition duration-200 group-hover:scale-[1.04] group-hover:bg-[#1a1a1a]">
+              <DownArrowIcon />
+            </span>
+          </button>
+        </div>
+      ) : (
+        <div className="h-[38px] sm:h-[42px]" aria-hidden="true" />
+      )}
     </div>
   );
 }
 
 function FilterEntranceSummaryCard({
   item,
+  selectionCount,
   isActive,
   isDesktop,
   onClick,
 }: {
   item: (typeof FILTER_ENTRANCE_CARDS)[number];
+  selectionCount: number;
   isActive: boolean;
   isDesktop: boolean;
   onClick: () => void;
 }) {
   const imageClass = isDesktop ? item.desktopImageClass : item.mobileImageClass;
   const layout = isDesktop ? FILTER_ENTRANCE_DESKTOP_LAYOUT : FILTER_ENTRANCE_MOBILE_LAYOUT;
+  const statusLabel = formatSelectionStatusLabel(selectionCount);
 
   return (
     <button
@@ -334,7 +371,7 @@ function FilterEntranceSummaryCard({
             <div className="mt-[8px] flex w-[126px] items-center justify-center gap-2">
               <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
               <span className="whitespace-nowrap font-['Arial_Narrow',Arial,sans-serif] text-[8px] font-black tracking-[0.08em] text-[#868787]">
-                {item.lead}
+                {statusLabel}
               </span>
               <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
             </div>
@@ -360,7 +397,7 @@ function FilterEntranceSummaryCard({
           <div className="mt-[9px] flex w-[124px] items-center justify-center gap-2">
             <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
             <span className="whitespace-nowrap font-['Arial_Narrow',Arial,sans-serif] text-[8px] font-black tracking-[0.08em] text-[#868787]">
-              {item.lead}
+              {statusLabel}
             </span>
             <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
           </div>
@@ -368,6 +405,10 @@ function FilterEntranceSummaryCard({
       ) : null}
     </button>
   );
+}
+
+function formatSelectionStatusLabel(selectionCount: number) {
+  return selectionCount > 0 ? `${selectionCount}件選択中` : "未選択";
 }
 
 function DownArrowIcon() {
@@ -1276,6 +1317,36 @@ function ResponsiveStyle() {
       .library-range-input { pointer-events: none; }
       .library-range-input::-webkit-slider-thumb { pointer-events: auto; }
       .library-range-input::-moz-range-thumb { pointer-events: auto; }
+      .library-filter-submit-label {
+        display: inline-block;
+        transform-origin: center;
+        animation: library-filter-submit-vertical-groove 1.42s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+      }
+      .library-filter-submit-icon {
+        animation: library-filter-submit-vertical-groove 1.42s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+      }
+      .library-filter-submit:hover .library-filter-submit-label,
+      .library-filter-submit:focus-visible .library-filter-submit-label {
+        animation-duration: 1.08s;
+      }
+      .library-filter-submit:hover .library-filter-submit-icon,
+      .library-filter-submit:focus-visible .library-filter-submit-icon {
+        animation-duration: 1.08s;
+      }
+      @keyframes library-filter-submit-vertical-groove {
+        0%, 100% { transform: translateY(0); }
+        18% { transform: translateY(-3px); }
+        36% { transform: translateY(1px); }
+        56% { transform: translateY(-2px); }
+        74% { transform: translateY(1px); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .library-filter-submit-label,
+        .library-filter-submit-icon {
+          animation: none;
+        }
+      }
     `}</style>
   );
 }

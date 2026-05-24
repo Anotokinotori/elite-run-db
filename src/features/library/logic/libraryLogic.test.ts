@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { addRecentRunId, upsertLibrarySearchHistory, type LibrarySearchHistoryEntry } from "./actionStorage";
-import { cloneLibrarySearchFilters, createEmptyLibrarySearchFilters, getFirstActivePanelFromFilters } from "./searchFilters";
+import { cloneLibrarySearchFilters, countActiveLibraryFilterSelections, createEmptyLibrarySearchFilters, getFirstActivePanelFromFilters } from "./searchFilters";
 
 describe("library action storage logic", () => {
   it("records recent run ids without duplicates and ignores unknown ids", () => {
@@ -75,5 +75,34 @@ describe("library search filter logic", () => {
     const tagFilters = createEmptyLibrarySearchFilters();
     tagFilters.selectedTags.push("PC");
     expect(getFirstActivePanelFromFilters(tagFilters)).toBe("tag");
+  });
+
+  it("counts active selections by filter panel", () => {
+    const filters = createEmptyLibrarySearchFilters();
+
+    expect(countActiveLibraryFilterSelections(filters)).toEqual({
+      character: 0,
+      weapon: 0,
+      cost: 0,
+      category: 0,
+      tag: 0,
+    });
+
+    filters.characterFilters.partyCharacters.includeIds.push("chasca", "mavuika");
+    filters.characterFilters.mainAttackers.excludeIds.push("amber");
+    filters.buildFilters.weaponIds.include.push("favoniusWarbow");
+    filters.buildFilters.costBracket = 2;
+    filters.buildFilters.maxConstellation = 1;
+    filters.categoryFilters.version = "5.6";
+    filters.categoryFilters.device = "PC";
+    filters.selectedTags.push("High", "OffMeta");
+
+    expect(countActiveLibraryFilterSelections(filters)).toEqual({
+      character: 3,
+      weapon: 1,
+      cost: 2,
+      category: 2,
+      tag: 2,
+    });
   });
 });

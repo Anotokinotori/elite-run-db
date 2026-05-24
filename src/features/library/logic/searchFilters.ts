@@ -75,33 +75,58 @@ export function isDefaultRange(value: NumericRange, limit: NumericRange) {
 }
 
 export function getFirstActivePanelFromFilters(filters: LibrarySearchFilters): SelectableFilterKey | null {
-  const characterCount =
-    filters.characterFilters.partyCharacters.includeIds.length +
-    filters.characterFilters.partyCharacters.excludeIds.length +
-    filters.characterFilters.mainAttackers.includeIds.length +
-    filters.characterFilters.mainAttackers.excludeIds.length;
+  const activeCounts = countActiveLibraryFilterSelections(filters);
 
-  if (characterCount > 0) {
+  if (activeCounts.character > 0) {
     return "character";
   }
 
-  if (hasActiveWeaponFilters(filters.buildFilters)) {
+  if (activeCounts.weapon > 0) {
     return "weapon";
   }
 
-  if (hasActiveCostFilters(filters.buildFilters)) {
+  if (activeCounts.cost > 0) {
     return "cost";
   }
 
-  if (filters.categoryFilters.ruleset || filters.categoryFilters.version || filters.categoryFilters.playStyle || filters.categoryFilters.food || filters.categoryFilters.device) {
+  if (activeCounts.category > 0) {
     return "category";
   }
 
-  if (filters.selectedTags.length > 0) {
+  if (activeCounts.tag > 0) {
     return "tag";
   }
 
   return null;
+}
+
+export function countActiveLibraryFilterSelections(filters: LibrarySearchFilters): Record<SelectableFilterKey, number> {
+  return {
+    character:
+      filters.characterFilters.partyCharacters.includeIds.length +
+      filters.characterFilters.partyCharacters.excludeIds.length +
+      filters.characterFilters.mainAttackers.includeIds.length +
+      filters.characterFilters.mainAttackers.excludeIds.length,
+    weapon: filters.buildFilters.weaponIds.include.length + filters.buildFilters.weaponIds.exclude.length,
+    cost: countActiveCostFilterFields(filters.buildFilters),
+    category: countActiveCategoryFilterFields(filters.categoryFilters),
+    tag: filters.selectedTags.length,
+  };
+}
+
+function countActiveCostFilterFields(filters: LibraryBuildFilterState) {
+  return [
+    filters.costBracket !== null,
+    !isDefaultRange(filters.charCostRange, LIBRARY_BUILD_RANGE_LIMITS.charCost),
+    !isDefaultRange(filters.weaponCostRange, LIBRARY_BUILD_RANGE_LIMITS.weaponCost),
+    !isDefaultRange(filters.fiveStarWeaponCountRange, LIBRARY_BUILD_RANGE_LIMITS.fiveStarWeaponCount),
+    filters.maxConstellation !== null,
+    filters.maxFiveStarRefinement !== null,
+  ].filter(Boolean).length;
+}
+
+function countActiveCategoryFilterFields(filters: LibraryCategoryFilterState) {
+  return [filters.ruleset, filters.version, filters.playStyle, filters.food, filters.device].filter(Boolean).length;
 }
 
 export function hasActiveWeaponFilters(filters: LibraryBuildFilterState) {
