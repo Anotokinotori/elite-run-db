@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 
+import { AppFooter } from "../../components/AppFooter";
 import { ChevronRightIcon } from "../../components/UiIcons";
 import { FloatingCta } from "../../components/ui";
 import { appRuns } from "../../data/appRuns";
@@ -31,7 +32,6 @@ import {
 } from "./logic";
 import { buildFeaturedCards } from "./viewData";
 import { FestivalBanner } from "./sections/FestivalBanner";
-import { Footer } from "./sections/Footer";
 import { Header } from "./sections/Header";
 import { Hero } from "./sections/Hero";
 import { LeaderboardSection } from "./sections/LeaderboardSection";
@@ -183,7 +183,7 @@ export function HomePage({
         {activeTab === "festival" ? <FestivalBanner /> : null}
       </main>
 
-      <Footer />
+      <AppFooter />
       <RecordLibraryFloatingCta />
     </Shell>
   );

@@ -1,4 +1,5 @@
 import { ChevronRightIcon, CrownIcon } from "../../components/UiIcons";
+import { AppFooter, AppFooterBottomSpacer } from "../../components/AppFooter";
 import { FloatingCta } from "../../components/ui";
 import { LIBRARY_COLORS, LIBRARY_HERO_IMAGE_URL, LIBRARY_LABELS } from "./config";
 import { useLibraryPageState } from "./hooks/useLibraryPageState";
@@ -47,6 +48,8 @@ export function LibraryPage({ onOpenRankings, onSelectRun }: LibraryPageProps) {
         onRemoveViewHistory={libraryState.removeViewHistory}
         onSelectRun={libraryState.handleSelectRun}
       />
+      <AppFooter />
+      <AppFooterBottomSpacer />
       {libraryState.isFilterModalOpen ? null : <RankingsFloatingCta onOpen={onOpenRankings} />}
     </div>
   );

@@ -1,9 +1,9 @@
-import { TimerIcon } from "../ui/icons";
+import { TimerIcon } from "./UiIcons";
 
-export function Footer() {
+export function AppFooter() {
   return (
     <footer className="border-t border-[#e5e7eb] bg-white py-12">
-      <div className="max-w-7xl mx-auto px-4 text-center text-sm text-[#8d93a3]">
+      <div className="mx-auto max-w-7xl px-4 text-center text-sm text-[#8d93a3]">
         <div className="mb-4 flex items-center justify-center gap-2 text-[#5f6678]">
           <TimerIcon size={20} />
           <span className="text-lg font-bold">Teyvat EliteDB</span>
@@ -13,4 +13,8 @@ export function Footer() {
       </div>
     </footer>
   );
+}
+
+export function AppFooterBottomSpacer() {
+  return <div className="h-20 bg-[#EDECEC]" aria-hidden="true" />;
 }
