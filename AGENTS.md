@@ -400,6 +400,9 @@ Branch policy:
 - Do not open normal feature PRs directly into `main`.
 - Do not change repository-wide git settings.
 - Do not create unrelated commits.
+- Delete task branches after they are no longer needed.
+- Never delete `main`, `develop`, or other integration/release branches.
+- Do not delete a remote PR branch before merge unless the human explicitly asks for that risk; delete the local task branch after switching away when the PR work is handed off.
 
 Before editing:
 
