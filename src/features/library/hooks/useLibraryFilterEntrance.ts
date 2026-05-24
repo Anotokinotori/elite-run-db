@@ -6,11 +6,13 @@ import {
   cloneLibraryBuildFilterState,
   cloneLibraryCategoryFilterState,
   cloneLibrarySearchFilters,
+  countActiveLibraryFilterSelections,
   createEmptyLibraryBuildFilterState,
   createEmptyLibraryCategoryFilterState,
   getFirstActivePanelFromFilters,
   isSelectableFilterKey,
 } from "../logic/searchFilters";
+import { hasActiveLibrarySearchFilters } from "../logic/searchResults";
 import type {
   LibraryBuildFilterState,
   LibraryCategoryFilterState,
@@ -51,6 +53,27 @@ export function useLibraryFilterEntrance({
     onSearch?.(createCurrentSearchFilters());
   };
 
+  const hasActiveSearchFilters = useMemo(
+    () =>
+      hasActiveLibrarySearchFilters({
+        characterFilters,
+        buildFilters,
+        categoryFilters,
+        selectedTags,
+      }),
+    [buildFilters, categoryFilters, characterFilters, selectedTags],
+  );
+  const activeSelectionCounts = useMemo(
+    () =>
+      countActiveLibraryFilterSelections({
+        characterFilters,
+        buildFilters,
+        categoryFilters,
+        selectedTags,
+      }),
+    [buildFilters, categoryFilters, characterFilters, selectedTags],
+  );
+
   const handlePanelClick = (key: LibraryFilterKey) => {
     if (key === "search") {
       handleSearch();
@@ -87,6 +110,8 @@ export function useLibraryFilterEntrance({
     categoryFilters,
     characterFilters,
     desktopModalKey,
+    activeSelectionCounts,
+    hasActiveSearchFilters,
     selectedTags,
     handleDesktopPanelClick: handlePanelClick,
     handleMobilePanelClick: handlePanelClick,

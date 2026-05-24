@@ -1,11 +1,12 @@
+import { useRef } from "react";
+
 import { ChevronRightIcon, CrownIcon } from "../../components/UiIcons";
 import { AppFooter, AppFooterBottomSpacer } from "../../components/AppFooter";
 import { FloatingCta } from "../../components/ui";
-import { LIBRARY_COLORS, LIBRARY_HERO_IMAGE_URL, LIBRARY_LABELS } from "./config";
 import { useLibraryPageState } from "./hooks/useLibraryPageState";
 import { FilterEntrance } from "./sections/FilterEntrance";
-import { LibraryHero } from "./sections/Hero";
 import { LibrarySearchResults } from "./sections/SearchResults";
+import type { LibrarySearchFilters } from "./types";
 
 const FLOATING_CTA_CLASS = "w-[236px] justify-between";
 
@@ -16,22 +17,25 @@ type LibraryPageProps = {
 
 export function LibraryPage({ onOpenRankings, onSelectRun }: LibraryPageProps) {
   const libraryState = useLibraryPageState({ onSelectRun });
+  const resultsAnchorRef = useRef<HTMLDivElement | null>(null);
+
+  const handleFilterSearch = (filters: LibrarySearchFilters) => {
+    libraryState.handleFilterSearch(filters);
+    window.setTimeout(() => {
+      window.requestAnimationFrame(() => {
+        resultsAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }, 0);
+  };
 
   return (
     <div className="min-h-full bg-[#EDECEC] text-[#111827]">
-      <LibraryHero
-        imageUrl={LIBRARY_HERO_IMAGE_URL}
-        backgroundColor={LIBRARY_COLORS.pageBackground}
-        ariaLabel={LIBRARY_LABELS.heroAriaLabel}
-        keyword={libraryState.inputKeyword}
-        onKeywordChange={libraryState.setInputKeyword}
-        onKeywordCommit={libraryState.handleKeywordCommit}
-      />
       <FilterEntrance
         onModalOpenChange={libraryState.setIsFilterModalOpen}
-        onSearch={libraryState.handleFilterSearch}
+        onSearch={handleFilterSearch}
         restoreRequest={libraryState.filterRestoreRequest}
       />
+      <div ref={resultsAnchorRef} className="scroll-mt-6" aria-hidden="true" />
       <LibrarySearchResults
         filters={libraryState.appliedFilters}
         keyword={libraryState.appliedKeyword}
