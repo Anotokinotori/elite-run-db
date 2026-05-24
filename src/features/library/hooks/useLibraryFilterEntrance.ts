@@ -12,8 +12,6 @@ import {
   isSelectableFilterKey,
 } from "../logic/searchFilters";
 import type {
-  CharacterSummaryGroup,
-  CharacterSummaryTarget,
   LibraryBuildFilterState,
   LibraryCategoryFilterState,
   LibraryFilterKey,
@@ -40,8 +38,6 @@ export function useLibraryFilterEntrance({
   const [buildFilters, setBuildFilters] = useState<LibraryBuildFilterState>(() => createEmptyLibraryBuildFilterState());
   const [categoryFilters, setCategoryFilters] = useState<LibraryCategoryFilterState>(() => createEmptyLibraryCategoryFilterState());
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [isCharacterModalOpen, setIsCharacterModalOpen] = useState(false);
-  const [isWeaponModalOpen, setIsWeaponModalOpen] = useState(false);
   const activeLabel = useMemo(() => LIBRARY_FILTER_PANELS.find((panel) => panel.key === activeKey)?.label ?? "", [activeKey]);
 
   const createCurrentSearchFilters = (): LibrarySearchFilters => ({
@@ -55,7 +51,7 @@ export function useLibraryFilterEntrance({
     onSearch?.(createCurrentSearchFilters());
   };
 
-  const handleDesktopPanelClick = (key: LibraryFilterKey) => {
+  const handlePanelClick = (key: LibraryFilterKey) => {
     if (key === "search") {
       handleSearch();
       return;
@@ -67,35 +63,9 @@ export function useLibraryFilterEntrance({
     }
   };
 
-  const handleMobilePanelClick = (key: LibraryFilterKey) => {
-    if (key === "search") {
-      handleSearch();
-      return;
-    }
-
-    if (isSelectableFilterKey(key)) {
-      setActiveKey(key);
-    }
-  };
-
-  const handleRemoveCharacterFilter = (group: CharacterSummaryGroup, target: CharacterSummaryTarget, characterId: string) => {
-    const key = target === "include" ? "includeIds" : "excludeIds";
-    setCharacterFilters((current) => ({
-      ...current,
-      [group]: {
-        ...current[group],
-        [key]: current[group][key].filter((id) => id !== characterId),
-      },
-    }));
-  };
-
-  const handleToggleTag = (tag: string) => {
-    setSelectedTags((current) => (current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]));
-  };
-
   useEffect(() => {
-    onModalOpenChange?.(desktopModalKey !== null || isCharacterModalOpen || isWeaponModalOpen);
-  }, [desktopModalKey, isCharacterModalOpen, isWeaponModalOpen, onModalOpenChange]);
+    onModalOpenChange?.(desktopModalKey !== null);
+  }, [desktopModalKey, onModalOpenChange]);
 
   useEffect(() => {
     if (!restoreRequest) {
@@ -117,19 +87,13 @@ export function useLibraryFilterEntrance({
     categoryFilters,
     characterFilters,
     desktopModalKey,
-    isCharacterModalOpen,
-    isWeaponModalOpen,
     selectedTags,
-    handleDesktopPanelClick,
-    handleMobilePanelClick,
-    handleRemoveCharacterFilter,
-    handleToggleTag,
+    handleDesktopPanelClick: handlePanelClick,
+    handleMobilePanelClick: handlePanelClick,
     setBuildFilters,
     setCategoryFilters,
     setCharacterFilters,
     setDesktopModalKey,
-    setIsCharacterModalOpen,
-    setIsWeaponModalOpen,
     setSelectedTags,
   };
 }

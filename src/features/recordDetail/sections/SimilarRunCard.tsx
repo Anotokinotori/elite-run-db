@@ -112,7 +112,8 @@ export function SimilarRunCard({
       onKeyDown={handleKeyDown}
       interactive={canOpenDetail}
       selected={isCompareSelected}
-      className={`rounded-[16px] p-[14px] shadow-none ${!isCompareSelected ? "hover:bg-[#f7f8fa]" : ""}`}
+      style={isCompareSelected ? undefined : { backgroundColor: "#FFFCF9" }}
+      className={`rounded-[16px] p-[14px] shadow-none ${isCompareSelected ? "" : "bg-[#FFFCF9]"}`}
     >
       <div className="flex items-start gap-[10px]">
         <div className="min-w-0 flex-1">
@@ -130,7 +131,7 @@ export function SimilarRunCard({
             </div>
           </div>
 
-          <div className="mt-[12px] rounded-[16px] border border-[#e5e7eb] bg-[#f7f8fa] px-[10px] py-[9px]">
+          <div className="mt-[12px] rounded-[16px] border border-[#e5e7eb] bg-[#FFFCF9] px-[10px] py-[9px]">
             <div className="flex items-center justify-between gap-[8px]">
               {match.run.party.map((member) => {
                 const characterName = characterDb[member.characterId]?.name ?? member.characterId;

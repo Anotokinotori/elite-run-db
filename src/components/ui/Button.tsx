@@ -18,7 +18,7 @@ const buttonSizeClass: Record<ButtonSize, string> = {
   sm: "min-h-8 px-3 py-1.5 text-[12px]",
   md: "min-h-9 px-4 py-2 text-[13px] md:text-[14px]",
   lg: "min-h-11 px-5 py-2.5 text-[15px] md:text-[16px]",
-  create: "min-h-[56px] px-6 py-4 text-[18px] md:text-[24px]",
+  create: "min-h-[45px] px-5 py-3 text-[15px] md:text-[19px]",
 };
 
 export function Button({

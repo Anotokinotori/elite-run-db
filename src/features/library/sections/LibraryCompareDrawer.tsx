@@ -70,7 +70,7 @@ export function LibraryCompareDrawer({
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 top-[80px] z-40 hidden bg-[#f5f6f8] text-[#333333] shadow-[0_-20px_40px_rgba(31,41,55,0.18)] lg:block" aria-modal="false" role="complementary">
+    <div className="fixed inset-x-0 bottom-0 top-[80px] z-40 hidden bg-[#EDECEC] text-[#333333] shadow-[0_-20px_40px_rgba(31,41,55,0.18)] lg:block" aria-modal="false" role="complementary">
       <div className="flex h-full flex-col border-t border-[#e5e7eb]">
         <div className="flex min-h-[52px] items-center justify-between border-b border-[#e5e7eb] bg-white px-4 py-2">
           <div className="min-w-0">
@@ -109,7 +109,7 @@ function LibraryCompareRunPane({
   const partyBuildItems = getPartyBuildItems(run);
 
   return (
-    <div className="min-h-0 overflow-y-auto bg-[#f5f6f8] px-3 py-3">
+    <div className="min-h-0 overflow-y-auto bg-[#EDECEC] px-3 py-3">
       <div className="mb-3 inline-flex rounded-full border border-[#d8dde6] bg-white px-3 py-1 text-[12px] font-black text-[#5f6678]">{label}</div>
       <VideoFrame title={run.title} videoUrl={run.videoUrl} iframeRef={iframeRef} mute={muted} />
       <div className="mt-4 flex flex-col gap-[12px]">

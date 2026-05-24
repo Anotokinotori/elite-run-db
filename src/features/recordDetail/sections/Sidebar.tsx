@@ -64,7 +64,7 @@ export function Sidebar({
               })}
             </div>
           ) : (
-            <div className="rounded-[16px] border border-dashed border-[#d8dde6] bg-[#f7f8fa] px-[14px] py-[16px] text-[13px] leading-[1.7] text-[#8d93a3]">
+            <div className="rounded-[16px] border border-dashed border-[#d8dde6] bg-[#FFFCF9] px-[14px] py-[16px] text-[13px] leading-[1.7] text-[#8d93a3]">
               近い条件の記録はまだありません。
             </div>
           )}

@@ -6,7 +6,7 @@ export const dsTokens = {
     chromeDarkHover: "#17171d",
     surface: "#ffffff",
     surfaceMuted: "#f7f8fa",
-    surfaceApp: "#f5f6f8",
+    surfaceApp: "#EDECEC",
     surfaceCreate: "#f6f6f6",
     surfaceRaised: "#fbfcfd",
     border: "#d8dde6",

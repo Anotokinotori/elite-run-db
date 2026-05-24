@@ -66,7 +66,7 @@ export function SubmitPage({ onBack, embedded = false }: { onBack: () => void; e
       <main className="min-h-screen bg-white text-[#333333]">
         <Header embedded={embedded} onBack={onBack} />
 
-        <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 md:px-6">
+        <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-5 px-3 py-4 md:px-5">
           <StepIndicator currentStep={draft.currentStep} onBack={handleStepBack} />
 
             {draft.currentStep === 1 ? (

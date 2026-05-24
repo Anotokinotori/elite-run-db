@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type CSSProperties, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 
 import { CharacterIcon } from "../../../components/CharacterIcon";
 import { WeaponIcon } from "../../../components/WeaponIcon";
@@ -16,9 +16,7 @@ import { formatVersionLabel, versionRank } from "../../../lib/versionLabels";
 import { HOME_ELEMENT_FILTER_OPTIONS, HOME_FILTER_TAG_GROUP_DEFINITIONS, HOME_FILTER_TARGET_OPTIONS } from "../../home/config";
 import { cloneHomeFilterState, createEmptyHomeFilterState, updateSelectionGroup } from "../../home/logic";
 import type { CharacterFilterTabKey, HomeFilterState, SelectionTarget } from "../../home/types";
-import { FilterDrawer } from "../../home/ui/FilterDrawer";
 import { SearchIcon } from "../../home/ui/icons";
-import categoryPeriodImageUrl from "../assets/library-category-period.png";
 import { LIBRARY_FILTER_PANELS, LIBRARY_LABELS } from "../config";
 import { useLibraryFilterEntrance } from "../hooks/useLibraryFilterEntrance";
 import type { LibraryFilterRestoreRequest } from "../logic/actionStorage";
@@ -27,34 +25,23 @@ import {
   cloneLibraryCategoryFilterState,
   createEmptyLibraryBuildFilterState,
   createEmptyLibraryCategoryFilterState,
-  isSearchFilterPanel,
-  isSelectableFilterPanel,
 } from "../logic/searchFilters";
 import {
   LIBRARY_BUILD_RANGE_LIMITS as BUILD_RANGE_LIMITS,
   type CharacterSummaryGroup,
   type CharacterSummaryTarget,
   type LibraryBuildFilterState,
-  type LibraryBuildFilterTab,
   type LibraryCategoryFilterState,
   type LibraryFilterKey,
-  type LibraryFilterPanel,
   type LibrarySearchFilters,
   type NumericRange,
-  type SearchFilterPanel,
   type SelectableFilterKey,
-  type SelectableFilterPanel,
   type WeaponSummaryTarget,
 } from "../types";
 
 const CHARACTER_FILTER_MODAL_TABS: { key: CharacterFilterTabKey; label: string }[] = [
   { key: "partyCharacters", label: "編成キャラ" },
   { key: "mainAttackers", label: "メイン" },
-];
-
-const LIBRARY_BUILD_FILTER_TABS: { key: LibraryBuildFilterTab; label: string }[] = [
-  { key: "cost", label: "コスト指定" },
-  { key: "weapon", label: "武器指定" },
 ];
 
 const COST_BRACKET_OPTIONS = [
@@ -103,36 +90,91 @@ const UI = {
   cardBorder: "#CFCFCF",
 } as const;
 
-const FILTER_CARD_DIM_CLASS = "bg-black/[0.58] group-hover:bg-black/[0.36] group-focus-visible:bg-black/[0.36]";
-const FILTER_CARD_DETAILS: Record<SelectableFilterKey, { number: string; subLabel: string }> = {
-  character: { number: "01", subLabel: "PARTY / MAIN" },
-  build: { number: "02", subLabel: "CONST / WEAPON" },
-  category: { number: "03", subLabel: "RULE / VERSION" },
-  tag: { number: "04", subLabel: "TAG CLUSTER" },
-};
+const FILTER_ENTRANCE_IMAGES = [
+  "https://upload-os-bbs.hoyolab.com/upload/2025/01/26/fdd32de994246663d3329df80945351a_9019649747265555038.png?x-oss-process=image/auto-orient,0/interlace,1/format,webp/quality,q_70",
+  "https://upload-os-bbs.hoyolab.com/upload/2024/04/12/91148e90e86c89e4d565c4d46c092352_7325119691657342334.png?x-oss-process=image%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70",
+  "https://upload-os-bbs.hoyolab.com/upload/2022/09/18/98252c0073c87263e6fbb51447cb6d2e_7381897631492436601.png?x-oss-process=image%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70",
+  "https://upload-os-bbs.hoyolab.com/upload/2022/06/22/20d03d5c03560a68a9b5ca1c5ddf2293_5646653669169504614.png?x-oss-process=image%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70",
+  "https://upload-os-bbs.hoyolab.com/upload/2026/04/30/25cc0894bf35a35b322dafbc722cf0b8_3127599890961230812.png?x-oss-process=image%2Fresize%2Cs_1000%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70",
+] as const;
 
-const DESKTOP_FILTER_CARD_META: Record<SelectableFilterKey, { imageUrl: string; backgroundColor: string; objectPosition: string }> = {
-  character: {
-    imageUrl: "https://enka.network/ui/UI_Gacha_AvatarImg_Chasca.png",
-    backgroundColor: "#274060",
-    objectPosition: "50% 18%",
+const FILTER_ENTRANCE_CARDS: Array<{
+  key: SelectableFilterKey;
+  no: string;
+  label: string;
+  meta: string;
+  lead: string;
+  image: string;
+  desktopImageClass: string;
+  mobileImageClass: string;
+}> = [
+  {
+    key: "character",
+    no: "01",
+    label: "キャラ・編成",
+    meta: "CHARACTER / TEAM",
+    lead: "キャラ・編成から探す",
+    image: FILTER_ENTRANCE_IMAGES[0],
+    desktopImageClass: "left-1/2 bottom-[-7px] h-[272px] w-[214px] -translate-x-1/2 object-[50%_100%]",
+    mobileImageClass: "right-[-20px] bottom-[-30px] h-[154px] w-[184px] object-[50%_100%]",
   },
-  build: {
-    imageUrl: "https://enka.network/ui/UI_EquipIcon_Claymore_Wolfmound.png",
-    backgroundColor: "#2c3e3d",
-    objectPosition: "50% 44%",
+  {
+    key: "weapon",
+    no: "02",
+    label: "武器",
+    meta: "WEAPON",
+    lead: "武器から探す",
+    image: FILTER_ENTRANCE_IMAGES[1],
+    desktopImageClass: "left-1/2 bottom-[-5px] h-[272px] w-[222px] -translate-x-1/2 object-[48%_100%]",
+    mobileImageClass: "right-[-24px] bottom-[-28px] h-[154px] w-[190px] object-[48%_100%]",
   },
-  category: {
-    imageUrl: categoryPeriodImageUrl,
-    backgroundColor: "#4a3528",
-    objectPosition: "50% 34%",
+  {
+    key: "cost",
+    no: "03",
+    label: "凸・精錬",
+    meta: "C / R",
+    lead: "凸・精錬で絞る",
+    image: FILTER_ENTRANCE_IMAGES[2],
+    desktopImageClass: "left-1/2 bottom-[-22px] h-[304px] w-[248px] -translate-x-1/2 object-[54%_100%]",
+    mobileImageClass: "right-[-36px] bottom-[-44px] h-[178px] w-[218px] object-[54%_100%]",
   },
-  tag: {
-    imageUrl: "https://static.wikia.nocookie.net/gensin-impact/images/6/65/Item_An_Appellative_Stroke.png/revision/latest?cb=20221207135611",
-    backgroundColor: "#3d2a4a",
-    objectPosition: "50% 42%",
+  {
+    key: "category",
+    no: "04",
+    label: "カテゴリ・期間",
+    meta: "CATEGORY / SEASON",
+    lead: "カテゴリ・期間で探す",
+    image: FILTER_ENTRANCE_IMAGES[3],
+    desktopImageClass: "left-1/2 bottom-[-11px] h-[282px] w-[230px] -translate-x-1/2 object-[48%_100%]",
+    mobileImageClass: "right-[-28px] bottom-[-36px] h-[164px] w-[198px] object-[48%_100%]",
   },
-};
+  {
+    key: "tag",
+    no: "05",
+    label: "タグ",
+    meta: "TAGS",
+    lead: "タグから探す",
+    image: FILTER_ENTRANCE_IMAGES[4],
+    desktopImageClass: "left-1/2 bottom-[-12px] h-[280px] w-[226px] -translate-x-1/2 object-[50%_100%]",
+    mobileImageClass: "right-[-30px] bottom-[-36px] h-[166px] w-[202px] object-[50%_100%]",
+  },
+];
+
+const FILTER_ENTRANCE_MOBILE_LAYOUT = {
+  width: 360,
+  height: 640,
+  cardWidth: 360,
+  cardHeight: 120,
+  gap: 10,
+} as const;
+
+const FILTER_ENTRANCE_DESKTOP_LAYOUT = {
+  width: 828,
+  height: 390,
+  cardWidth: 156,
+  cardHeight: 312,
+  gap: 12,
+} as const;
 
 export function FilterEntrance({
   onModalOpenChange,
@@ -148,35 +190,7 @@ export function FilterEntrance({
   return (
     <section className="relative z-10 mx-auto -mt-24 max-w-[1340px] px-4 md:-mt-56 lg:px-8" style={{ color: UI.textMain }}>
       <ResponsiveStyle />
-      <div className="overflow-hidden border shadow-[0_18px_45px_rgba(21,27,38,0.14)]" style={{ borderColor: UI.cardBorder }}>
-        <header className="relative flex min-h-[55px] items-stretch bg-[#111116]">
-          <div className="flex min-w-0 flex-1 items-center gap-3 px-4 sm:gap-4 sm:px-5">
-            <span className="inline-flex h-[22px] shrink-0 items-center border border-white/40 px-3 text-[12px] font-bold uppercase leading-none tracking-[0.14em] text-[#d9d9d9]">
-              {LIBRARY_LABELS.searchBadge}
-            </span>
-            <h2 className="shrink-0 text-[15px] font-black leading-none tracking-[0.04em] text-[#d9d9d9] sm:text-[19px]">{LIBRARY_LABELS.searchTitle}</h2>
-            <span className="hidden h-[3px] w-[3px] shrink-0 rounded-full bg-white/25 sm:block" />
-            <span className="truncate text-[11px] font-normal uppercase leading-none tracking-[0.08em] text-[#d9d9d9] sm:text-[12px]">
-              {filterEntranceState.activeLabel || LIBRARY_LABELS.searchSummaryFallback}
-            </span>
-          </div>
-        </header>
-        <div className="h-px bg-white/10" />
-        <div className="p-3 sm:p-4" style={{ background: UI.sectionBody }}>
-          <FilterCardBar activeKey={filterEntranceState.activeKey} onPanelClick={filterEntranceState.handleDesktopPanelClick} variant="desktop" className="hidden sm:block" />
-          <FilterCardBar activeKey={filterEntranceState.activeKey} onPanelClick={filterEntranceState.handleMobilePanelClick} variant="mobile" className="sm:hidden" />
-          <div className="mt-3 sm:hidden">
-            {filterEntranceState.activeKey === "character" ? (
-              <CharacterFilterSummaryPanel filters={filterEntranceState.characterFilters} onOpenPicker={() => filterEntranceState.setIsCharacterModalOpen(true)} onRemoveFilter={filterEntranceState.handleRemoveCharacterFilter} />
-            ) : null}
-            {filterEntranceState.activeKey === "build" ? (
-              <BuildFilterControlsPanel filters={filterEntranceState.buildFilters} onChange={filterEntranceState.setBuildFilters} onOpenWeaponPicker={() => filterEntranceState.setIsWeaponModalOpen(true)} />
-            ) : null}
-            {filterEntranceState.activeKey === "category" ? <CategoryFilterPanel filters={filterEntranceState.categoryFilters} onChange={filterEntranceState.setCategoryFilters} /> : null}
-            {filterEntranceState.activeKey === "tag" ? <TagFilterPanel selectedTags={filterEntranceState.selectedTags} onToggleTag={filterEntranceState.handleToggleTag} /> : null}
-          </div>
-        </div>
-      </div>
+      <FilterEntranceShowcase activeKey={filterEntranceState.activeKey} onPanelClick={filterEntranceState.handleDesktopPanelClick} />
       <LibraryFilterModal
         activeKey={filterEntranceState.desktopModalKey}
         characterFilters={filterEntranceState.characterFilters}
@@ -201,92 +215,224 @@ export function FilterEntrance({
           filterEntranceState.setDesktopModalKey(null);
         }}
       />
-      <FilterDrawer
-        isOpen={filterEntranceState.isCharacterModalOpen}
-        onClose={() => filterEntranceState.setIsCharacterModalOpen(false)}
-        onApply={filterEntranceState.setCharacterFilters}
-        initialFilters={filterEntranceState.characterFilters}
-        characters={selectableCharacters}
-        tagGroups={[]}
-        title="キャラ・編成を絞り込む"
-        resetLabel="リセット"
-        applyLabel="適用する"
-        filterTabs={[
-          { key: "partyCharacters", label: "編成キャラ" },
-          { key: "mainAttackers", label: "メインアタッカー" },
-        ]}
-        filterTargetOptions={HOME_FILTER_TARGET_OPTIONS}
-        elementFilterOptions={HOME_ELEMENT_FILTER_OPTIONS}
-        characterSearchPlaceholder="キャラ名で検索"
-        tagSearchPlaceholder=""
-        emptyCharacterResultLabel="該当するキャラがありません"
-        emptyTagResultLabel=""
-      />
-      <LibraryWeaponFilterDrawer
-        isOpen={filterEntranceState.isWeaponModalOpen}
-        initialWeaponIds={filterEntranceState.buildFilters.weaponIds}
-        onClose={() => filterEntranceState.setIsWeaponModalOpen(false)}
-        onApply={(weaponIds) => {
-          filterEntranceState.setBuildFilters((current) => ({ ...current, weaponIds }));
-          filterEntranceState.setIsWeaponModalOpen(false);
-        }}
-      />
     </section>
   );
 }
 
-function CharacterFilterSummaryPanel({
-  filters,
-  onOpenPicker,
-  onRemoveFilter,
-}: {
-  filters: HomeFilterState;
-  onOpenPicker: () => void;
-  onRemoveFilter: (group: CharacterSummaryGroup, target: CharacterSummaryTarget, characterId: string) => void;
-}) {
-  const selectedIds = getUniqueSelectedCharacterIds(filters).slice(0, 4);
-  const selectedCount = getSelectedCharacterCount(filters);
+function FilterEntranceShowcase({ activeKey, onPanelClick }: { activeKey: SelectableFilterKey | null; onPanelClick: (key: LibraryFilterKey) => void }) {
+  const scaleAreaRef = useRef<HTMLDivElement | null>(null);
+  const isDesktop = useMediaQuery("(min-width: 640px)");
+  const layout = isDesktop ? FILTER_ENTRANCE_DESKTOP_LAYOUT : FILTER_ENTRANCE_MOBILE_LAYOUT;
+  const scale = useFitScale(scaleAreaRef, layout.width, 1);
+  const scaledStageStyle = useMemo<CSSProperties>(
+    () => ({
+      width: layout.width,
+      height: layout.height,
+      transform: `translateX(-50%) scale(${scale})`,
+      transformOrigin: "top center",
+      left: "50%",
+      top: 0,
+    }),
+    [layout.height, layout.width, scale],
+  );
 
   return (
-    <div className="rounded-b-[8px] border-x border-b bg-white px-4 py-4 shadow-[0_10px_16px_rgba(0,0,0,0.05)]" style={{ borderColor: UI.panelBorder }}>
-      <div className="grid gap-4 lg:grid-cols-[310px_1fr]">
-        <LibraryCharacterPickerTile selectedIds={selectedIds} selectedCount={selectedCount} onOpenPicker={onOpenPicker} />
-        <div className="grid gap-3 md:grid-cols-2">
-          <CombinedCharacterSummaryBox title="編成キャラ" includeIds={filters.partyCharacters.includeIds} excludeIds={filters.partyCharacters.excludeIds} group="partyCharacters" onRemove={onRemoveFilter} />
-          <CombinedCharacterSummaryBox title="メインアタッカー" includeIds={filters.mainAttackers.includeIds} excludeIds={filters.mainAttackers.excludeIds} group="mainAttackers" onRemove={onRemoveFilter} />
+    <div className="mx-auto w-full max-w-[828px]" role="group" aria-label={LIBRARY_LABELS.searchTitle}>
+      <div ref={scaleAreaRef} className="w-full">
+        <div className="relative mx-auto overflow-visible" style={{ width: layout.width * scale, height: layout.height * scale }}>
+          <div className="absolute" style={scaledStageStyle}>
+            <div
+              className="flex"
+              style={{
+                width: layout.width,
+                height: layout.height,
+                flexDirection: isDesktop ? "row" : "column",
+                gap: layout.gap,
+                alignItems: isDesktop ? "flex-start" : "center",
+                justifyContent: "flex-start",
+              }}
+            >
+              {FILTER_ENTRANCE_CARDS.map((item) => (
+                <FilterEntranceSummaryCard
+                  key={item.key}
+                  item={item}
+                  isActive={activeKey === item.key}
+                  isDesktop={isDesktop}
+                  onClick={() => onPanelClick(item.key)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="mt-[26px] flex w-full justify-center sm:mt-[30px]">
+        <button
+          type="button"
+          className="group mx-auto flex w-fit items-center justify-center gap-[16px] text-[#050505] transition duration-200 hover:-translate-y-[1px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
+          aria-label="この条件で絞り込む"
+          onClick={() => onPanelClick("search")}
+        >
+          <span className="font-['Inter','Noto_Sans_JP',sans-serif] text-[18px] font-black leading-none tracking-[0] sm:text-[19px]">
+            この条件で絞り込む
+          </span>
+          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-black text-white transition duration-200 group-hover:scale-[1.04] group-hover:bg-[#1a1a1a]">
+            <DownArrowIcon />
+          </span>
+        </button>
       </div>
     </div>
   );
 }
 
-function LibraryCharacterPickerTile({ selectedIds, selectedCount, onOpenPicker }: { selectedIds: string[]; selectedCount: number; onOpenPicker: () => void }) {
-  const hasSelection = selectedCount > 0;
+function FilterEntranceSummaryCard({
+  item,
+  isActive,
+  isDesktop,
+  onClick,
+}: {
+  item: (typeof FILTER_ENTRANCE_CARDS)[number];
+  isActive: boolean;
+  isDesktop: boolean;
+  onClick: () => void;
+}) {
+  const imageClass = isDesktop ? item.desktopImageClass : item.mobileImageClass;
+  const layout = isDesktop ? FILTER_ENTRANCE_DESKTOP_LAYOUT : FILTER_ENTRANCE_MOBILE_LAYOUT;
 
   return (
-    <button type="button" onClick={onOpenPicker} className="group flex min-h-[128px] items-center gap-4 rounded-[8px] border bg-[#f6f6f6] p-4 text-left transition hover:bg-[#f1f1f1] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50" style={{ borderColor: UI.panelBorder }}>
-      <span className="grid h-[96px] w-[96px] shrink-0 place-items-center overflow-hidden rounded-[8px] bg-white">
-        {hasSelection ? (
-          <span className="grid w-full grid-cols-2 gap-1 p-2">
-            {selectedIds.map((characterId) => {
-              const character = characterDb[characterId];
-              return (
-                <span key={characterId} className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-[#f2f2f2]">
-                  <CharacterIcon characterId={characterId} alt={character?.name ?? characterId} fallbackLabel={character?.name ?? characterId} size={36} />
-                </span>
-              );
-            })}
-          </span>
-        ) : (
-          <span className="text-[76px] font-normal leading-none text-[#c2c2c2] transition group-hover:text-[#a9a9b5]">+</span>
-        )}
-      </span>
-      <span className="min-w-0">
-        <span className="block text-[18px] font-black tracking-[0.02em] text-[#333333]">{hasSelection ? "キャラ条件を編集" : "キャラ条件を選択"}</span>
-        <span className="mt-2 block text-[12px] font-bold leading-5 text-[#777777]">{hasSelection ? `${selectedCount}件の条件を選択中` : "編成キャラとメインアタッカーをまとめて指定できます。"}</span>
-      </span>
+    <button
+      className="group relative shrink-0 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/55"
+      style={{ width: layout.cardWidth }}
+      aria-label={`${item.label}で記録を探す`}
+      aria-pressed={isActive}
+      type="button"
+      onClick={onClick}
+    >
+      <div
+        className="relative overflow-hidden rounded-[7px] bg-[#d9d9d7] shadow-[10px_13px_20px_rgba(30,32,35,0.14)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[14px_18px_26px_rgba(30,32,35,0.2)]"
+        style={{
+          width: layout.cardWidth,
+          height: layout.cardHeight,
+        }}
+      >
+        <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.44),rgba(255,255,255,0.08)_45%,rgba(0,0,0,0.08))]" />
+        <div
+          className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#d6d6d4] via-[#d6d6d4]/72 to-transparent"
+          style={{ height: isDesktop ? "45%" : "60%" }}
+        />
+        <div className="absolute left-[-2px] top-[-5px] z-20 font-['Arial_Narrow',Arial,sans-serif] text-[64px] font-black leading-[0.78] tracking-[0] text-white/92">
+          {item.no}
+        </div>
+
+        {!isDesktop ? (
+          <div className="absolute left-[86px] top-[25px] z-20 flex max-w-[150px] flex-col items-start">
+            <p className="font-['Arial_Narrow',Arial,sans-serif] text-[15px] font-black uppercase leading-none tracking-[0] text-[#3e4144]">
+              {item.label}
+            </p>
+            <p className="mt-[6px] whitespace-nowrap font-['Arial_Narrow',Arial,sans-serif] text-[8px] font-black uppercase tracking-[0.13em] text-[#7d7f80]">
+              {item.meta}
+            </p>
+            <div className="mt-[8px] flex w-[126px] items-center justify-center gap-2">
+              <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
+              <span className="whitespace-nowrap font-['Arial_Narrow',Arial,sans-serif] text-[8px] font-black tracking-[0.08em] text-[#868787]">
+                {item.lead}
+              </span>
+              <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
+            </div>
+          </div>
+        ) : null}
+
+        <img
+          src={item.image}
+          alt=""
+          className={`absolute z-10 max-w-none object-contain transition duration-300 group-hover:scale-[1.045] ${imageClass}`}
+          loading="lazy"
+        />
+      </div>
+
+      {isDesktop ? (
+        <div className="mt-[16px] flex flex-col items-center text-center">
+          <p className="font-['Arial_Narrow',Arial,sans-serif] text-[15px] font-black uppercase leading-none tracking-[0] text-[#3e4144]">
+            {item.label}
+          </p>
+          <p className="mt-[6px] whitespace-nowrap font-['Arial_Narrow',Arial,sans-serif] text-[8px] font-black uppercase tracking-[0.13em] text-[#7d7f80]">
+            {item.meta}
+          </p>
+          <div className="mt-[9px] flex w-[124px] items-center justify-center gap-2">
+            <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
+            <span className="whitespace-nowrap font-['Arial_Narrow',Arial,sans-serif] text-[8px] font-black tracking-[0.08em] text-[#868787]">
+              {item.lead}
+            </span>
+            <span className="h-[1.5px] flex-1 bg-[#6f7070]" />
+          </div>
+        </div>
+      ) : null}
     </button>
   );
+}
+
+function DownArrowIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-[28px] w-[28px] shrink-0"
+      viewBox="0 0 32 32"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12.8 8.7v9.2" />
+      <path d="M19.2 8.7v9.2" />
+      <path d="M10 16.9 16 22.9l6-6" />
+    </svg>
+  );
+}
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+
+    update();
+    media.addEventListener?.("change", update);
+    return () => media.removeEventListener?.("change", update);
+  }, [query]);
+
+  return matches;
+}
+
+function useFitScale(ref: RefObject<HTMLElement | null>, baseWidth: number, maxScale = 1) {
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const update = () => {
+      const nextScale = Math.min(maxScale, node.clientWidth / baseWidth);
+      setScale(Number.isFinite(nextScale) && nextScale > 0 ? nextScale : 1);
+    };
+
+    update();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(update);
+      observer.observe(node);
+      window.addEventListener("resize", update);
+      return () => {
+        observer.disconnect();
+        window.removeEventListener("resize", update);
+      };
+    }
+
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [baseWidth, maxScale, ref]);
+
+  return scale;
 }
 
 function CombinedCharacterSummaryBox({
@@ -324,40 +470,6 @@ function CombinedCharacterSummaryBox({
         )}
       </div>
     </section>
-  );
-}
-
-function getUniqueSelectedCharacterIds(filters: HomeFilterState) {
-  return Array.from(new Set([...filters.partyCharacters.includeIds, ...filters.partyCharacters.excludeIds, ...filters.mainAttackers.includeIds, ...filters.mainAttackers.excludeIds]));
-}
-
-function getSelectedCharacterCount(filters: HomeFilterState) {
-  return filters.partyCharacters.includeIds.length + filters.partyCharacters.excludeIds.length + filters.mainAttackers.includeIds.length + filters.mainAttackers.excludeIds.length;
-}
-
-function CategoryFilterPanel({
-  filters,
-  onChange,
-}: {
-  filters: LibraryCategoryFilterState;
-  onChange: Dispatch<SetStateAction<LibraryCategoryFilterState>>;
-}) {
-  const update = <Key extends keyof LibraryCategoryFilterState>(key: Key, value: LibraryCategoryFilterState[Key]) => {
-    onChange((current) => ({ ...current, [key]: value }));
-  };
-
-  return (
-    <div className="rounded-b-[8px] border-x border-b bg-white px-4 py-4 shadow-[0_10px_16px_rgba(0,0,0,0.05)]" style={{ borderColor: UI.panelBorder }}>
-      <div className="grid gap-3 lg:grid-cols-2">
-        <LibrarySelectControl title="カテゴリ" value={filters.ruleset} options={RULESET_OPTIONS} placeholder="カテゴリを選択" onChange={(value) => update("ruleset", value)} />
-        <LibrarySelectControl title="期間・バージョン" value={filters.version} options={VERSION_OPTIONS} placeholder="期間を選択" onChange={(value) => update("version", value)} />
-      </div>
-      <div className="mt-3 grid gap-3 lg:grid-cols-3">
-        <ChoiceFilterGroup title="人数" options={PLAY_STYLE_OPTIONS} value={filters.playStyle} onChange={(value) => update("playStyle", value)} />
-        <ChoiceFilterGroup title="飯バフ" options={FOOD_OPTIONS} value={filters.food} onChange={(value) => update("food", value)} />
-        <ChoiceFilterGroup title="端末" options={DEVICE_OPTIONS} value={filters.device} onChange={(value) => update("device", value)} />
-      </div>
-    </div>
   );
 }
 
@@ -429,104 +541,6 @@ function ChoiceFilterGroup({
         })}
       </div>
     </section>
-  );
-}
-
-function TagFilterPanel({ selectedTags, onToggleTag }: { selectedTags: string[]; onToggleTag: (tag: string) => void }) {
-  return (
-    <div className="rounded-b-[8px] border-x border-b bg-white px-4 py-4 shadow-[0_10px_16px_rgba(0,0,0,0.05)]" style={{ borderColor: UI.panelBorder }}>
-      <div className="grid gap-3 lg:grid-cols-2">
-        {HOME_FILTER_TAG_GROUP_DEFINITIONS.map((group) => (
-          <section key={group.key} className="rounded-[8px] border bg-[#f7f7f7] p-3" style={{ borderColor: UI.panelBorder }}>
-            <p className="mb-2 text-[12px] font-black tracking-[0.08em] text-[#777777]">{group.label}</p>
-            <div className="flex flex-wrap gap-2">
-              {group.tags.map((tag) => {
-                const active = selectedTags.includes(tag);
-                return (
-                  <button
-                    key={`${group.key}-${tag}`}
-                    type="button"
-                    onClick={() => onToggleTag(tag)}
-                    className={[
-                      "inline-flex min-h-9 items-center rounded-full border px-3 py-2 text-[12px] font-medium transition-colors",
-                      active ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]",
-                    ].join(" ")}
-                  >
-                    #{tag}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function BuildFilterControlsPanel({
-  filters,
-  onChange,
-  onOpenWeaponPicker,
-}: {
-  filters: LibraryBuildFilterState;
-  onChange: Dispatch<SetStateAction<LibraryBuildFilterState>>;
-  onOpenWeaponPicker: () => void;
-}) {
-  const selectedWeaponIds = getUniqueSelectedWeaponIds(filters).slice(0, 4);
-  const selectedWeaponCount = filters.weaponIds.include.length + filters.weaponIds.exclude.length;
-
-  const updateRange = (key: "charCostRange" | "weaponCostRange" | "fiveStarWeaponCountRange", range: NumericRange) => {
-    onChange((current) => ({ ...current, [key]: range }));
-  };
-
-  return (
-    <div className="rounded-b-[8px] border-x border-b bg-white px-4 py-4 shadow-[0_10px_16px_rgba(0,0,0,0.05)]" style={{ borderColor: UI.panelBorder }}>
-      <div className="grid gap-4 lg:grid-cols-[310px_1fr]">
-        <LibraryWeaponPickerTile selectedIds={selectedWeaponIds} selectedCount={selectedWeaponCount} onOpenPicker={onOpenWeaponPicker} />
-        <div className="grid gap-3">
-          <div className="grid gap-3 lg:grid-cols-3">
-            <CostBracketSelector value={filters.costBracket} onChange={(value) => onChange((current) => ({ ...current, costBracket: value }))} />
-            <MaxValueSelector title="最大凸数" prefix="C" max={6} value={filters.maxConstellation} onChange={(value) => onChange((current) => ({ ...current, maxConstellation: value }))} />
-            <MaxValueSelector title="最大精錬" prefix="R" min={1} max={5} value={filters.maxFiveStarRefinement} onChange={(value) => onChange((current) => ({ ...current, maxFiveStarRefinement: value }))} />
-          </div>
-          <div className="grid gap-3 xl:grid-cols-3">
-            <RangeFilterControl title="キャラCost" value={filters.charCostRange} limit={BUILD_RANGE_LIMITS.charCost} onChange={(range) => updateRange("charCostRange", range)} />
-            <RangeFilterControl title="武器Cost" value={filters.weaponCostRange} limit={BUILD_RANGE_LIMITS.weaponCost} onChange={(range) => updateRange("weaponCostRange", range)} />
-            <RangeFilterControl title="星5武器装備数" value={filters.fiveStarWeaponCountRange} limit={BUILD_RANGE_LIMITS.fiveStarWeaponCount} onChange={(range) => updateRange("fiveStarWeaponCountRange", range)} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LibraryWeaponPickerTile({ selectedIds, selectedCount, onOpenPicker }: { selectedIds: string[]; selectedCount: number; onOpenPicker: () => void }) {
-  const hasSelection = selectedCount > 0;
-
-  return (
-    <button type="button" onClick={onOpenPicker} className="group flex min-h-[128px] items-center gap-4 rounded-[8px] border bg-[#f6f6f6] p-4 text-left transition hover:bg-[#f1f1f1] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50" style={{ borderColor: UI.panelBorder }}>
-      <span className="grid h-[96px] w-[96px] shrink-0 place-items-center overflow-hidden rounded-[8px] bg-white">
-        {hasSelection ? (
-          <span className="grid w-full grid-cols-2 gap-1 p-2">
-            {selectedIds.map((weaponId) => {
-              const weapon = weaponDb[weaponId];
-              return weapon ? (
-                <span key={weaponId} className="grid h-9 w-9 place-items-center overflow-hidden rounded-[8px] bg-[#eef0f4]">
-                  <WeaponIcon imageUrl={weapon.imageUrl} alt={weapon.name} fallbackLabel={weapon.shortLabel} size={34} className="p-1" />
-                </span>
-              ) : null;
-            })}
-          </span>
-        ) : (
-          <span className="text-[76px] font-normal leading-none text-[#c2c2c2] transition group-hover:text-[#a9a9b5]">+</span>
-        )}
-      </span>
-      <span className="min-w-0">
-        <span className="block text-[18px] font-black tracking-[0.02em] text-[#333333]">{hasSelection ? "武器条件を編集" : "武器条件を選択"}</span>
-        <span className="mt-2 block text-[12px] font-bold leading-5 text-[#777777]">{hasSelection ? `${selectedCount}件の武器条件を選択中` : "具体的な武器を含める/除外する条件として指定できます。"}</span>
-      </span>
-    </button>
   );
 }
 
@@ -636,164 +650,6 @@ function CombinedWeaponSummaryBox({ includeIds, excludeIds, onRemove }: { includ
   );
 }
 
-function LibraryWeaponFilterDrawer({
-  isOpen,
-  initialWeaponIds,
-  onClose,
-  onApply,
-}: {
-  isOpen: boolean;
-  initialWeaponIds: LibraryBuildFilterState["weaponIds"];
-  onClose: () => void;
-  onApply: (weaponIds: LibraryBuildFilterState["weaponIds"]) => void;
-}) {
-  const [draft, setDraft] = useState<LibraryBuildFilterState["weaponIds"]>(initialWeaponIds);
-  const [activeTarget, setActiveTarget] = useState<WeaponSummaryTarget>("include");
-  const [query, setQuery] = useState("");
-  const [classFilter, setClassFilter] = useState<(typeof WEAPON_CLASS_FILTER_OPTIONS)[number]["key"]>("all");
-  const [tierFilter, setTierFilter] = useState<(typeof WEAPON_TIER_FILTER_OPTIONS)[number]["key"]>("all");
-
-  const filteredWeapons = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return selectableWeapons.filter((weapon) => {
-      const matchesClass = classFilter === "all" || weapon.weaponClass === classFilter;
-      const matchesTier = tierFilter === "all" || weapon.tier === tierFilter;
-      const matchesQuery = normalizedQuery.length === 0 || weapon.name.toLowerCase().includes(normalizedQuery) || weapon.id.toLowerCase().includes(normalizedQuery) || weapon.shortLabel.toLowerCase().includes(normalizedQuery);
-      return matchesClass && matchesTier && matchesQuery;
-    });
-  }, [classFilter, query, tierFilter]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setDraft({ include: [...initialWeaponIds.include], exclude: [...initialWeaponIds.exclude] });
-    setActiveTarget("include");
-    setQuery("");
-    setClassFilter("all");
-    setTierFilter("all");
-  }, [initialWeaponIds, isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousBodyOverflow;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-    };
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const toggleWeapon = (weaponId: string) => {
-    const oppositeTarget = activeTarget === "include" ? "exclude" : "include";
-    setDraft((current) => {
-      const exists = current[activeTarget].includes(weaponId);
-      return {
-        ...current,
-        [activeTarget]: exists ? current[activeTarget].filter((id) => id !== weaponId) : [...current[activeTarget], weaponId],
-        [oppositeTarget]: current[oppositeTarget].filter((id) => id !== weaponId),
-      };
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 z-[72] bg-black/35 backdrop-blur-[2px]" onClick={onClose}>
-      <div className="absolute inset-y-0 right-0 flex w-full max-w-[720px] flex-col border-l border-[#e5e7eb] bg-white text-[#333333] shadow-[-24px_0_60px_rgba(31,41,55,0.16)]" onClick={(event) => event.stopPropagation()}>
-        <div className="shrink-0 border-b border-[#e5e7eb]">
-          <div className="flex items-start justify-between gap-4 px-5 pb-5 pt-8 md:px-6">
-            <div className="text-[24px] font-semibold text-[#111827]">武器条件を選択</div>
-            <button type="button" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#d8dde6] bg-[#f7f8fa] text-[#5f6678] transition-colors hover:bg-[#eef1f5] hover:text-[#111827]" onClick={onClose} aria-label="閉じる">
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 6L18 18" />
-                <path d="M18 6L6 18" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6 md:px-6">
-          <div className="space-y-6">
-            <section className="space-y-4">
-              <div className="flex justify-center">
-                <div className="flex w-full max-w-[320px] items-center overflow-hidden rounded-full border border-[#d8dde6] bg-[#edf1f5] sm:max-w-[360px]" aria-label="Selection target">
-                  {(["include", "exclude"] as const).map((target) => (
-                    <button key={target} type="button" className={`flex-1 px-5 py-2 text-[13px] font-semibold transition-colors sm:px-7 ${activeTarget === target ? "bg-[#111827] text-white" : "bg-transparent text-[#5f6678] hover:bg-white hover:text-[#111827]"}`} onClick={() => setActiveTarget(target)}>
-                      {target === "include" ? "含める" : "除外する"} {draft[target].length}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </section>
-            <section className="space-y-2">
-              <label className="relative block">
-                <SearchIcon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#8d93a3]" />
-                <input type="text" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="武器名 / ID / 略称で検索" className="h-11 w-full rounded-[14px] border border-[#d8dde6] bg-[#f7f8fa] pl-11 pr-4 text-[14px] text-[#333333] placeholder:text-[#8d93a3] outline-none transition-colors focus:border-[#9aa7ba] focus:bg-white" />
-              </label>
-            </section>
-            <div className="flex flex-wrap gap-2">
-              {WEAPON_CLASS_FILTER_OPTIONS.map((option) => (
-                <button key={option.key} type="button" onClick={() => setClassFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${classFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
-                  {option.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {WEAPON_TIER_FILTER_OPTIONS.map((option) => (
-                <button key={option.key} type="button" onClick={() => setTierFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${tierFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
-                  {option.label}
-                </button>
-              ))}
-            </div>
-            <div className="rounded-[16px] bg-[#f6f7f9] p-3">
-              {filteredWeapons.length === 0 ? (
-                <div className="grid min-h-[240px] place-items-center text-center text-[14px] text-[#7b7b8d]">条件に一致する武器がありません。</div>
-              ) : (
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  {filteredWeapons.map((weapon) => {
-                    const isInclude = draft.include.includes(weapon.id);
-                    const isExclude = draft.exclude.includes(weapon.id);
-                    const isActive = activeTarget === "include" ? isInclude : isExclude;
-                    return (
-                      <button key={weapon.id} type="button" onClick={() => toggleWeapon(weapon.id)} className={`relative rounded-[16px] border bg-white p-4 text-left transition hover:-translate-y-[1px] ${isActive ? "border-[#0f1419] shadow-[0_6px_18px_rgba(0,0,0,0.08)]" : "border-transparent"}`}>
-                        <div className="flex items-start gap-3">
-                          <WeaponIcon imageUrl={weapon.imageUrl} alt={weapon.name} fallbackLabel={weapon.shortLabel} size={64} className="rounded-[14px] p-1.5" />
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${getWeaponTierBadgeClass(weapon.tier)}`}>{formatWeaponTierLabel(weapon.tier)}</div>
-                              <div className="text-[12px] text-[#7b7b8d]">{formatWeaponClassLabel(weapon.weaponClass)}</div>
-                            </div>
-                            <div className="mt-2 text-[15px] font-semibold text-black">{weapon.name}</div>
-                            <div className="mt-1 text-[12px] text-[#7b7b8d]">{weapon.id}</div>
-                          </div>
-                        </div>
-                        {isInclude || isExclude ? (
-                          <span className={["absolute right-2 top-2 flex h-6 items-center rounded-full px-2 text-[11px] font-bold text-white", isExclude ? "bg-[#c27642]" : "bg-[#6bbbd0]"].join(" ")}>
-                            {isExclude ? "除外" : "含む"}
-                          </span>
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="grid shrink-0 grid-cols-[1fr_minmax(220px,360px)_1fr] items-center gap-3 border-t border-[#e5e7eb] px-5 py-4 md:px-6">
-          <button type="button" className="justify-self-start text-[13px] font-medium text-[#5f6678] underline decoration-[#c8ced8] underline-offset-4 hover:text-[#333333]" onClick={() => setDraft({ include: [], exclude: [] })}>
-            リセット
-          </button>
-          <button type="button" className="w-full rounded-full border border-[#111827] bg-[#111827] px-6 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#263142]" onClick={() => onApply(draft)}>
-            適用する
-          </button>
-          <div aria-hidden="true" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function LibraryFilterModal({
   activeKey,
   characterFilters,
@@ -843,8 +699,12 @@ function LibraryFilterModal({
     return <LibraryCharacterFilterModal title={panel.label} initialFilters={characterFilters} onClose={onClose} onApply={onApplyCharacter} />;
   }
 
-  if (activeKey === "build") {
-    return <LibraryBuildFilterModal title={panel.label} initialFilters={buildFilters} onClose={onClose} onApply={onApplyBuild} />;
+  if (activeKey === "weapon") {
+    return <LibraryWeaponFilterModal title={panel.label} initialFilters={buildFilters} onClose={onClose} onApply={onApplyBuild} />;
+  }
+
+  if (activeKey === "cost") {
+    return <LibraryCostFilterModal title={panel.label} initialFilters={buildFilters} onClose={onClose} onApply={onApplyBuild} />;
   }
 
   if (activeKey === "category") {
@@ -1096,7 +956,7 @@ function LibraryCharacterFilterModal({
   );
 }
 
-function LibraryBuildFilterModal({
+function LibraryWeaponFilterModal({
   title,
   initialFilters,
   onClose,
@@ -1108,7 +968,6 @@ function LibraryBuildFilterModal({
   onApply: (filters: LibraryBuildFilterState) => void;
 }) {
   const [draft, setDraft] = useState<LibraryBuildFilterState>(() => cloneLibraryBuildFilterState(initialFilters));
-  const [activeBuildTab, setActiveBuildTab] = useState<LibraryBuildFilterTab>("cost");
   const [activeTarget, setActiveTarget] = useState<WeaponSummaryTarget>("include");
   const [query, setQuery] = useState("");
   const [classFilter, setClassFilter] = useState<(typeof WEAPON_CLASS_FILTER_OPTIONS)[number]["key"]>("all");
@@ -1116,7 +975,6 @@ function LibraryBuildFilterModal({
 
   useEffect(() => {
     setDraft(cloneLibraryBuildFilterState(initialFilters));
-    setActiveBuildTab("cost");
     setActiveTarget("include");
     setQuery("");
     setClassFilter("all");
@@ -1132,10 +990,6 @@ function LibraryBuildFilterModal({
       return matchesClass && matchesTier && matchesQuery;
     });
   }, [classFilter, query, tierFilter]);
-
-  const updateRange = (key: "charCostRange" | "weaponCostRange" | "fiveStarWeaponCountRange", range: NumericRange) => {
-    setDraft((current) => ({ ...current, [key]: range }));
-  };
 
   const toggleWeapon = (weaponId: string) => {
     const oppositeTarget = activeTarget === "include" ? "exclude" : "include";
@@ -1163,8 +1017,7 @@ function LibraryBuildFilterModal({
   };
 
   const reset = () => {
-    setDraft(createEmptyLibraryBuildFilterState());
-    setActiveBuildTab("cost");
+    setDraft((current) => ({ ...current, weaponIds: { include: [], exclude: [] } }));
     setActiveTarget("include");
     setQuery("");
     setClassFilter("all");
@@ -1173,106 +1026,124 @@ function LibraryBuildFilterModal({
 
   return (
     <LibraryModalFrame title={title} onClose={onClose} onReset={reset} onApply={() => onApply(cloneLibraryBuildFilterState(draft))}>
-      <div className="space-y-5">
-        <div className="border-b border-[#e5e7eb]">
-          <div className="flex items-end justify-between overflow-x-auto px-1 pb-0 text-[13px] font-semibold md:text-[14px]">
-            {LIBRARY_BUILD_FILTER_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveBuildTab(tab.key)}
-                className={`-mb-px flex-1 shrink-0 border-b-2 pb-4 text-center transition-colors ${
-                  activeBuildTab === tab.key ? "border-[#111827] text-[#111827]" : "border-transparent text-[#8d93a3] hover:text-[#333333]"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+      <section className="rounded-[18px] border border-[#e5e7eb] bg-[#f7f8fa] p-4">
+        <div className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <div className="space-y-4">
+            <div className="flex items-center overflow-hidden rounded-full border border-[#d8dde6] bg-[#edf1f5]">
+              {(["include", "exclude"] as const).map((target) => (
+                <button key={target} type="button" className={`flex-1 px-5 py-2 text-[13px] font-semibold transition-colors ${activeTarget === target ? "bg-[#111827] text-white" : "bg-transparent text-[#5f6678] hover:bg-white hover:text-[#111827]"}`} onClick={() => setActiveTarget(target)}>
+                  {target === "include" ? "含める" : "除外する"} {draft.weaponIds[target].length}
+                </button>
+              ))}
+            </div>
+            <CombinedWeaponSummaryBox includeIds={draft.weaponIds.include} excludeIds={draft.weaponIds.exclude} onRemove={removeWeapon} />
+          </div>
+          <div className="min-w-0 space-y-3">
+            <label className="relative block">
+              <SearchIcon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#8d93a3]" />
+              <input type="text" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="武器名 / ID / 略称で検索" className="h-11 w-full rounded-[14px] border border-[#d8dde6] bg-white pl-11 pr-4 text-[14px] text-[#333333] placeholder:text-[#8d93a3] outline-none transition-colors focus:border-[#9aa7ba]" />
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {WEAPON_CLASS_FILTER_OPTIONS.map((option) => (
+                <button key={option.key} type="button" onClick={() => setClassFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${classFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {WEAPON_TIER_FILTER_OPTIONS.map((option) => (
+                <button key={option.key} type="button" onClick={() => setTierFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${tierFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <div className="max-h-[430px] overflow-y-auto rounded-[16px] bg-white p-3">
+              {filteredWeapons.length === 0 ? (
+                <div className="grid min-h-[220px] place-items-center text-center text-[14px] text-[#7b7b8d]">条件に一致する武器がありません。</div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  {filteredWeapons.map((weapon) => {
+                    const isInclude = draft.weaponIds.include.includes(weapon.id);
+                    const isExclude = draft.weaponIds.exclude.includes(weapon.id);
+                    const isActive = activeTarget === "include" ? isInclude : isExclude;
+                    return (
+                      <button key={weapon.id} type="button" onClick={() => toggleWeapon(weapon.id)} className={`relative rounded-[16px] border bg-white p-4 text-left transition hover:-translate-y-[1px] ${isActive ? "border-[#0f1419] shadow-[0_6px_18px_rgba(0,0,0,0.08)]" : "border-[#edf0f4]"}`}>
+                        <div className="flex items-start gap-3">
+                          <WeaponIcon imageUrl={weapon.imageUrl} alt={weapon.name} fallbackLabel={weapon.shortLabel} size={58} className="rounded-[14px] p-1.5" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${getWeaponTierBadgeClass(weapon.tier)}`}>{formatWeaponTierLabel(weapon.tier)}</div>
+                              <div className="text-[12px] text-[#7b7b8d]">{formatWeaponClassLabel(weapon.weaponClass)}</div>
+                            </div>
+                            <div className="mt-2 text-[14px] font-semibold text-black">{weapon.name}</div>
+                            <div className="mt-1 text-[12px] text-[#7b7b8d]">{weapon.id}</div>
+                          </div>
+                        </div>
+                        {isInclude || isExclude ? (
+                          <span className={["absolute right-2 top-2 flex h-6 items-center rounded-full px-2 text-[11px] font-bold text-white", isExclude ? "bg-[#c27642]" : "bg-[#6bbbd0]"].join(" ")}>
+                            {isExclude ? "除外" : "含む"}
+                          </span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+      </section>
+    </LibraryModalFrame>
+  );
+}
 
-        {activeBuildTab === "cost" ? (
-          <div className="space-y-4">
-            <div className="grid gap-3 lg:grid-cols-3">
-              <CostBracketSelector value={draft.costBracket} onChange={(value) => setDraft((current) => ({ ...current, costBracket: value }))} />
-              <MaxValueSelector title="最大凸数" prefix="C" max={6} value={draft.maxConstellation} onChange={(value) => setDraft((current) => ({ ...current, maxConstellation: value }))} />
-              <MaxValueSelector title="最大精錬" prefix="R" min={1} max={5} value={draft.maxFiveStarRefinement} onChange={(value) => setDraft((current) => ({ ...current, maxFiveStarRefinement: value }))} />
-            </div>
-            <div className="grid gap-3 xl:grid-cols-3">
-              <RangeFilterControl title="キャラCost" value={draft.charCostRange} limit={BUILD_RANGE_LIMITS.charCost} onChange={(range) => updateRange("charCostRange", range)} />
-              <RangeFilterControl title="武器Cost" value={draft.weaponCostRange} limit={BUILD_RANGE_LIMITS.weaponCost} onChange={(range) => updateRange("weaponCostRange", range)} />
-              <RangeFilterControl title="星5武器装備数" value={draft.fiveStarWeaponCountRange} limit={BUILD_RANGE_LIMITS.fiveStarWeaponCount} onChange={(range) => updateRange("fiveStarWeaponCountRange", range)} />
-            </div>
-          </div>
-        ) : (
-          <section className="rounded-[18px] border border-[#e5e7eb] bg-[#f7f8fa] p-4">
-            <div className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-              <div className="space-y-4">
-                <div className="flex items-center overflow-hidden rounded-full border border-[#d8dde6] bg-[#edf1f5]">
-                  {(["include", "exclude"] as const).map((target) => (
-                    <button key={target} type="button" className={`flex-1 px-5 py-2 text-[13px] font-semibold transition-colors ${activeTarget === target ? "bg-[#111827] text-white" : "bg-transparent text-[#5f6678] hover:bg-white hover:text-[#111827]"}`} onClick={() => setActiveTarget(target)}>
-                      {target === "include" ? "含める" : "除外する"} {draft.weaponIds[target].length}
-                    </button>
-                  ))}
-                </div>
-                <CombinedWeaponSummaryBox includeIds={draft.weaponIds.include} excludeIds={draft.weaponIds.exclude} onRemove={removeWeapon} />
-              </div>
-              <div className="min-w-0 space-y-3">
-                <label className="relative block">
-                  <SearchIcon size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#8d93a3]" />
-                  <input type="text" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="武器名 / ID / 略称で検索" className="h-11 w-full rounded-[14px] border border-[#d8dde6] bg-white pl-11 pr-4 text-[14px] text-[#333333] placeholder:text-[#8d93a3] outline-none transition-colors focus:border-[#9aa7ba]" />
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {WEAPON_CLASS_FILTER_OPTIONS.map((option) => (
-                    <button key={option.key} type="button" onClick={() => setClassFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${classFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {WEAPON_TIER_FILTER_OPTIONS.map((option) => (
-                    <button key={option.key} type="button" onClick={() => setTierFilter(option.key)} className={`inline-flex min-h-8 items-center rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors ${tierFilter === option.key ? "border-transparent bg-[#111827] text-white" : "border-[#d8dde6] bg-white text-[#5f6678] hover:bg-[#eef1f5] hover:text-[#333333]"}`}>
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="max-h-[430px] overflow-y-auto rounded-[16px] bg-white p-3">
-                  {filteredWeapons.length === 0 ? (
-                    <div className="grid min-h-[220px] place-items-center text-center text-[14px] text-[#7b7b8d]">条件に一致する武器がありません。</div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      {filteredWeapons.map((weapon) => {
-                        const isInclude = draft.weaponIds.include.includes(weapon.id);
-                        const isExclude = draft.weaponIds.exclude.includes(weapon.id);
-                        const isActive = activeTarget === "include" ? isInclude : isExclude;
-                        return (
-                          <button key={weapon.id} type="button" onClick={() => toggleWeapon(weapon.id)} className={`relative rounded-[16px] border bg-white p-4 text-left transition hover:-translate-y-[1px] ${isActive ? "border-[#0f1419] shadow-[0_6px_18px_rgba(0,0,0,0.08)]" : "border-[#edf0f4]"}`}>
-                            <div className="flex items-start gap-3">
-                              <WeaponIcon imageUrl={weapon.imageUrl} alt={weapon.name} fallbackLabel={weapon.shortLabel} size={58} className="rounded-[14px] p-1.5" />
-                              <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${getWeaponTierBadgeClass(weapon.tier)}`}>{formatWeaponTierLabel(weapon.tier)}</div>
-                                  <div className="text-[12px] text-[#7b7b8d]">{formatWeaponClassLabel(weapon.weaponClass)}</div>
-                                </div>
-                                <div className="mt-2 text-[14px] font-semibold text-black">{weapon.name}</div>
-                                <div className="mt-1 text-[12px] text-[#7b7b8d]">{weapon.id}</div>
-                              </div>
-                            </div>
-                            {isInclude || isExclude ? (
-                              <span className={["absolute right-2 top-2 flex h-6 items-center rounded-full px-2 text-[11px] font-bold text-white", isExclude ? "bg-[#c27642]" : "bg-[#6bbbd0]"].join(" ")}>
-                                {isExclude ? "除外" : "含む"}
-                              </span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
+function LibraryCostFilterModal({
+  title,
+  initialFilters,
+  onClose,
+  onApply,
+}: {
+  title: string;
+  initialFilters: LibraryBuildFilterState;
+  onClose: () => void;
+  onApply: (filters: LibraryBuildFilterState) => void;
+}) {
+  const [draft, setDraft] = useState<LibraryBuildFilterState>(() => cloneLibraryBuildFilterState(initialFilters));
+
+  useEffect(() => {
+    setDraft(cloneLibraryBuildFilterState(initialFilters));
+  }, [initialFilters]);
+
+  const updateRange = (key: "charCostRange" | "weaponCostRange" | "fiveStarWeaponCountRange", range: NumericRange) => {
+    setDraft((current) => ({ ...current, [key]: range }));
+  };
+
+  const reset = () => {
+    const emptyFilters = createEmptyLibraryBuildFilterState();
+    setDraft((current) => ({
+      ...current,
+      costBracket: emptyFilters.costBracket,
+      charCostRange: emptyFilters.charCostRange,
+      weaponCostRange: emptyFilters.weaponCostRange,
+      fiveStarWeaponCountRange: emptyFilters.fiveStarWeaponCountRange,
+      maxConstellation: emptyFilters.maxConstellation,
+      maxFiveStarRefinement: emptyFilters.maxFiveStarRefinement,
+    }));
+  };
+
+  return (
+    <LibraryModalFrame title={title} onClose={onClose} onReset={reset} onApply={() => onApply(cloneLibraryBuildFilterState(draft))}>
+      <div className="space-y-4">
+        <div className="grid gap-3 lg:grid-cols-3">
+          <MaxValueSelector title="最大凸数" prefix="C" max={6} value={draft.maxConstellation} onChange={(value) => setDraft((current) => ({ ...current, maxConstellation: value }))} />
+          <MaxValueSelector title="最大精錬" prefix="R" min={1} max={5} value={draft.maxFiveStarRefinement} onChange={(value) => setDraft((current) => ({ ...current, maxFiveStarRefinement: value }))} />
+          <CostBracketSelector value={draft.costBracket} onChange={(value) => setDraft((current) => ({ ...current, costBracket: value }))} />
+        </div>
+        <div className="grid gap-3 xl:grid-cols-3">
+          <RangeFilterControl title="キャラCost" value={draft.charCostRange} limit={BUILD_RANGE_LIMITS.charCost} onChange={(range) => updateRange("charCostRange", range)} />
+          <RangeFilterControl title="武器Cost" value={draft.weaponCostRange} limit={BUILD_RANGE_LIMITS.weaponCost} onChange={(range) => updateRange("weaponCostRange", range)} />
+          <RangeFilterControl title="星5武器装備数" value={draft.fiveStarWeaponCountRange} limit={BUILD_RANGE_LIMITS.fiveStarWeaponCount} onChange={(range) => updateRange("fiveStarWeaponCountRange", range)} />
+        </div>
       </div>
     </LibraryModalFrame>
   );
@@ -1367,10 +1238,6 @@ function LibraryTagFilterModal({
   );
 }
 
-function getUniqueSelectedWeaponIds(filters: LibraryBuildFilterState) {
-  return Array.from(new Set([...filters.weaponIds.include, ...filters.weaponIds.exclude]));
-}
-
 function filterChipClass(isExclude: boolean) {
   return [
     "inline-flex h-8 max-w-full items-center justify-center gap-1.5 rounded-full px-2.5 text-[11px] font-medium transition-colors",
@@ -1401,149 +1268,6 @@ function getWeaponTierBadgeClass(tier: WeaponTier) {
     case "one_star":
       return "bg-[#f2f2f2] text-[#6d6d7d]";
   }
-}
-
-function FilterCardBar({
-  activeKey,
-  onPanelClick,
-  variant,
-  className,
-}: {
-  activeKey: SelectableFilterKey | null;
-  onPanelClick: (key: LibraryFilterKey) => void;
-  variant: "desktop" | "mobile";
-  className?: string;
-}) {
-  const isMobile = variant === "mobile";
-
-  return (
-    <div className={[isMobile ? "" : "no-scrollbar overflow-x-auto", className].filter(Boolean).join(" ")} role="group" aria-label={LIBRARY_LABELS.searchTitle}>
-      <div
-        className={
-          isMobile
-            ? "grid grid-cols-1 gap-px overflow-hidden border border-black/25 bg-[#08080c] shadow-[0_14px_30px_rgba(15,23,42,0.18)]"
-            : "grid min-w-[932px] grid-cols-[repeat(4,210px)_92px] gap-px overflow-hidden border border-black/25 bg-[#08080c] shadow-[0_14px_30px_rgba(15,23,42,0.18)] sm:min-w-0 sm:grid-cols-[repeat(4,minmax(0,1fr))_minmax(92px,0.42fr)]"
-        }
-      >
-        {LIBRARY_FILTER_PANELS.map((panel) => {
-          const isSearch = panel.key === "search";
-          const isActive = !isSearch && panel.key === activeKey;
-          const backgroundColor = getFilterCardBackgroundColor(panel);
-
-          return (
-            <button
-              key={panel.key}
-              type="button"
-              aria-pressed={isSearch ? undefined : isActive}
-              onClick={() => onPanelClick(panel.key)}
-              className={[
-                isMobile
-                  ? "group relative h-[58px] overflow-hidden text-[#d9d9d9] outline-none transition focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/75"
-                  : "group relative h-[138px] overflow-hidden text-[#d9d9d9] outline-none transition focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/75 sm:h-[168px] md:h-[190px]",
-                isActive ? "ring-2 ring-inset ring-white/70" : "",
-              ].join(" ")}
-              style={
-                {
-                  backgroundColor,
-                } as CSSProperties
-              }
-            >
-              {renderFilterCardContent(panel, variant)}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function getFilterCardBackgroundColor(panel: LibraryFilterPanel) {
-  return isSelectableFilterPanel(panel) ? DESKTOP_FILTER_CARD_META[panel.key].backgroundColor : "#111116";
-}
-
-function renderFilterCardContent(panel: LibraryFilterPanel, variant: "desktop" | "mobile") {
-  if (isSearchFilterPanel(panel)) {
-    return <SearchFilterCardContent panel={panel} variant={variant} />;
-  }
-
-  if (isSelectableFilterPanel(panel)) {
-    return <SelectableFilterCardContent panel={panel} variant={variant} />;
-  }
-
-  return null;
-}
-
-function SelectableFilterCardContent({ panel, variant }: { panel: SelectableFilterPanel; variant: "desktop" | "mobile" }) {
-  const meta = DESKTOP_FILTER_CARD_META[panel.key];
-  const details = FILTER_CARD_DETAILS[panel.key];
-
-  if (variant === "mobile") {
-    return (
-      <>
-        <img
-          src={meta.imageUrl}
-          alt=""
-          className="absolute inset-0 h-full w-full scale-[1.05] object-cover opacity-[0.62] transition duration-300 group-hover:scale-[1.09] group-hover:opacity-80 group-focus-visible:scale-[1.09] group-focus-visible:opacity-80"
-          style={{ objectPosition: meta.objectPosition }}
-          loading="lazy"
-        />
-        <span className={`absolute inset-0 transition-colors duration-200 ${FILTER_CARD_DIM_CLASS}`} />
-        <span className="relative z-10 flex h-full min-w-0 items-center gap-2.5 px-4 text-left">
-          <span className="shrink-0 text-[18px] font-black leading-none text-[#d9d9d9]/[0.9] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]">{details.number}</span>
-          <span className="flex min-w-0 items-baseline gap-2">
-            <span className="shrink-0 whitespace-nowrap text-[16px] font-black leading-none tracking-[0.02em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">{panel.label}</span>
-            <span className="min-w-0 truncate text-[10px] font-black uppercase leading-none tracking-[0.08em] text-[#d9d9d9]/75">{details.subLabel}</span>
-          </span>
-        </span>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <img
-        src={meta.imageUrl}
-        alt=""
-        className="absolute inset-0 h-full w-full scale-[1.08] object-cover opacity-[0.72] transition duration-300 group-hover:scale-[1.13] group-hover:opacity-90 group-focus-visible:scale-[1.13] group-focus-visible:opacity-90"
-        style={{ objectPosition: meta.objectPosition }}
-        loading="lazy"
-      />
-      <span className={`absolute inset-0 transition-colors duration-200 ${FILTER_CARD_DIM_CLASS}`} />
-      <span className="absolute left-4 top-4 z-10 text-[22px] font-black leading-none text-[#d9d9d9]/[0.88] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)] sm:left-5 sm:top-5 sm:text-[24px]">
-        {details.number}
-      </span>
-      <span className="relative z-10 flex h-full translate-y-0.5 items-end px-4 pb-5 pt-16 text-left sm:px-5 sm:pb-6">
-        <span className="min-w-0">
-          <span className="block whitespace-nowrap text-[19px] font-black leading-tight tracking-[0.02em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.65)]">{panel.label}</span>
-          <span className="mt-1 block text-[11px] font-black uppercase leading-none tracking-[0.08em] text-[#d9d9d9]/75">{details.subLabel}</span>
-        </span>
-      </span>
-    </>
-  );
-}
-
-function SearchFilterCardContent({ panel, variant }: { panel: SearchFilterPanel; variant: "desktop" | "mobile" }) {
-  if (variant === "mobile") {
-    return (
-      <>
-        <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),rgba(255,255,255,0)_48%)] opacity-75 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
-        <span className="relative z-10 flex h-full items-center justify-center gap-2.5 px-4 text-center">
-          <SearchIcon size={22} className="text-[#d9d9d9] drop-shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition duration-300 group-hover:text-white group-focus-visible:text-white" />
-          <span className="text-[16px] font-black leading-none tracking-[0.02em] text-white">{panel.label}</span>
-        </span>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <span className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),rgba(255,255,255,0)_48%)] opacity-75 transition duration-300 group-hover:opacity-100 group-focus-visible:opacity-100" />
-      <span className="relative z-10 flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
-        <SearchIcon size={38} className="text-[#d9d9d9] drop-shadow-[0_8px_20px_rgba(0,0,0,0.4)] transition duration-300 group-hover:text-white group-focus-visible:text-white" />
-        <span className="text-[22px] font-black leading-none tracking-[0.02em] text-white sm:text-[23px]">{panel.label}</span>
-      </span>
-    </>
-  );
 }
 
 function ResponsiveStyle() {

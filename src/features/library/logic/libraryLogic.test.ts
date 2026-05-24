@@ -60,9 +60,13 @@ describe("library search filter logic", () => {
     characterFilters.characterFilters.partyCharacters.includeIds.push("chasca");
     expect(getFirstActivePanelFromFilters(characterFilters)).toBe("character");
 
-    const buildFilters = createEmptyLibrarySearchFilters();
-    buildFilters.buildFilters.costBracket = 3;
-    expect(getFirstActivePanelFromFilters(buildFilters)).toBe("build");
+    const weaponFilters = createEmptyLibrarySearchFilters();
+    weaponFilters.buildFilters.weaponIds.include.push("favoniusWarbow");
+    expect(getFirstActivePanelFromFilters(weaponFilters)).toBe("weapon");
+
+    const costFilters = createEmptyLibrarySearchFilters();
+    costFilters.buildFilters.costBracket = 3;
+    expect(getFirstActivePanelFromFilters(costFilters)).toBe("cost");
 
     const categoryFilters = createEmptyLibrarySearchFilters();
     categoryFilters.categoryFilters.ruleset = "高難度";

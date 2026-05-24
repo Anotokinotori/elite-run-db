@@ -1,7 +1,7 @@
 export const LIBRARY_HERO_IMAGE_URL = "https://cdn.asoworld.com/img/865f059851cb4fb0a1584a711a8bd338.jpg";
 
 export const LIBRARY_COLORS = {
-  pageBackground: "#f2f3f5",
+  pageBackground: "#EDECEC",
 } as const;
 
 export const LIBRARY_LABELS = {
@@ -13,8 +13,9 @@ export const LIBRARY_LABELS = {
 
 export const LIBRARY_FILTER_PANELS = [
   { key: "character", label: "キャラ・編成", icon: "character" },
-  { key: "build", label: "凸・武器", icon: "weapon" },
-  { key: "category", label: "カテゴリ・期間", icon: "calendar" },
+  { key: "weapon", label: "武器", icon: "weapon" },
+  { key: "cost", label: "凸・精錬", icon: "cost" },
+  { key: "category", label: "カテゴリ・期間", icon: "category" },
   { key: "tag", label: "タグ", icon: "tag" },
   { key: "search", label: "検索", icon: "search" },
 ] as const;

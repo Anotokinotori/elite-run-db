@@ -4,12 +4,9 @@ import {
   type LibraryBuildFilterState,
   type LibraryCategoryFilterState,
   type LibraryFilterKey,
-  type LibraryFilterPanel,
   type LibrarySearchFilters,
   type NumericRange,
-  type SearchFilterPanel,
   type SelectableFilterKey,
-  type SelectableFilterPanel,
 } from "../types";
 
 export function createEmptyLibraryBuildFilterState(): LibraryBuildFilterState {
@@ -73,14 +70,6 @@ export function isSelectableFilterKey(key: LibraryFilterKey): key is SelectableF
   return key !== "search";
 }
 
-export function isSelectableFilterPanel(panel: LibraryFilterPanel): panel is SelectableFilterPanel {
-  return isSelectableFilterKey(panel.key);
-}
-
-export function isSearchFilterPanel(panel: LibraryFilterPanel): panel is SearchFilterPanel {
-  return panel.key === "search";
-}
-
 export function isDefaultRange(value: NumericRange, limit: NumericRange) {
   return value.min === limit.min && value.max === limit.max;
 }
@@ -96,17 +85,12 @@ export function getFirstActivePanelFromFilters(filters: LibrarySearchFilters): S
     return "character";
   }
 
-  if (
-    filters.buildFilters.costBracket !== null ||
-    !isDefaultRange(filters.buildFilters.charCostRange, LIBRARY_BUILD_RANGE_LIMITS.charCost) ||
-    !isDefaultRange(filters.buildFilters.weaponCostRange, LIBRARY_BUILD_RANGE_LIMITS.weaponCost) ||
-    !isDefaultRange(filters.buildFilters.fiveStarWeaponCountRange, LIBRARY_BUILD_RANGE_LIMITS.fiveStarWeaponCount) ||
-    filters.buildFilters.maxConstellation !== null ||
-    filters.buildFilters.maxFiveStarRefinement !== null ||
-    filters.buildFilters.weaponIds.include.length > 0 ||
-    filters.buildFilters.weaponIds.exclude.length > 0
-  ) {
-    return "build";
+  if (hasActiveWeaponFilters(filters.buildFilters)) {
+    return "weapon";
+  }
+
+  if (hasActiveCostFilters(filters.buildFilters)) {
+    return "cost";
   }
 
   if (filters.categoryFilters.ruleset || filters.categoryFilters.version || filters.categoryFilters.playStyle || filters.categoryFilters.food || filters.categoryFilters.device) {
@@ -118,4 +102,19 @@ export function getFirstActivePanelFromFilters(filters: LibrarySearchFilters): S
   }
 
   return null;
+}
+
+export function hasActiveWeaponFilters(filters: LibraryBuildFilterState) {
+  return filters.weaponIds.include.length > 0 || filters.weaponIds.exclude.length > 0;
+}
+
+export function hasActiveCostFilters(filters: LibraryBuildFilterState) {
+  return (
+    filters.costBracket !== null ||
+    !isDefaultRange(filters.charCostRange, LIBRARY_BUILD_RANGE_LIMITS.charCost) ||
+    !isDefaultRange(filters.weaponCostRange, LIBRARY_BUILD_RANGE_LIMITS.weaponCost) ||
+    !isDefaultRange(filters.fiveStarWeaponCountRange, LIBRARY_BUILD_RANGE_LIMITS.fiveStarWeaponCount) ||
+    filters.maxConstellation !== null ||
+    filters.maxFiveStarRefinement !== null
+  );
 }

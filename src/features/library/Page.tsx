@@ -17,7 +17,7 @@ export function LibraryPage({ onOpenRankings, onSelectRun }: LibraryPageProps) {
   const libraryState = useLibraryPageState({ onSelectRun });
 
   return (
-    <div className="min-h-full bg-[#f2f3f5] text-[#111827]">
+    <div className="min-h-full bg-[#EDECEC] text-[#111827]">
       <LibraryHero
         imageUrl={LIBRARY_HERO_IMAGE_URL}
         backgroundColor={LIBRARY_COLORS.pageBackground}

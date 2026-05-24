@@ -12,7 +12,7 @@ export function PlaceholderPage({
   children?: ReactNode;
 }) {
   return (
-    <div className="min-h-full bg-[#f0f2f5] text-[#333333]">
+    <div className="min-h-full bg-[#EDECEC] text-[#333333]">
       <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
         <section className="rounded-[20px] border border-black/8 bg-white px-6 py-7 shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
           <div className="text-[12px] font-bold tracking-[0.18em] text-[#9999b1] uppercase">{label}</div>
