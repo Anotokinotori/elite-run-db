@@ -14,6 +14,8 @@ import {
   createEmptyLibraryBuildFilterState,
   createEmptyLibraryCategoryFilterState,
   createEmptyLibrarySearchFilters,
+  hasActiveCostFilters,
+  hasActiveWeaponFilters,
 } from "./searchFilters";
 
 export const LIBRARY_ACTION_STORAGE_KEY = "elite-run-db.libraryActions.v1";
@@ -272,8 +274,12 @@ function getFilterSummaryParts(filters: LibrarySearchFilters) {
     parts.push(`キャラ${characterCount}`);
   }
 
-  if (hasActiveBuildFilters(filters.buildFilters)) {
-    parts.push("凸・武器");
+  if (hasActiveWeaponFilters(filters.buildFilters)) {
+    parts.push("武器");
+  }
+
+  if (hasActiveCostFilters(filters.buildFilters)) {
+    parts.push("凸・精錬");
   }
 
   if (hasActiveCategoryFilters(filters.categoryFilters)) {
@@ -300,16 +306,7 @@ function hasActiveFilters(filters: LibrarySearchFilters) {
 }
 
 function hasActiveBuildFilters(filters: LibraryBuildFilterState) {
-  return (
-    filters.costBracket !== null ||
-    !isDefaultRange(filters.charCostRange, LIBRARY_BUILD_RANGE_LIMITS.charCost) ||
-    !isDefaultRange(filters.weaponCostRange, LIBRARY_BUILD_RANGE_LIMITS.weaponCost) ||
-    !isDefaultRange(filters.fiveStarWeaponCountRange, LIBRARY_BUILD_RANGE_LIMITS.fiveStarWeaponCount) ||
-    filters.maxConstellation !== null ||
-    filters.maxFiveStarRefinement !== null ||
-    filters.weaponIds.include.length > 0 ||
-    filters.weaponIds.exclude.length > 0
-  );
+  return hasActiveWeaponFilters(filters) || hasActiveCostFilters(filters);
 }
 
 function hasActiveCategoryFilters(filters: LibraryCategoryFilterState) {
@@ -354,10 +351,6 @@ function readRange(value: unknown, limit: NumericRange): NumericRange {
   const min = clamp(Math.min(value.min, value.max), limit.min, limit.max);
   const max = clamp(Math.max(value.min, value.max), limit.min, limit.max);
   return { min, max };
-}
-
-function isDefaultRange(range: NumericRange, limit: NumericRange) {
-  return range.min === limit.min && range.max === limit.max;
 }
 
 function clamp(value: number, min: number, max: number) {
