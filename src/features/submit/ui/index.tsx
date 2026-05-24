@@ -11,7 +11,7 @@ export function FieldError({ message }: { message?: string }) {
     return null;
   }
 
-  return <p className="mt-2 text-[13px] leading-[1.5] text-[#d24b5a]">{message}</p>;
+  return <p className="mt-1.5 text-[11px] leading-[1.5] text-[#d24b5a]">{message}</p>;
 }
 
 export function SectionTitle({
@@ -24,10 +24,10 @@ export function SectionTitle({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-[#ebebeb] pb-5 md:flex-row md:items-end md:justify-between">
+    <div className="flex flex-col gap-2.5 border-b border-[#ebebeb] pb-4 md:flex-row md:items-end md:justify-between">
       <div>
-        <h2 className="text-[24px] font-bold text-black md:text-[30px]">{title}</h2>
-        {description ? <p className="mt-2 text-[14px] text-[#7b7b8d] md:text-[15px]">{description}</p> : null}
+        <h2 className="text-[19px] font-bold text-black md:text-[24px]">{title}</h2>
+        {description ? <p className="mt-1.5 text-[12px] text-[#7b7b8d] md:text-[13px]">{description}</p> : null}
       </div>
       {action}
     </div>
@@ -36,10 +36,10 @@ export function SectionTitle({
 
 export function SearchActionIcon() {
   return (
-    <span className="inline-flex h-7 w-7 items-center justify-center text-current">
+    <span className="inline-flex h-6 w-6 items-center justify-center text-current">
       <svg
         viewBox="0 0 24 24"
-        className="h-6 w-6"
+        className="h-5 w-5"
         fill="none"
         stroke="currentColor"
         strokeWidth="2.1"
@@ -57,7 +57,7 @@ export function SearchActionIcon() {
 export function PlatformChoiceContent({ platform }: { platform: Platform }) {
   return (
     <>
-      <PlatformIcon platform={platform} className="h-5 w-5 md:h-6 md:w-6" />
+      <PlatformIcon platform={platform} className="h-4 w-4 md:h-5 md:w-5" />
       <span>{platform}</span>
     </>
   );
@@ -71,18 +71,18 @@ export function StepIndicator({ currentStep, onBack }: { currentStep: SubmitStep
   ] as const;
 
   return (
-    <div className="mx-auto grid w-full max-w-[980px] items-start gap-4 px-4 md:grid-cols-[auto_minmax(0,1fr)_auto] md:px-0">
-      <BackButton label="戻る" showLabel onClick={onBack} className="self-center text-[16px] md:justify-self-start" />
+    <div className="mx-auto grid w-full max-w-[784px] items-start gap-3 px-3 md:grid-cols-[auto_minmax(0,1fr)_auto] md:px-0">
+      <BackButton label="戻る" showLabel onClick={onBack} className="self-center text-[13px] md:justify-self-start" />
 
-      <div className="flex w-full max-w-[664px] flex-col gap-4 justify-self-center">
-        <div className="grid grid-cols-[64px_minmax(0,1fr)_64px_minmax(0,1fr)_64px] items-center">
+      <div className="flex w-full max-w-[426px] flex-col gap-2.5 justify-self-center">
+        <div className="grid grid-cols-[42px_minmax(0,1fr)_42px_minmax(0,1fr)_42px] items-center">
           {steps.flatMap((entry, index) => {
             const active = currentStep >= entry.step;
 
             return [
               <div
                 key={`step-no-${entry.step}`}
-                className={`text-center text-[28px] font-bold md:text-[32px] ${active ? "text-black" : "text-[#d9d9d9]"}`}
+                className={`text-center text-[18px] font-bold md:text-[21px] ${active ? "text-black" : "text-[#d9d9d9]"}`}
               >
                 {String(entry.step).padStart(2, "0")}
               </div>,
@@ -91,26 +91,26 @@ export function StepIndicator({ currentStep, onBack }: { currentStep: SubmitStep
           })}
         </div>
 
-        <div className="grid grid-cols-[64px_minmax(0,1fr)_64px_minmax(0,1fr)_64px] items-center">
+        <div className="grid grid-cols-[42px_minmax(0,1fr)_42px_minmax(0,1fr)_42px] items-center">
           {steps.flatMap((entry, index) => {
             const active = currentStep >= entry.step;
             const current = currentStep === entry.step;
 
             return [
               <div key={`step-circle-${entry.step}`} className="grid place-items-center">
-                <div className={`h-16 w-16 rounded-full ${current ? "bg-[#0f1419]" : active ? "bg-[#333333]" : "bg-[#d9d9d9]"}`} />
+                <div className={`h-[42px] w-[42px] rounded-full ${current ? "bg-[#0f1419]" : active ? "bg-[#333333]" : "bg-[#d9d9d9]"}`} />
               </div>,
-              index < steps.length - 1 ? <div key={`step-line-${entry.step}`} className="h-1 w-full bg-[#d9d9d9]" /> : null,
+              index < steps.length - 1 ? <div key={`step-line-${entry.step}`} className="h-[2px] w-full bg-[#d9d9d9]" /> : null,
             ];
           })}
         </div>
 
-        <div className="grid grid-cols-[64px_minmax(0,1fr)_64px_minmax(0,1fr)_64px] items-center text-[14px] md:text-[16px]">
+        <div className="grid grid-cols-[42px_minmax(0,1fr)_42px_minmax(0,1fr)_42px] items-center text-[10px] md:text-[11px]">
           {steps.flatMap((entry, index) => {
             const active = currentStep >= entry.step;
 
             return [
-              <div key={`step-label-${entry.step}`} className={`text-center ${active ? "text-black" : "text-[#d9d9d9]"}`}>
+              <div key={`step-label-${entry.step}`} className={`whitespace-nowrap text-center ${active ? "text-black" : "text-[#d9d9d9]"}`}>
                 {entry.label}
               </div>,
               index < steps.length - 1 ? <div key={`step-label-spacer-${entry.step}`} /> : null,
@@ -119,14 +119,14 @@ export function StepIndicator({ currentStep, onBack }: { currentStep: SubmitStep
         </div>
       </div>
 
-      <div className="hidden md:block md:w-[70px]" aria-hidden="true" />
+      <div className="hidden md:block md:w-[56px]" aria-hidden="true" />
     </div>
   );
 }
 
 export function EmptyCharacterBadge({ label }: { label: string }) {
   return (
-    <div className="grid h-[72px] w-[72px] place-items-center rounded-full bg-[#f2f2f2] text-[24px] font-medium text-[#b2b2c0]">
+    <div className="grid h-[58px] w-[58px] place-items-center rounded-full bg-[#f2f2f2] text-[19px] font-medium text-[#b2b2c0]">
       {label}
     </div>
   );
@@ -136,7 +136,7 @@ export function BracketBadge({ bracket }: { bracket: Bracket }) {
   const meta = BRACKET_META[bracket];
 
   return (
-    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[13px] font-semibold ${meta.accent} ${meta.text}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${meta.accent} ${meta.text}`}>
       {meta.label}
     </span>
   );
@@ -152,12 +152,12 @@ export function AttackerSelectionIndicator({
   if (multiSelect) {
     return (
       <span
-        className={`grid h-7 w-7 place-items-center rounded-full border-2 transition md:h-8 md:w-8 ${
+        className={`grid h-6 w-6 place-items-center rounded-full border-2 transition md:h-7 md:w-7 ${
           selected ? "border-[#333333] bg-[#333333] text-white" : "border-[#9999b1] bg-white text-transparent"
         }`}
         aria-hidden="true"
       >
-        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
           <path d="M5 12.5L9.5 17L19 7.5" />
         </svg>
       </span>
@@ -166,37 +166,37 @@ export function AttackerSelectionIndicator({
 
   return (
     <span
-      className={`grid h-7 w-7 place-items-center rounded-full border-2 transition md:h-8 md:w-8 ${
+      className={`grid h-6 w-6 place-items-center rounded-full border-2 transition md:h-7 md:w-7 ${
         selected ? "border-[#333333]" : "border-[#9999b1]"
       }`}
       aria-hidden="true"
     >
-      <span className={`h-3 w-3 rounded-full transition md:h-3.5 md:w-3.5 ${selected ? "bg-[#333333]" : "bg-transparent"}`} />
+      <span className={`h-2.5 w-2.5 rounded-full transition md:h-3 md:w-3 ${selected ? "bg-[#333333]" : "bg-transparent"}`} />
     </span>
   );
 }
 
 export function StepHeroHeader({ title, description }: { title: string; description: string }) {
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-[28px] font-bold text-black md:text-[32px]">{title}</h2>
-      <p className="text-[16px] leading-[1.8] text-[#9999b1] md:text-[20px]">{description}</p>
+    <div className="flex flex-col gap-1.5">
+      <h2 className="text-[22px] font-bold text-black md:text-[26px]">{title}</h2>
+      <p className="text-[13px] leading-[1.8] text-[#9999b1] md:text-[16px]">{description}</p>
     </div>
   );
 }
 
 export function SectionDivider({ label }: { label: string }) {
   return (
-    <div className="relative py-2">
+    <div className="relative py-1.5">
       <div className="absolute inset-0 border-b border-[#d9d9d9]" />
-      <div className="relative inline-flex bg-white pr-4 text-[22px] font-bold text-black md:text-[24px]">{label}</div>
+      <div className="relative inline-flex bg-white pr-3 text-[18px] font-bold text-black md:text-[19px]">{label}</div>
     </div>
   );
 }
 
 export function FieldTitle({ children, quiet = false }: { children: ReactNode; quiet?: boolean }) {
   return (
-    <div className={`text-[20px] font-bold md:text-[24px] ${quiet ? "text-[#9999b1]" : "text-black"}`}>{children}</div>
+    <div className={`text-[16px] font-bold md:text-[19px] ${quiet ? "text-[#9999b1]" : "text-black"}`}>{children}</div>
   );
 }
 
@@ -210,7 +210,7 @@ export function CreateFieldBox({
   padded?: boolean;
 }) {
   return (
-    <FieldShell variant="create" className={`${padded ? "px-4 py-4 md:px-5 md:py-4" : "p-0"} ${className}`}>
+    <FieldShell variant="create" className={`${padded ? "px-3 py-3 md:px-4 md:py-3" : "p-0"} ${className}`}>
       {children}
     </FieldShell>
   );
@@ -253,9 +253,9 @@ export function BottomActionButtons({
   const primaryLabel = currentStep < 3 ? "次へ" : "記録申請";
 
   return (
-    <div className="mx-auto flex w-full max-w-[500px] flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-[400px] flex-col gap-3">
       {currentStep === 3 ? (
-        <div className="flex flex-col gap-4 md:flex-row">
+        <div className="flex flex-col gap-3 md:flex-row">
           <Button
             onClick={onSave}
             variant="secondary"
