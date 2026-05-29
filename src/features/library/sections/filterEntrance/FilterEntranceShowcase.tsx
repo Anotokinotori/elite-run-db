@@ -9,11 +9,13 @@ export function FilterEntranceShowcase({
   activeKey,
   activeSelectionCounts,
   hasActiveSearchFilters,
+  selectedFilterSummaryLabels,
   onPanelClick,
 }: {
   activeKey: SelectableFilterKey | null;
   activeSelectionCounts: Record<SelectableFilterKey, number>;
   hasActiveSearchFilters: boolean;
+  selectedFilterSummaryLabels: string[];
   onPanelClick: (key: LibraryFilterKey) => void;
 }) {
   const scaleAreaRef = useRef<HTMLDivElement | null>(null);
@@ -65,8 +67,20 @@ export function FilterEntranceShowcase({
           </div>
         </div>
       </div>
+      {selectedFilterSummaryLabels.length > 0 ? (
+        <div className="selected-filter-summary" aria-live="polite">
+          <span className="selected-filter-summary-label">選択中の条件：</span>
+          <span className="selected-filter-summary-list">
+            {selectedFilterSummaryLabels.map((label, index) => (
+              <span key={`${label}-${index}`} className="selected-filter-summary-item">
+                {label}
+              </span>
+            ))}
+          </span>
+        </div>
+      ) : null}
       {hasActiveSearchFilters ? (
-        <div className="mt-[26px] flex w-full justify-center sm:mt-[30px]">
+        <div className={selectedFilterSummaryLabels.length > 0 ? "mt-[18px] flex w-full justify-center sm:mt-[22px]" : "mt-[26px] flex w-full justify-center sm:mt-[30px]"}>
           <button
             type="button"
             className="library-filter-submit group mx-auto flex w-fit items-center justify-center gap-[16px] text-[#050505] transition duration-200 hover:-translate-y-[1px] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111116]/50"
@@ -148,6 +162,9 @@ function FilterEntranceSummaryCard({
         <div className="absolute left-[-2px] top-[-5px] z-20 font-['Arial_Narrow',Arial,sans-serif] text-[64px] font-black leading-[0.78] tracking-[0] text-white/92">
           {item.no}
         </div>
+        <span className="entrance-plus" aria-hidden="true">
+          <PlusIcon />
+        </span>
 
         {!isDesktop ? (
           <div className="absolute left-[86px] top-[25px] z-20 flex max-w-[150px] flex-col items-start">
@@ -193,6 +210,14 @@ function FilterEntranceSummaryCard({
         </div>
       ) : null}
     </button>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg className="entrance-plus-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
   );
 }
 

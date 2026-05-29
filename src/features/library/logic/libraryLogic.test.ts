@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { addRecentRunId, upsertLibrarySearchHistory, type LibrarySearchHistoryEntry } from "./actionStorage";
-import { cloneLibrarySearchFilters, countActiveLibraryFilterSelections, createEmptyLibrarySearchFilters, getFirstActivePanelFromFilters } from "./searchFilters";
+import {
+  buildSelectedFilterSummaryLabels,
+  cloneLibrarySearchFilters,
+  countActiveLibraryFilterSelections,
+  createEmptyLibrarySearchFilters,
+  getFirstActivePanelFromFilters,
+} from "./searchFilters";
 
 describe("library action storage logic", () => {
   it("records recent run ids without duplicates and ignores unknown ids", () => {
@@ -104,5 +110,48 @@ describe("library search filter logic", () => {
       category: 2,
       tag: 2,
     });
+  });
+
+  it("builds selected filter summary labels in entrance order", () => {
+    const filters = createEmptyLibrarySearchFilters();
+    filters.characterFilters.partyCharacters.includeIds.push("chasca");
+    filters.characterFilters.partyCharacters.excludeIds.push("missing-character");
+    filters.characterFilters.mainAttackers.includeIds.push("mav");
+    filters.characterFilters.mainAttackers.excludeIds.push("amber");
+    filters.buildFilters.weaponIds.include.push("favoniusWarbow");
+    filters.buildFilters.weaponIds.exclude.push("missing-weapon");
+    filters.buildFilters.costBracket = 1;
+    filters.buildFilters.charCostRange = { min: 0, max: 12 };
+    filters.buildFilters.weaponCostRange = { min: 0, max: 3 };
+    filters.buildFilters.fiveStarWeaponCountRange = { min: 0, max: 2 };
+    filters.buildFilters.maxConstellation = 1;
+    filters.buildFilters.maxFiveStarRefinement = 3;
+    filters.categoryFilters.ruleset = "高難度";
+    filters.categoryFilters.version = "5.6";
+    filters.categoryFilters.playStyle = "4人マルチ";
+    filters.categoryFilters.food = "なし";
+    filters.categoryFilters.device = "PC";
+    filters.selectedTags.push("OffMeta");
+
+    expect(buildSelectedFilterSummaryLabels(filters)).toEqual([
+      "編成キャラ: Chasca",
+      "編成キャラ除外: missing-character",
+      "メイン: Mavuika",
+      "メイン除外: Amber",
+      "武器: Favonius Warbow",
+      "武器除外: missing-weapon",
+      "コスト帯: Low",
+      "キャラCost: 0-12",
+      "武器Cost: 0-3",
+      "星5武器数: 0-2",
+      "最大凸: C1",
+      "最大精錬: R3",
+      "カテゴリ: 高難度",
+      "期間: 5.6",
+      "人数: 4人マルチ",
+      "飯バフ: なし",
+      "端末: PC",
+      "タグ: OffMeta",
+    ]);
   });
 });
