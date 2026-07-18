@@ -1,3 +1,4 @@
+import { characterDb, weaponDb, type Bracket } from "../../../data/mockRuns";
 import { cloneHomeFilterState, createEmptyHomeFilterState } from "../../home/logic";
 import {
   LIBRARY_BUILD_RANGE_LIMITS,
@@ -112,6 +113,82 @@ export function countActiveLibraryFilterSelections(filters: LibrarySearchFilters
     category: countActiveCategoryFilterFields(filters.categoryFilters),
     tag: filters.selectedTags.length,
   };
+}
+
+const COST_BRACKET_SUMMARY_LABELS: Record<Bracket, string> = {
+  1: "Low",
+  2: "Middle",
+  3: "High",
+  4: "Unlimited",
+};
+
+export function buildSelectedFilterSummaryLabels(filters: LibrarySearchFilters): string[] {
+  const labels: string[] = [];
+
+  filters.characterFilters.partyCharacters.includeIds.forEach((id) => {
+    labels.push(`編成キャラ: ${characterDb[id]?.name ?? id}`);
+  });
+  filters.characterFilters.partyCharacters.excludeIds.forEach((id) => {
+    labels.push(`編成キャラ除外: ${characterDb[id]?.name ?? id}`);
+  });
+  filters.characterFilters.mainAttackers.includeIds.forEach((id) => {
+    labels.push(`メイン: ${characterDb[id]?.name ?? id}`);
+  });
+  filters.characterFilters.mainAttackers.excludeIds.forEach((id) => {
+    labels.push(`メイン除外: ${characterDb[id]?.name ?? id}`);
+  });
+
+  filters.buildFilters.weaponIds.include.forEach((id) => {
+    labels.push(`武器: ${weaponDb[id]?.name ?? id}`);
+  });
+  filters.buildFilters.weaponIds.exclude.forEach((id) => {
+    labels.push(`武器除外: ${weaponDb[id]?.name ?? id}`);
+  });
+
+  if (filters.buildFilters.costBracket !== null) {
+    labels.push(`コスト帯: ${COST_BRACKET_SUMMARY_LABELS[filters.buildFilters.costBracket]}`);
+  }
+  if (!isDefaultRange(filters.buildFilters.charCostRange, LIBRARY_BUILD_RANGE_LIMITS.charCost)) {
+    labels.push(`キャラCost: ${formatSummaryRange(filters.buildFilters.charCostRange)}`);
+  }
+  if (!isDefaultRange(filters.buildFilters.weaponCostRange, LIBRARY_BUILD_RANGE_LIMITS.weaponCost)) {
+    labels.push(`武器Cost: ${formatSummaryRange(filters.buildFilters.weaponCostRange)}`);
+  }
+  if (!isDefaultRange(filters.buildFilters.fiveStarWeaponCountRange, LIBRARY_BUILD_RANGE_LIMITS.fiveStarWeaponCount)) {
+    labels.push(`星5武器数: ${formatSummaryRange(filters.buildFilters.fiveStarWeaponCountRange)}`);
+  }
+  if (filters.buildFilters.maxConstellation !== null) {
+    labels.push(`最大凸: C${filters.buildFilters.maxConstellation}`);
+  }
+  if (filters.buildFilters.maxFiveStarRefinement !== null) {
+    labels.push(`最大精錬: R${filters.buildFilters.maxFiveStarRefinement}`);
+  }
+
+  if (filters.categoryFilters.ruleset) {
+    labels.push(`カテゴリ: ${filters.categoryFilters.ruleset}`);
+  }
+  if (filters.categoryFilters.version) {
+    labels.push(`期間: ${filters.categoryFilters.version}`);
+  }
+  if (filters.categoryFilters.playStyle) {
+    labels.push(`人数: ${filters.categoryFilters.playStyle}`);
+  }
+  if (filters.categoryFilters.food) {
+    labels.push(`飯バフ: ${filters.categoryFilters.food}`);
+  }
+  if (filters.categoryFilters.device) {
+    labels.push(`端末: ${filters.categoryFilters.device}`);
+  }
+
+  filters.selectedTags.forEach((tag) => {
+    labels.push(`タグ: ${tag}`);
+  });
+
+  return labels;
+}
+
+function formatSummaryRange(range: NumericRange) {
+  return `${range.min}-${range.max}`;
 }
 
 function countActiveCostFilterFields(filters: LibraryBuildFilterState) {

@@ -151,6 +151,12 @@ content.
   `$webapp-testing`, `$gh-fix-ci`, `$verification-before-completion`,
   `$grill-with-docs`, `$supabase`, `$supabase-postgres-best-practices`,
   `$security-threat-model`, or `$skill-scanner`.
+- Do not use external PR-publishing Skills such as `github:yeet` for this
+  repository. Their generic PR title/body conventions can conflict with the
+  repo requirement that PR titles and bodies be written naturally in Japanese.
+  For PR work, follow `AGENTS.md` directly: inspect the diff, stage only the
+  intended files, write a Japanese PR title/body, and avoid tool-added prefixes
+  such as `[codex]`.
 - Mention repo-local Skills directly from this repo, for example:
   `$elite-run-supabase-rls-security`,
   `$elite-run-admin-moderation-security`, or
